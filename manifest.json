@@ -1,0 +1,19 @@
+{
+  "name": "루닉스냅 예약 매니저",
+  "short_name": "루닉스냅",
+  "description": "RUNIQ Snap 예약문의 자동파싱 및 캘린더 일정관리 앱",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#111827",
+  "theme_color": "#111827",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
