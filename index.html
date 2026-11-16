@@ -36,8 +36,8 @@ main{padding:12px;display:flex;flex-direction:column;gap:12px}
 .inp:focus{outline:0;border-color:var(--ink);background:#fff}
 label{display:block;font-size:12px;font-weight:800;margin:10px 0 4px;color:#334155}
 .tag{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:99px;font-size:11px;font-weight:800;border:1px solid}
-.t-q{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}.t-b{background:#fffbeb;color:#92400e;border-color:#fcd34d}.t-a{background:#ecfdf5;color:#065f46;border-color:#6ee7b7}.t-x{background:#f1f5f9;color:#64748b;border-color:var(--ln)}
-.on-q{background:var(--q);color:#fff}.on-b{background:var(--b);color:var(--ink)}.on-a{background:var(--a);color:#fff}.on-x{background:#475569;color:#fff}.on{background:var(--ink)!important;color:#fcd34d!important;border-color:var(--ink)!important}
+.t-q{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}.t-b{background:#fffbeb;color:#92400e;border-color:#fcd34d}.t-a{background:#ecfdf5;color:#065f46;border-color:#6ee7b7}.t-x{background:#f1f5f9;color:#64748b;border-color:var(--ln)}.t-r{background:#fff1f2;color:#be123c;border-color:#fecdd3}
+.on-q{background:var(--q);color:#fff}.on-r{background:#e11d48;color:#fff}.on-b{background:var(--b);color:var(--ink)}.on-a{background:var(--a);color:#fff}.on-x{background:#475569;color:#fff}.on{background:var(--ink)!important;color:#fcd34d!important;border-color:var(--ink)!important}
 .wk{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;font-size:11px;font-weight:700;color:var(--mut);margin-bottom:4px}
 .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
 .cell{min-height:62px;min-width:0;padding:3px;border:1px solid #f1f5f9;border-radius:10px;background:#fff;text-align:left;overflow:hidden}
@@ -110,6 +110,7 @@ nav b{position:absolute;top:1px;right:22%;background:var(--b);color:var(--ink);f
   <section class="c">
     <div id="pipe" class="scroll" style="margin-bottom:8px"></div>
     <input id="q" class="inp" placeholder="🔍 성함, 연락처, 장소, 상품, 결제방식 검색" oninput="renderInq()">
+    <div id="port-filter" class="scroll" style="margin-top:8px"></div>
   </section>
   <div id="inq-list" style="display:flex;flex-direction:column;gap:12px"></div>
 </main>
@@ -117,6 +118,11 @@ nav b{position:absolute;top:1px;right:22%;background:var(--b);color:var(--ink);f
 <!-- TAB 3 : 현황/설정 -->
 <main id="v-set" class="hide">
   <section class="c"><h2>📊 예약 및 매출 현황</h2><p id="st-label"></p><div id="stats" class="g2" style="margin:10px 0"></div><div id="cats" class="box"></div></section>
+  <section class="c">
+    <div class="row"><div><h2>💵 금액 현황</h2><p id="money-label"></p></div><div class="row" style="gap:4px"><button id="ms-m" class="btn sm" onclick="setMoneyScope('month')">이번 달</button><button id="ms-a" class="btn sm" onclick="setMoneyScope('all')">전체</button></div></div>
+    <div id="money" style="margin-top:10px"></div>
+    <div id="port-stats" class="box" style="margin-top:10px"></div>
+  </section>
   <section class="c"><h2>💰 잔금 미수 목록</h2><p>예약 확정(입금후) 후 잔금을 아직 못 받은 건</p><div id="unpaid" style="margin-top:8px"></div></section>
   <section class="c">
     <h2>💬 카톡 안내 멘트 템플릿</h2><p>변수를 누르면 커서 위치에 들어가고, 복사할 때 고객 정보로 자동 치환됩니다.</p>
@@ -160,6 +166,7 @@ nav b{position:absolute;top:1px;right:22%;background:var(--b);color:var(--ink);f
     <div class="g2"><div><label>고객명 *</label><input id="f-name" class="inp" required placeholder="김지현 & 박준호"></div><div><label>연락처</label><input id="f-phone" class="inp" type="tel" placeholder="010-0000-0000"></div></div>
     <div class="g2"><div><label>예약상품</label><select id="f-cat" class="inp"></select></div><div><label>예식장소</label><input id="f-venue" class="inp" placeholder="예: 남원새생명교회"></div></div>
     <label>💳 결제방식</label><div class="g4" id="f-paychips" style="margin-bottom:6px"></div><input id="f-pay" class="inp" placeholder="직접 입력">
+    <label>📸 포트폴리오 사용 동의</label><div id="f-port" class="g3"></div>
     <div class="box" style="margin-top:12px">
       <div style="align-items:center"><b>📅 날짜 선택</b><span class="row" style="gap:4px"><button type="button" class="btn sm" onclick="movePicker(-1)">◀</button><b id="pk-label"></b><button type="button" class="btn sm" onclick="movePicker(1)">▶</button></span></div>
       <div class="wk"><span class="sun">일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span class="sat">토</span></div>
@@ -197,7 +204,7 @@ const STATUSES = Object.keys(SK);
 const CATS = ['DVD','서브스냅','DVD + 서브스냅','본식 서브스냅','본식 DVD','야외 커플스냅','가족스냅','기타'];
 const PAYS = ['카드','계좌이체','현금영수증','미정'];
 const TIMES = ['11:00','12:00','13:00','14:00','15:00','16:00','17:00'];
-const VARS = ['성함','상품','예식일자','예식시간','예식장소','결제방식','총금액','계약금','잔금','입금기한','계좌정보'];
+const VARS = ['성함','상품','예식일자','예식시간','예식장소','결제방식','총금액','계약금','잔금','입금기한','계좌정보','포트폴리오'];
 
 const DEF = {
   bankInfo:'국민은행 123401-04-567890 (예금주: 루닉스냅)',
@@ -213,6 +220,7 @@ const DEF = {
 4. 예식시간:
 5. 결제방식:
 6. 연락처:
+7. 포트폴리오 사용 동의(동의/미동의):
 
 작성해서 보내주시면 일정 확인 후 계약금 안내 도와드리겠습니다.`,
   beforeDeposit:`[루닉스냅 예약 안내]
@@ -250,6 +258,8 @@ const DEF = {
 소중한 날 예쁘게 담아드리겠습니다. 감사합니다! - 루닉스냅`
 };
 
+const OLD_REQ=DEF.inquiryRequest.replace('7. 포트폴리오 사용 동의(동의/미동의):\n','');
+
 /* ---------- helpers ---------- */
 const pad = n => String(n).padStart(2,'0');
 const iso = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
@@ -282,6 +292,8 @@ let S = {inquiries:[], templates:{...DEF}};
 let activeTab='cal', calY=new Date().getFullYear(), calM=new Date().getMonth(), selDate=todayISO();
 let calFilter='all', inqFilter='전체', formStatus='문의접수', pkY=calY, pkM=calM, pkDate=selDate, lastTpl='t-before';
 
+let formPort='', portFilter='전체', moneyScope='month', sampleIdx=0;
+
 function samples(){
   const n=new Date(), p=`${n.getFullYear()}-${pad(n.getMonth()+1)}`;
   return [
@@ -292,7 +304,7 @@ function samples(){
 function load(){
   try{
     const raw=localStorage.getItem(KEY);
-    if(raw){ const p=JSON.parse(raw); S.inquiries=Array.isArray(p.inquiries)?p.inquiries:[]; S.templates={...DEF,...(p.templates||{})}; }
+    if(raw){ const p=JSON.parse(raw); S.inquiries=Array.isArray(p.inquiries)?p.inquiries:[]; S.templates={...DEF,...(p.templates||{})}; if(S.templates.inquiryRequest===OLD_REQ) S.templates.inquiryRequest=DEF.inquiryRequest; }
     else { S.inquiries=samples(); save(); }
   }catch(e){ console.error(e); S.inquiries=samples(); }
 }
@@ -387,6 +399,7 @@ function cardHTML(i){
     <div><span>예식일시</span><b>${kdate(i.date)} ${ktime(i.time)}${ddayBadge(i)}</b></div>
     <div><span>예식장소</span><b>${esc(i.venue||'장소 미정')}</b></div>
     <div><span>결제방식</span><b style="color:#4338ca">${esc(i.paymentMethod||'미정')}</b></div>
+    <div><span>포트폴리오</span><b>${portTag(i)}</b></div>
     <div style="border-top:1px solid var(--ln);margin-top:3px;padding-top:5px"><span>금액</span><b>${won(total)}원 <span style="color:#b45309">(계약금 ${won(dep)} · 잔금 ${won(bal)})</span></b></div>
     ${dueTxt}${balTxt}
   </div>
@@ -407,8 +420,11 @@ function renderInq(){
     return `<button class="btn sm ${inqFilter===s?'on':''}" onclick="inqFilter='${s}';renderInq()">${s} ${n}</button>`;
   }).join('');
   const q=($('q').value||'').trim().toLowerCase();
+  const pf=k=>k==='전체'?S.inquiries.length:S.inquiries.filter(i=>k==='미확인'?!i.portfolio:i.portfolio===k).length;
+  $('port-filter').innerHTML='<span style="font-size:11px;font-weight:800;color:var(--mut);align-self:center">📸</span>'+['전체','동의','미동의','미확인'].map(k=>`<button class="btn sm ${portFilter===k?'on':''}" onclick="portFilter='${k}';renderInq()">${k} ${pf(k)}</button>`).join('');
   const list=S.inquiries.filter(i=>inqFilter==='전체'||i.status===inqFilter)
-    .filter(i=>!q||[i.clientName,i.phone,i.venue,i.category,i.paymentMethod,i.date,i.notes].join(' ').toLowerCase().includes(q))
+    .filter(i=>portFilter==='전체'||(portFilter==='미확인'?!i.portfolio:i.portfolio===portFilter))
+    .filter(i=>!q||[i.clientName,i.phone,i.venue,i.category,i.paymentMethod,i.date,i.notes,i.portfolio?'포트폴리오'+i.portfolio:''].join(' ').toLowerCase().includes(q))
     .sort((a,b)=>(a.date||'').localeCompare(b.date||'')||(a.time||'').localeCompare(b.time||''));
   $('inq-list').innerHTML=list.length?list.map(cardHTML).join(''):`<div class="c" style="text-align:center;padding:30px"><b>표시할 예약문의가 없습니다</b><p style="margin:6px 0 12px">[+ 문의 추가]로 등록해 보세요</p><button class="btn dk" onclick="openInq()">+ 첫 문의 등록</button></div>`;
 }
@@ -424,7 +440,7 @@ function buildMsg(i,type){
   const tpl=type==='before'?S.templates.beforeDeposit:S.templates.afterDeposit;
   const total=Number(i.totalPrice||0), dep=Number(i.depositAmount||0), bal=Math.max(0,total-dep);
   const map={성함:i.clientName||'고객',고객명:i.clientName||'고객',상품:i.category||'DVD',예식일자:kdate(i.date),예식시간:ktime(i.time),예식장소:i.venue||'장소 미정',
-    결제방식:i.paymentMethod||'계좌이체',총금액:won(total),계약금:won(dep),잔금:won(bal),입금기한:i.dueDate?kdate(i.dueDate):'안내 시점 기준 3일 이내',계좌정보:S.templates.bankInfo||''};
+    결제방식:i.paymentMethod||'계좌이체',총금액:won(total),계약금:won(dep),잔금:won(bal),입금기한:i.dueDate?kdate(i.dueDate):'안내 시점 기준 3일 이내',계좌정보:S.templates.bankInfo||'',포트폴리오:i.portfolio||'미확인'};
   return String(tpl||'').replace(/\{([^{}]+)\}/g,(m,k)=>k in map?map[k]:m);
 }
 function copyMsg(id,type){
@@ -449,57 +465,312 @@ function pvCopy(){
 }
 
 /* ---------- kakao parser ---------- */
-function normDate(t){
-  let m=t.match(/(?:(20\d{2}|\d{2})\s*년\s*)?(\d{1,2})\s*월\s*(\d{1,2})\s*일?/);
-  if(m){ let y=m[1]?+m[1]:new Date().getFullYear(); if(y<100)y+=2000; const mo=+m[2],d=+m[3]; if(mo>=1&&mo<=12&&d>=1&&d<=31) return `${y}-${pad(mo)}-${pad(d)}`; }
-  m=t.match(/(20\d{2})[.\-\/]\s*(\d{1,2})[.\-\/]\s*(\d{1,2})/);
-  if(m){ const mo=+m[2],d=+m[3]; if(mo>=1&&mo<=12&&d>=1&&d<=31) return `${m[1]}-${pad(mo)}-${pad(d)}`; }
+const LBL={
+  prod:'예약\\s*상품|예약\\s*종류|상품|패키지',
+  name:'성\\s*함|성명|고객\\s*명|신부\\s*명|신랑\\s*명|이\\s*름|예약자\\s*명|예약자',
+  date:'예식\\s*일자|예식\\s*일시|예식\\s*날짜|예식\\s*일|촬영\\s*일자|촬영\\s*일시|촬영\\s*날짜|촬영\\s*일|결혼\\s*식?\\s*일자|결혼\\s*식?\\s*날짜|결혼\\s*식?\\s*일|일자|날짜|일시',
+  venue:'예식\\s*장소|예식\\s*장|촬영\\s*장소|웨딩\\s*홀|웨딩\\s*장소|결혼\\s*식?\\s*장소|장소|위치|홀',
+  time:'예식\\s*시간|예식\\s*시각|촬영\\s*시간|본식\\s*시간|시간|시각',
+  pay:'결제\\s*방식|결제\\s*방법|결제\\s*수단|결제',
+  phone:'연락처|전화\\s*번호|전화|휴대폰|핸드폰|핸폰|번호',
+  port:'(?:포트폴리오|촬영\\s*물|촬영\\s*본|SNS|인스타그램|인스타|홍보)[가-힣 ]{0,10}?(?:\\([^)\\n]{0,20}\\))?'
+};
+const KEYS=Object.keys(LBL);
+const LBL_RE=new RegExp('(?<![가-힣A-Za-z0-9])(?:\\d+\\s*[.)]\\s*|[•·*\\-]\\s*)?('+KEYS.map(k=>'(?:'+LBL[k]+')').join('|')+')\\s*[:：=]','g');
+const LBL_FULL=Object.fromEntries(KEYS.map(k=>[k,new RegExp('^(?:'+LBL[k]+')$')]));
+const PHONE_RE=/(?<!\d)(?:01[016789]|(?:\+?82[\s-]?)0?1[016789])[-.\s]?\d{3,4}[-.\s]?\d{4}(?!\d)/g;
+const VENUE_RE=/([가-힣A-Za-z0-9]{1,15}(?:웨딩홀|웨딩컨벤션|컨벤션|예식장|웨딩|교회|성당|호텔|채플|하우스|가든|스퀘어|타워|센터|리조트|회관|홀))/;
+
+function classifyLabel(l){ l=l.trim(); for(const k of KEYS) if(LBL_FULL[k].test(l)) return k; return null; }
+
+// "항목명: 값" 형태를 한 줄/여러 줄 어디서든 분리 (값은 다음 항목명 직전까지, 첫 줄만 사용)
+function extractLabelled(text){
+  const out={}, ms=[]; let m; LBL_RE.lastIndex=0;
+  while((m=LBL_RE.exec(text))){ const k=classifyLabel(m[1]); if(k) ms.push({k,start:m.index,end:LBL_RE.lastIndex}); }
+  ms.forEach((x,i)=>{
+    const seg=text.slice(x.end,i+1<ms.length?ms[i+1].start:text.length);
+    const v=seg.split(/\r?\n/)[0].trim().replace(/^[\-–:：=]+\s*/,'').replace(/[,;]+$/,'').trim();
+    if(v&&!(x.k in out)) out[x.k]=v;
+  });
+  return out;
+}
+// 콜론 없이 "성함 유가비" / "이름은 유가비" 처럼 쓴 줄
+function lineFallback(text,k){
+  const re=new RegExp('^\\s*(?:\\d+\\s*[.)]\\s*|[•·*\\-]\\s*)?(?:'+LBL[k]+')\\s*(?:은|는|이|가|-|–)?\\s+(\\S.*)$');
+  for(const line of text.split(/\r?\n/)){ const m=line.match(re); if(m) return m[1].trim(); }
   return '';
 }
-function normTime(t){
-  const pm=/오후|낮|저녁|pm/i.test(t), am=/오전|아침|am/i.test(t);
-  let m=t.match(/(\d{1,2})\s*시(?:\s*(\d{1,2})\s*분|\s*(반))?/), h,mi;
-  if(m){ h=+m[1]; mi=m[3]?30:(m[2]?+m[2]:0); }
-  else { m=t.match(/(\d{1,2})\s*[:：]\s*(\d{2})/); if(!m) return null; h=+m[1]; mi=+m[2]; }
-  if(pm&&h<12)h+=12; if(am&&h===12)h=0;
-  return {t24:`${pad(h)}:${pad(mi)}`,label:mi?`${h}시 ${mi}분`:`${h}시`};
+
+function normPhone(s){
+  let d=String(s).replace(/\D/g,'');
+  if(d.startsWith('82')&&d.length>=11) d='0'+d.slice(2).replace(/^0/,'');
+  if(d.length===11) return `${d.slice(0,3)}-${d.slice(3,7)}-${d.slice(7)}`;
+  if(d.length===10) return `${d.slice(0,3)}-${d.slice(3,6)}-${d.slice(6)}`;
+  return String(s).trim();
 }
+function normProd(v){
+  const raw=String(v||''); if(!raw.trim()||/택\s*1/.test(raw)) return '';
+  const s=raw.trim(), dvd=/dvd/i.test(s), snap=/스냅/.test(s);
+  if(dvd&&snap) return /\+|&|와|및|,|랑|과/.test(s)?'DVD + 서브스냅':'';   // "DVD / 서브스냅" = 아직 선택 안 한 양식
+  if(dvd) return /본식/.test(s)?'본식 DVD':'DVD';
+  if(snap) return /본식/.test(s)?'본식 서브스냅':/야외|커플/.test(s)?'야외 커플스냅':/가족/.test(s)?'가족스냅':'서브스냅';
+  return s;
+}
+function normPay(v){
+  const s=String(v).trim(), hit=[];
+  if(/현금\s*영수증/.test(s)) hit.push('현금영수증'); else if(/현금/.test(s)) hit.push('현금');
+  if(/카드/.test(s)) hit.push('카드');
+  if(/계좌|이체|무통장|입금/.test(s)) hit.push('계좌이체');
+  return hit.length===1&&s.length<=12?hit[0]:s;
+}
+function cleanName(v){
+  let s=String(v).trim();
+  const g=s.match(/신랑\s*[:：]?\s*([가-힣]{2,4})/), b=s.match(/신부\s*[:：]?\s*([가-힣]{2,4})/);
+  if(g&&b) return `${g[1]} & ${b[1]}`;
+  s=s.replace(/^(?:신랑|신부)\s*[:：]?\s*/,'').replace(/\([^)]*\)/g,'').replace(/\s*(?:입니다|이에요|예요|이구요|이고요|이요|입니당)\.?$/,'').replace(/\s*님$/,'').trim();
+  if(/^[가-힣]{2,4}\s*[\/,·]\s*[가-힣]{2,4}$/.test(s)) s=s.replace(/\s*[\/,·]\s*/,' & ');
+  return s;
+}
+function cleanVenue(v){ return String(v).replace(/\s*(?:입니다|이에요|예요|이구요|이고요|이요|에서\s*(?:해요|합니다|할게요|하려고\s*해요)?)\.?$/,'').trim(); }
+function parseConsent(v){
+  v=String(v||'').trim(); if(!v) return '';
+  if(/동의\s*[\/|]\s*미\s*동의|미\s*동의\s*[\/|]\s*동의|택\s*1/.test(v)) return '';   // 양식 그대로(미선택)
+  if(/미\s*동의|비\s*동의|동의\s*(?:안|않|하지|불가|거부|X|x)|거부|불가|원치|싫|아니|반대|(?:^|\s)no(?:\s|$)|^[xX✗✕]$/i.test(v)) return '미동의';
+  if(/동의|허용|가능|괜찮|좋아|좋습니다|문제\s*없|(?:^|\s)(?:ok|okay|yes)(?:\s|$)|(?:^|\s)(?:네|넵|예)(?:\s|$|[.!~])|^[oO○✓✔]$/i.test(v)) return '동의';
+  return '';
+}
+
+// 날짜: 5.21 27년 / 27.5.21 / 27년 5월 21일 / 2027-05-21 / 5/21 / 내년 5월 21일 / 요일로 연도 보정
+function parseDateSmart(raw,labelled){
+  if(!raw) return null;
+  const now=new Date(), today=new Date(now.getFullYear(),now.getMonth(),now.getDate()), cy=now.getFullYear();
+  const t=String(raw);
+  const wm=t.match(/([일월화수목금토])\s*요일|[\(\[]\s*([일월화수목금토])\s*[\)\]]/);
+  const wd=wm?'일월화수목금토'.indexOf(wm[1]||wm[2]):-1;
+  const ok=(y,m,d)=>{ const x=new Date(y,m-1,d); return m>=1&&m<=12&&d>=1&&d<=31&&x.getFullYear()===y&&x.getMonth()===m-1&&x.getDate()===d; };
+  const Y2=v=>{ v=+v; return v<100?2000+v:v; };
+  let y=null,m=null,d=null,explicit=false,mm;
+  if((mm=t.match(/(?<!\d)(20\d{2})\s*[년.\-\/]\s*(\d{1,2})\s*[월.\-\/]\s*(\d{1,2})/))){ y=+mm[1];m=+mm[2];d=+mm[3];explicit=true; }
+  else if((mm=t.match(/(?<!\d)(\d{2})\s*년\s*(\d{1,2})\s*월\s*(\d{1,2})/))){ y=Y2(mm[1]);m=+mm[2];d=+mm[3];explicit=true; }
+  else if((mm=t.match(/(?<![\d.])(\d{1,2})\s*[.\/\-]\s*(\d{1,2})\s*[.\/\-]\s*(\d{1,2})(?![\d.])/))){
+    const a=+mm[1],b=+mm[2],c=+mm[3], cands=[];
+    if(ok(Y2(a),b,c)) cands.push([Y2(a),b,c]);      // 27.5.21 → YY.M.D
+    if(ok(Y2(c),a,b)) cands.push([Y2(c),a,b]);      // 5.21.27 → M.D.YY
+    const pick=cands.find(x=>new Date(x[0],x[1]-1,x[2])>=today)||cands[0];
+    if(pick){ [y,m,d]=pick; explicit=true; }
+  } else {
+    let md=t.match(/(\d{1,2})\s*월\s*(\d{1,2})\s*일?/);
+    if(!md) md=t.match(labelled?/(?<![\d.])(\d{1,2})\s*[.\/\-]\s*(\d{1,2})(?![\d.:\-])/:/(?<![\d.])(\d{1,2})\s*[.\/]\s*(\d{1,2})(?![\d.:])/);
+    if(md){
+      m=+md[1]; d=+md[2];
+      const ym=t.match(/(?<!\d)(20\d{2}|\d{2})\s*년/);
+      if(ym){ y=Y2(ym[1]); explicit=true; }
+      else if(/내년/.test(t)){ y=cy+1; explicit=true; }
+      else if(/후년/.test(t)){ y=cy+2; explicit=true; }
+      else if(/올해|금년/.test(t)){ y=cy; explicit=true; }
+    }
+  }
+  if(m==null) return null;
+  let inferred=false, wdMismatch=false;
+  if(!explicit){
+    inferred=true; y=null;
+    for(let k=0;k<4;k++){ const yy=cy+k; if(!ok(yy,m,d)) continue; const dt=new Date(yy,m-1,d); if(dt<today) continue; if(wd>=0&&dt.getDay()!==wd) continue; y=yy; break; }
+    if(y==null){
+      for(let k=0;k<4;k++){ const yy=cy+k; if(ok(yy,m,d)&&new Date(yy,m-1,d)>=today){ y=yy; break; } }
+      if(y!=null&&wd>=0) wdMismatch=true;
+    }
+    if(y==null) return null;
+  } else {
+    if(!ok(y,m,d)) return null;
+    if(wd>=0&&new Date(y,m-1,d).getDay()!==wd) wdMismatch=true;
+  }
+  const dt=new Date(y,m-1,d);
+  return {iso:`${y}-${pad(m)}-${pad(d)}`,inferred,wdMismatch,past:dt<today,weekday:DOW[dt.getDay()],weekdayGiven:wd>=0};
+}
+
+// 시간: 오후 1시 반 / 1시30분 / 13:30 / 열두시 / 1pm / 오전·오후 없으면 1~8시는 오후로 추정
+function parseTimeSmart(raw,labelled){
+  if(!raw) return null;
+  let t=String(raw);
+  const KN={열두:12,열한:11,열:10,아홉:9,여덟:8,일곱:7,여섯:6,다섯:5,네:4,세:3,두:2,한:1};
+  t=t.replace(/(열두|열한|열|아홉|여덟|일곱|여섯|다섯|네|세|두|한)\s*시(?!간)/g,(x,k)=>KN[k]+'시').replace(/정오/,'낮 12시');
+  const pm=/오후|낮|저녁|밤|(?<![a-z])p\.?m(?![a-z])/i.test(t), am=/오전|아침|새벽|(?<![a-z])a\.?m(?![a-z])/i.test(t);
+  let h=null,mi=0,mm;
+  if((mm=t.match(/(\d{1,2})\s*시(?!간)\s*(?:(\d{1,2})\s*분|(반))?/))){ h=+mm[1]; mi=mm[3]?30:(mm[2]?+mm[2]:0); }
+  else if((mm=t.match(/(?<![\d.])(\d{1,2})\s*[:：]\s*(\d{2})(?!\d)/))){ h=+mm[1]; mi=+mm[2]; }
+  else if((mm=t.match(/(?<![\d.])(\d{1,2})\s*(?:am|pm|a\.m\.|p\.m\.)/i))){ h=+mm[1]; }
+  else if(labelled&&(mm=t.match(/(?<![\d.])(\d{1,2})\.(\d{2})(?![\d.])/))){ h=+mm[1]; mi=+mm[2]; }
+  else if(labelled&&(mm=t.match(/^\s*(\d{2})(\d{2})\s*$/))){ h=+mm[1]; mi=+mm[2]; }
+  else if(labelled&&(mm=t.match(/^\s*(\d{1,2})\s*$/))){ h=+mm[1]; }
+  if(h==null||h>23||mi>59) return null;
+  let guessed=false;
+  if(pm&&h<12) h+=12;
+  else if(am&&h===12) h=0;
+  else if(!pm&&!am&&h>=1&&h<=8){ h+=12; guessed=true; }
+  return {t24:`${pad(h)}:${pad(mi)}`,label:`${h<12?'오전':'오후'} ${(h%12)||12}시${mi?` ${mi}분`:''}`,guessed};
+}
+
+function parseKakaoText(raw){
+  const t=raw.replace(/[​-‍﻿]/g,'').replace(/ /g,' ');
+  const lab=extractLabelled(t);
+  for(const k of ['prod','name','date','venue','time','pay','phone']) if(!lab[k]){ const v=lineFallback(t,k); if(v) lab[k]=v; }
+  let un=t; for(const v of Object.values(lab)) un=un.replace(v,' ');
+  const unNP=un.replace(PHONE_RE,' ');
+  const r={};
+
+  // 상품
+  let p=lab.prod?normProd(lab.prod):'';
+  if(!p){ const m=unNP.match(/[^\n]*(?:dvd|스냅)[^\n]*/i); if(m) p=normProd(m[0]); }
+  if(p) r.prod=p;
+  // 성함
+  if(lab.name) r.name=cleanName(lab.name);
+  else { const m=t.match(/(?:성함|이름|예약자)\s*(?:은|는|이|가)?\s*[:：]?\s*([가-힣]{2,4}?)(?=입니다|이에요|예요|이구요|이고요|이요|입니당|\s|$|[,.!~])/); if(m) r.name=m[1]; }
+  // 연락처
+  let ph=lab.phone?normPhone(lab.phone):'';
+  if(ph.replace(/\D/g,'').length<9){ const m=t.match(PHONE_RE); ph=m?normPhone(m[0]):''; }
+  if(ph) r.phone=ph;
+  // 날짜 / 시간
+  let di=lab.date?parseDateSmart(lab.date,true):null; if(!di) di=parseDateSmart(unNP,false); if(di) r.date=di;
+  let ti=lab.time?parseTimeSmart(lab.time,true):null; if(!ti) ti=parseTimeSmart(unNP,false); if(ti) r.time=ti;
+  // 장소
+  if(lab.venue) r.venue=cleanVenue(lab.venue);
+  else { const m=unNP.match(VENUE_RE); if(m){ r.venue=m[1]; r.venueGuess=true; } }
+  // 결제
+  if(lab.pay) r.pay=normPay(lab.pay);
+  else {
+    const hits=[]; if(/현금\s*영수증/.test(unNP)) hits.push('현금영수증'); if(/카드/.test(unNP)) hits.push('카드'); if(/계좌|이체|무통장/.test(unNP)) hits.push('계좌이체');
+    if(hits.length===1){ r.pay=hits[0]; r.payGuess=true; }
+  }
+  // 포트폴리오 동의
+  let pc=lab.port?parseConsent(lab.port):'';
+  if(!pc){ for(const line of t.split(/\r?\n/)){ if(/포트폴리오|SNS|인스타|홍보|게시|촬영물|촬영본/.test(line)){ const c=parseConsent(line); if(c){ pc=c; break; } } } }
+  if(pc) r.port=pc;
+  return r;
+}
+
 function setCat(v){
   const s=$('f-cat'), f=Array.from(s.options).find(o=>o.value.toLowerCase()===v.toLowerCase());
   if(f){ s.value=f.value; return; }
   const o=document.createElement('option'); o.value=o.textContent=v; s.insertBefore(o,s.firstChild); s.value=v;
 }
+
 function parseKakao(raw){
   const badge=$('pbadge');
   if(!raw||!raw.trim()){ badge.classList.add('hide'); return; }
-  const t=raw.replace(/[\u200B-\u200D\uFEFF]/g,'').replace(/\u00A0/g,' ');
-  const L=t.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
-  const pick=re=>{ for(const l of L){ const m=l.match(re); if(m&&m[1].trim()) return m[1].trim(); } return ''; };
-  const P='^(?:\\d+[.)]\\s*)?';
-  let prod=pick(/(?:예약\s*상품|상품)\s*[:：]\s*(.+)/); if(/택\s*1/.test(prod)) prod='';
-  const name=pick(new RegExp(P+'(?:성함|고객명|신부명|신랑명|이름)\\s*[:：]\\s*(.+)'));
-  const dateRaw=pick(new RegExp(P+'(?:예식\\s*일자|예식\\s*날짜|촬영\\s*일자|촬영\\s*날짜|일자|날짜)\\s*[:：]\\s*(.+)'));
-  const date=normDate(dateRaw)||normDate(t);
-  const venue=pick(new RegExp(P+'(?:예식\\s*장소|촬영\\s*장소|웨딩홀|장소|홀)\\s*[:：]\\s*(.+)'));
-  const time=normTime(pick(new RegExp(P+'(?:예식\\s*시간|촬영\\s*시간|시간)\\s*[:：]\\s*(.+)'))||'');
-  const pay=pick(new RegExp(P+'(?:결제\\s*방식|결제\\s*방법|결제)\\s*[:：]\\s*(.+)'));
-  let phone=pick(new RegExp(P+'(?:연락처|전화번호|휴대폰|핸드폰)\\s*[:：]\\s*(.+)'));
-  if(!phone){ const m=t.match(/01[016789][-.\s]?\d{3,4}[-.\s]?\d{4}/); if(m) phone=m[0]; }
-  const sum=[];
-  if(prod){ setCat(prod); sum.push(prod); }
-  if(name){ $('f-name').value=name; sum.push(name); }
-  if(phone){ $('f-phone').value=phone; sum.push(phone); }
-  if(date){ pkDate=date; $('f-date').value=date; const [y,m]=date.split('-').map(Number); pkY=y; pkM=m-1; renderPicker(); sum.push(date); }
-  if(time){ $('f-time').value=time.t24; markTime(); sum.push(time.label); }
-  if(venue){ $('f-venue').value=venue; sum.push(venue); }
-  if(pay){ setPay(pay); sum.push(pay); }
-  badge.classList.toggle('hide',!sum.length);
-  if(sum.length) badge.textContent='✅ 인식 완료: '+sum.join(' · ');
+  const r=parseKakaoText(raw), items=[], warns=[], miss=[];
+  if(r.prod){ setCat(r.prod); items.push(['상품',r.prod]); } else miss.push('예약상품');
+  if(r.name){ $('f-name').value=r.name; items.push(['성함',r.name]); } else miss.push('성함');
+  if(r.phone){ $('f-phone').value=r.phone; items.push(['연락처',r.phone]); } else miss.push('연락처');
+  if(r.date){
+    const d=r.date; pkDate=d.iso; $('f-date').value=d.iso;
+    const [y,m]=d.iso.split('-').map(Number); pkY=y; pkM=m-1; renderPicker();
+    items.push(['날짜',`${d.iso} (${d.weekday})`]);
+    if(d.past) warns.push('지난 날짜예요');
+    if(d.wdMismatch) warns.push(`입력한 요일과 달라요 (실제 ${d.weekday}요일)`);
+    if(d.inferred&&!d.weekdayGiven) warns.push(`연도가 없어 ${y}년으로 추정`);
+    const eid=$('f-id').value, ex=S.inquiries.filter(i=>i.date===d.iso&&i.status!=='취소'&&i.id!==eid);
+    if(ex.length) warns.push(`같은 날 기존 예약 ${ex.length}건 (${ex.map(e=>e.clientName).join(', ')})`);
+  } else miss.push('예식일자');
+  if(r.time){ $('f-time').value=r.time.t24; markTime(); items.push(['시간',r.time.label]); if(r.time.guessed) warns.push('오전/오후 표시가 없어 오후로 추정'); } else miss.push('예식시간');
+  if(r.venue){ $('f-venue').value=r.venue; items.push(['장소',r.venue]); if(r.venueGuess) warns.push('장소는 추정값이에요, 확인해 주세요'); } else miss.push('예식장소');
+  if(r.pay){ setPay(r.pay); items.push(['결제',r.pay]); if(r.payGuess) warns.push('결제방식은 문장에서 추정'); } else miss.push('결제방식');
+  if(r.port){ setPort(r.port); items.push(['포트폴리오',r.port]); } else miss.push('포트폴리오 동의');
+  badge.classList.remove('hide');
+  if(!items.length){
+    badge.style.background='#64748b';
+    badge.textContent="인식된 항목이 없어요. '성함: ○○○' 처럼 항목명이 있는지 확인해 주세요.";
+    return;
+  }
+  let h=`<div>✅ 인식: ${items.map(([l,v])=>`<b>${l}</b> ${esc(v)}`).join(' · ')}</div>`;
+  if(warns.length) h+=`<div style="margin-top:4px">⚠️ ${warns.map(esc).join(' / ')}</div>`;
+  if(miss.length) h+=`<div style="margin-top:4px">❓ 직접 확인: ${miss.join(', ')}</div>`;
+  badge.style.background=(warns.length||miss.length)?'#b45309':'var(--a)';
+  badge.innerHTML=h;
 }
+
+const REPLY_SAMPLES=[
+`안녕하세요 😊
+📦 예약상품: DVD
+
+1. 성함: 유가비
+2. 예식일자: 2027년 2월 27일
+3. 예식장소: 남원새생명교회
+4. 예식시간: 12시 30분
+5. 결제방식: 카드
+6. 연락처: 010-1234-5678
+7. 포트폴리오 사용 동의(동의/미동의): 동의`,
+`📦 예약상품: 서브스냅
+
+1. 성함: 김하늘 / 박서준
+2. 예식일자: 5.21 27년
+3. 예식장소: 더채플앳청담
+4. 예식시간: 오후 1시 반
+5. 결제방식: 계좌이체
+6. 연락처: 01098765432
+7. 포트폴리오 사용 동의(동의/미동의): 미동의`,
+`예약상품: DVD+서브스냅
+성함: 이수빈입니다
+예식일자: 27.10.9 (토)
+예식장소: 인천 아시아드 웨딩컨벤션
+예식시간: 2시
+결제: 카드
+포트폴리오는 괜찮아요`,
+`안녕하세요 예약 문의드려요. 이름은 최민아이고요 28.3.18 서울숲 웨딩홀에서 오후 3시 30분에 합니다. 카드로 결제할게요 010 5555 6666`
+];
+
 function sampleReply(){
-  const s=`안녕하세요 😊\n📦 예약상품: DVD\n\n1. 성함: 유가비\n2. 예식일자: 2027년 2월 27일\n3. 예식장소: 남원새생명교회\n4. 예식시간: 12시 30분\n5. 결제방식: 카드\n6. 연락처: 010-1234-5678`;
-  $('parser').value=s; parseKakao(s); toast('🧪 예시 답장을 분석해 입력했습니다');
+  const n=sampleIdx%REPLY_SAMPLES.length, s=REPLY_SAMPLES[n]; sampleIdx++;
+  $('parser').value=s; parseKakao(s);
+  toast(`🧪 예시 ${n+1}/${REPLY_SAMPLES.length} 분석 완료 (다시 누르면 다른 예시)`);
 }
+
+/* ---------- 포트폴리오 동의 ---------- */
+function setPort(v){
+  formPort=v||'';
+  $('f-port').innerHTML=[['동의','☑️ 동의','a'],['미동의','⬜ 미동의','r'],['','❔ 미확인','']].map(([val,l,k])=>
+    `<button type="button" class="btn sm ${formPort===val?(k?'on-'+k:'on'):''}" onclick="setPort('${val}')">${l}</button>`).join('');
+}
+function portTag(i){
+  const v=i.portfolio||'', cls=v==='동의'?'t-a':v==='미동의'?'t-r':'t-x';
+  return `<button type="button" class="tag ${cls}" onclick="cyclePort('${i.id}')">📸 ${v||'미확인'}</button>`;
+}
+function cyclePort(id){
+  const i=S.inquiries.find(x=>x.id===id); if(!i) return;
+  const o=['','동의','미동의']; i.portfolio=o[(o.indexOf(i.portfolio||'')+1)%3];
+  save(); refresh(); toast(`📸 포트폴리오: ${i.portfolio||'미확인'}`);
+}
+
+/* ---------- 금액 현황 ---------- */
+function calcMoney(list){
+  let total=0,paid=0,bal=0,pend=0,n=0;
+  list.forEach(i=>{
+    const t=Number(i.totalPrice)||0;
+    if(i.status==='입금후'){
+      n++; total+=t; const dp=Math.min(Number(i.depositAmount)||0,t);
+      if(i.balancePaid) paid+=t; else { paid+=dp; bal+=t-dp; }
+    } else if(i.status==='입금전') pend+=t;
+  });
+  return {total,paid,bal,pend,n};
+}
+function setMoneyScope(s){ moneyScope=s; renderMoney(); }
+function renderMoney(){
+  const pre=`${calY}-${pad(calM+1)}`, act=S.inquiries.filter(i=>i.status!=='취소');
+  const list=moneyScope==='month'?act.filter(i=>(i.date||'').startsWith(pre)):act, m=calcMoney(list);
+  $('ms-m').className='btn sm '+(moneyScope==='month'?'on':''); $('ms-a').className='btn sm '+(moneyScope==='all'?'on':'');
+  $('money-label').textContent=moneyScope==='month'?`${calY}년 ${calM+1}월 예식 기준 · 입금후(확정) 건`:'전체 누적 · 입금후(확정) 건';
+  const pct=m.total?Math.round(m.paid/m.total*100):0;
+  const cell=(l,v,c,sub)=>`<div class="box" style="display:block;background:${c[0]};border-color:${c[1]}"><div style="color:${c[2]};font-weight:700">${l}</div><b style="font-size:17px;display:block;text-align:left;color:${c[3]}">${won(v)}원</b>${sub?`<div style="color:${c[2]};font-weight:700;font-size:11px">${sub}</div>`:''}</div>`;
+  $('money').innerHTML=`<div class="g2">`
+    +cell(`총금액 (확정 ${m.n}건)`,m.total,['#f1f5f9','#e2e8f0','#475569','#0f172a'])
+    +cell('입금완료',m.paid,['#ecfdf5','#a7f3d0','#047857','#065f46'],`${pct}% 수금`)
+    +cell('잔금 (미수)',m.bal,['#fff1f2','#fecdd3','#be123c','#9f1239'],m.bal?'아직 못 받은 금액':'모두 수금 완료')
+    +cell('가예약 예상 (입금전)',m.pend,['#fffbeb','#fde68a','#92400e','#78350f'],'확정되면 매출')
+    +`</div><div style="height:8px;background:#e2e8f0;border-radius:99px;margin-top:10px;overflow:hidden"><div style="height:100%;width:${pct}%;background:var(--a)"></div></div>`;
+  const ps={'동의':0,'미동의':0,'미확인':0};
+  act.forEach(i=>{ ps[i.portfolio==='동의'||i.portfolio==='미동의'?i.portfolio:'미확인']++; });
+  $('port-stats').innerHTML=`<b style="color:var(--mut);display:block">📸 포트폴리오 사용 동의 (취소 제외 전체)</b><div><span>☑️ 동의</span><b>${ps['동의']}건</b></div><div><span>⬜ 미동의</span><b>${ps['미동의']}건</b></div><div><span>❔ 미확인</span><b>${ps['미확인']}건</b></div>`;
+}
+
 async function pasteClip(){
   try{ const t=await navigator.clipboard.readText(); if(t&&t.trim()){ $('parser').value=t; parseKakao(t); toast('📋 클립보드 내용을 자동 인식했습니다'); return; } }catch(e){}
   $('parser').focus(); toast('입력칸을 길게 눌러 [붙여넣기] 하세요');
@@ -526,12 +797,12 @@ function openInq(editId,prefillDate,focusParser){
     const i=S.inquiries.find(x=>x.id===editId); if(!i) return;
     $('inq-title').textContent='예약문의 수정'; $('f-id').value=i.id;
     $('f-name').value=i.clientName||''; $('f-phone').value=i.phone||''; setCat(i.category||'DVD'); $('f-venue').value=i.venue||'';
-    setPay(i.paymentMethod||''); $('f-total').value=i.totalPrice?won(i.totalPrice):''; $('f-dep').value=i.depositAmount?won(i.depositAmount):'';
+    setPay(i.paymentMethod||''); setPort(i.portfolio||''); $('f-total').value=i.totalPrice?won(i.totalPrice):''; $('f-dep').value=i.depositAmount?won(i.depositAmount):'';
     $('f-due').value=i.dueDate||''; $('f-bal').value=i.balancePaid?'1':'0'; $('f-notes').value=i.notes||'';
     $('f-time').value=i.time||'12:00'; setFormStatus(i.status||'문의접수'); pkDate=i.date||selDate;
   } else {
     $('inq-title').textContent='새 예약문의 등록'; $('f-id').value='';
-    setFormStatus('문의접수'); setCat('DVD'); setPay('카드');
+    setFormStatus('문의접수'); setCat('DVD'); setPay('카드'); setPort('');
     $('f-total').value=T.defaultTotalPrice?won(T.defaultTotalPrice):''; $('f-dep').value=T.defaultDepositAmount?won(T.defaultDepositAmount):'';
     $('f-time').value='12:00'; pkDate=prefillDate||selDate||todayISO();
     const d=new Date(); d.setDate(d.getDate()+(Number(T.dueDays)||3)); $('f-due').value=iso(d);
@@ -561,7 +832,7 @@ function saveInq(e){
   const date=$('f-date').value||pkDate;
   const p={id:id||('inq-'+Date.now()),status:formStatus,clientName:name,phone:$('f-phone').value.trim(),category:$('f-cat').value,date,time:$('f-time').value||'12:00',
     venue:$('f-venue').value.trim(),paymentMethod:$('f-pay').value.trim()||'미정',totalPrice:num($('f-total').value),depositAmount:num($('f-dep').value),
-    dueDate:$('f-due').value||'',balancePaid:$('f-bal').value==='1',notes:$('f-notes').value.trim(),createdAt:Date.now()};
+    dueDate:$('f-due').value||'',balancePaid:$('f-bal').value==='1',notes:$('f-notes').value.trim(),portfolio:formPort,createdAt:Date.now()};
   const idx=S.inquiries.findIndex(x=>x.id===p.id);
   if(idx>=0){ p.createdAt=S.inquiries[idx].createdAt; S.inquiries[idx]=p; } else S.inquiries.unshift(p);
   selDate=date; const [y,m]=date.split('-').map(Number); calY=y; calM=m-1;
@@ -574,7 +845,7 @@ const icsE=s=>String(s||'').replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,
 function vevent(i){
   const bal=Math.max(0,Number(i.totalPrice||0)-Number(i.depositAmount||0));
   const sum=`[루닉스냅/${i.status}] ${i.clientName} (${i.category})`;
-  const desc=[`고객명: ${i.clientName}`,`연락처: ${i.phone||'-'}`,`진행상태: ${i.status}`,`장소: ${i.venue||'-'}`,`금액: 총 ${won(i.totalPrice)}원 (계약금 ${won(i.depositAmount)} / 잔금 ${won(bal)})`,i.notes?`메모: ${i.notes}`:''].filter(Boolean).join('\n');
+  const desc=[`고객명: ${i.clientName}`,`연락처: ${i.phone||'-'}`,`진행상태: ${i.status}`,`장소: ${i.venue||'-'}`,`금액: 총 ${won(i.totalPrice)}원 (계약금 ${won(i.depositAmount)} / 잔금 ${won(bal)})`,i.portfolio?`포트폴리오: ${i.portfolio}`:'',i.notes?`메모: ${i.notes}`:''].filter(Boolean).join('\n');
   return ['BEGIN:VEVENT',`UID:${i.id}@runicsnap.local`,`DTSTAMP:${new Date().toISOString().replace(/[-:]/g,'').split('.')[0]}Z`,`DTSTART:${icsT(i.date,i.time)}`,`DTEND:${icsT(i.date,i.time,2)}`,
     `SUMMARY:${icsE(sum)}`,`LOCATION:${icsE(i.venue)}`,`DESCRIPTION:${icsE(desc)}`,'BEGIN:VALARM','TRIGGER:-PT120M','ACTION:DISPLAY',`DESCRIPTION:${icsE(sum)}`,'END:VALARM','END:VEVENT'];
 }
@@ -597,6 +868,7 @@ function renderSettings(){
     +box(['#f1f5f9','#e2e8f0','#475569'],'전체 누적',S.inquiries.length+'건','취소 제외 '+S.inquiries.filter(i=>i.status!=='취소').length+'건');
   const cats={}; S.inquiries.filter(i=>i.status!=='취소').forEach(i=>cats[i.category]=(cats[i.category]||0)+1);
   $('cats').innerHTML=`<b style="color:var(--mut);display:block">상품별 유효 예약 (취소 제외)</b>`+(Object.keys(cats).length?Object.entries(cats).map(([k,v])=>`<div><span>${esc(k)}</span><b>${v}건</b></div>`).join(''):'<div><span>데이터 없음</span></div>');
+  renderMoney();
   const up=S.inquiries.filter(i=>i.status==='입금후'&&!i.balancePaid&&Number(i.totalPrice)>Number(i.depositAmount)).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
   const tot=up.reduce((x,i)=>x+i.totalPrice-i.depositAmount,0);
   $('unpaid').innerHTML=up.length?`<div class="alert al-y" style="margin:0 0 8px"><span>미수 합계</span><b>${won(tot)}원 (${up.length}건)</b></div>`+up.map(i=>`<div class="row" style="padding:7px 0;border-top:1px solid #f1f5f9"><div><b>${esc(i.clientName)}</b><p>${kdate(i.date)}${ddayBadge(i)}</p></div><div style="text-align:right"><b>${won(i.totalPrice-i.depositAmount)}원</b><br><button class="btn am sm" style="margin-top:3px" onclick="toggleBal('${i.id}')">완료</button></div></div>`).join(''):'<p>✅ 미수 잔금이 없습니다</p>';
