@@ -52,7 +52,7 @@ label{display:block;font-size:12px;font-weight:800;margin:10px 0 4px;color:#3341
 .box div{display:flex;justify-content:space-between;gap:8px;padding:2px 0}.box b{text-align:right}
 .note{font-size:12px;color:#475569;background:#f8fafc;padding:8px;border-radius:10px;white-space:pre-wrap}
 .scroll{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}.scroll::-webkit-scrollbar{display:none}.scroll>*{flex-shrink:0}
-nav{position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:auto;z-index:40;background:#fffffff2;backdrop-filter:blur(8px);border-top:1px solid var(--ln);display:grid;grid-template-columns:repeat(3,1fr);padding:6px 8px calc(6px + var(--bot))}
+nav{position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:auto;z-index:40;background:#fffffff2;backdrop-filter:blur(8px);border-top:1px solid var(--ln);display:grid;grid-template-columns:repeat(4,1fr);padding:6px 8px calc(6px + var(--bot))}
 nav button{background:0;color:#94a3b8;font-size:11px;font-weight:700;padding:7px 0;border-radius:12px;position:relative}
 nav button.on2{background:#f1f5f9;color:var(--ink);font-weight:800}
 nav b{position:absolute;top:1px;right:22%;background:var(--b);color:var(--ink);font-size:10px;border-radius:99px;min-width:16px;padding:0 4px}
@@ -64,6 +64,21 @@ nav b{position:absolute;top:1px;right:22%;background:var(--b);color:var(--ink);f
 #toast.show{opacity:1}
 .alert{padding:8px 10px;border-radius:10px;font-size:12px;font-weight:700;display:flex;justify-content:space-between;gap:8px;align-items:center;margin-top:6px;border:1px solid}
 .al-r{background:#fff1f2;color:#be123c;border-color:#fecdd3}.al-y{background:#fffbeb;color:#92400e;border-color:#fde68a}.al-b{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}
+
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}.g5 .btn{padding:7px 0;font-size:10.5px}
+.box div>span:first-child{white-space:nowrap;flex-shrink:0}
+.wrap{display:flex;flex-wrap:wrap;gap:6px}
+.t-d{background:#f5f3ff;color:#6d28d9;border-color:#c4b5fd}.on-d{background:#7c3aed;color:#fff}
+.mh{width:100%;display:flex;justify-content:space-between;align-items:center;gap:8px;background:#fff;border:1px solid var(--ln);border-radius:14px;padding:11px 12px;text-align:left;color:var(--ink)}
+.mh b{font-size:14px;display:block}.mh span{font-size:11px;color:var(--mut);font-weight:700}.mh em{font-style:normal;font-size:12px;font-weight:800;white-space:nowrap}
+.mapbtn{display:inline-block;padding:1px 6px;margin-left:3px;border-radius:6px;background:#ecfdf5;color:#047857;font-size:10px;font-weight:800;text-decoration:none;border:1px solid #a7f3d0}
+.cell.blk{background:repeating-linear-gradient(45deg,#f8fafc,#f8fafc 6px,#eef2f7 6px,#eef2f7 12px)}
+.bar{height:8px;background:#e2e8f0;border-radius:99px;overflow:hidden}.bar>i{display:block;height:100%}
+.lg{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;font-weight:700;color:#334155;margin:6px 0}
+.lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+details summary{font-size:11px;font-weight:800;color:var(--mut);cursor:pointer;margin-top:6px}
+table.tb{width:100%;border-collapse:collapse;font-size:11px;margin-top:4px}.tb th,.tb td{padding:3px 4px;border-bottom:1px solid #f1f5f9;text-align:right}.tb th:first-child,.tb td:first-child{text-align:left}
+.lrow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 0;border-top:1px solid #f1f5f9}.lrow:first-child{border-top:0}
 </style>
 </head>
 <body>
@@ -84,8 +99,8 @@ nav b{position:absolute;top:1px;right:22%;background:var(--b);color:var(--ink);f
     <div class="scroll" id="cal-filters" style="margin-bottom:8px"></div>
     <div class="wk"><span class="sun">일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span class="sat">토</span></div>
     <div class="cal" id="cal-grid"></div>
-    <div class="row" style="justify-content:flex-end;gap:10px;margin-top:8px;font-size:11px;color:var(--mut);font-weight:700">
-      <span><i class="dot" style="background:var(--a)"></i>입금후</span><span><i class="dot" style="background:var(--b)"></i>입금전</span><span><i class="dot" style="background:var(--q)"></i>문의접수</span>
+    <div class="row" style="justify-content:flex-end;gap:8px;margin-top:8px;font-size:10.5px;color:var(--mut);font-weight:700;flex-wrap:wrap">
+      <span><i class="dot" style="background:var(--q)"></i>문의</span><span><i class="dot" style="background:var(--b)"></i>입금전</span><span><i class="dot" style="background:var(--a)"></i>계약금완료</span><span><i class="dot" style="background:#7c3aed"></i>촬영완료</span><span>🚫휴무</span>
     </div>
   </section>
   <section class="c">
@@ -93,6 +108,7 @@ nav b{position:absolute;top:1px;right:22%;background:var(--b);color:var(--ink);f
       <div><h2 id="ag-title"></h2><p id="ag-sub"></p></div>
       <button class="btn dk sm" onclick="openInq(null,selDate)">+ 예약 추가</button>
     </div>
+    <div id="ag-block"></div>
     <div id="ag-list" style="display:flex;flex-direction:column;gap:10px"></div>
   </section>
 </main>
@@ -108,35 +124,69 @@ nav b{position:absolute;top:1px;right:22%;background:var(--b);color:var(--ink);f
     </div>
   </section>
   <section class="c">
+    <div class="row" style="margin-bottom:8px"><b style="font-size:12px">📅 묶음 기준</b><div id="mode-chips" class="row" style="gap:4px"></div></div>
+    <div id="year-chips" class="scroll" style="margin-bottom:8px"></div>
     <div id="pipe" class="scroll" style="margin-bottom:8px"></div>
-    <input id="q" class="inp" placeholder="🔍 성함, 연락처, 장소, 상품, 결제방식 검색" oninput="renderInq()">
+    <input id="q" class="inp" placeholder="🔍 성함, 연락처, 장소, 상품, 짝꿍코드 검색" oninput="renderInq()">
     <div id="port-filter" class="scroll" style="margin-top:8px"></div>
   </section>
-  <div id="inq-list" style="display:flex;flex-direction:column;gap:12px"></div>
+  <div id="inq-list" style="display:flex;flex-direction:column;gap:10px"></div>
 </main>
 
-<!-- TAB 3 : 현황/설정 -->
-<main id="v-set" class="hide">
-  <section class="c"><h2>📊 예약 및 매출 현황</h2><p id="st-label"></p><div id="stats" class="g2" style="margin:10px 0"></div><div id="cats" class="box"></div></section>
+<!-- TAB 3 : 현황 -->
+<main id="v-stat" class="hide">
   <section class="c">
-    <div class="row"><div><h2>💵 금액 현황</h2><p id="money-label"></p></div><div class="row" style="gap:4px"><button id="ms-m" class="btn sm" onclick="setMoneyScope('month')">이번 달</button><button id="ms-a" class="btn sm" onclick="setMoneyScope('all')">전체</button></div></div>
-    <div id="money" style="margin-top:10px"></div>
-    <div id="port-stats" class="box" style="margin-top:10px"></div>
+    <div class="row"><div class="row" style="gap:6px"><button class="btn" onclick="moveStat(-1)">◀</button><b id="st-title" style="font-size:15px"></b><button class="btn" onclick="moveStat(1)">▶</button></div>
+      <div class="row" style="gap:4px"><button id="sc-m" class="btn sm" onclick="setScope('month')">이 달</button><button id="sc-a" class="btn sm" onclick="setScope('all')">전체</button></div></div>
+    <p id="st-sub" style="margin-top:6px"></p>
   </section>
-  <section class="c"><h2>💰 잔금 미수 목록</h2><p>예약 확정(입금후) 후 잔금을 아직 못 받은 건</p><div id="unpaid" style="margin-top:8px"></div></section>
   <section class="c">
-    <h2>💬 카톡 안내 멘트 템플릿</h2><p>변수를 누르면 커서 위치에 들어가고, 복사할 때 고객 정보로 자동 치환됩니다.</p>
+    <h2>📈 월별 추이</h2><p id="ch-sub"></p>
+    <div class="row" style="margin:8px 0 2px;justify-content:flex-start;gap:4px"><span style="font-size:11px;font-weight:800;color:var(--mut)">매출 기준</span><span id="ch-basis" class="row" style="gap:4px"></span></div>
+    <div id="ch-a"></div><div id="ch-b"></div>
+  </section>
+  <section class="c"><h2>💵 금액 현황</h2><p id="money-label"></p><div id="money" style="margin-top:10px"></div><div id="disc-box" class="box" style="margin-top:10px"></div></section>
+  <section class="c"><h2>📊 예약 현황</h2><div id="stats" class="g2" style="margin:8px 0"></div><div id="cats" class="box"></div></section>
+  <section class="c"><h2>💰 잔금 미수 목록</h2><p>계약금 완료 후 잔금을 아직 못 받은 건 (전체)</p><div id="unpaid" style="margin-top:8px"></div></section>
+  <section class="c"><h2>📦 납품 현황</h2><p id="dv-sub"></p><div id="deliv" style="margin-top:8px"></div></section>
+  <section class="c"><h2>🤝 짝꿍코드 사용현황</h2><p>발급된 코드와 사용 내역</p><div id="codes" style="margin-top:8px"></div></section>
+  <section class="c"><h2>📣 문의 경로</h2><p id="src-sub"></p><div id="src" style="margin-top:8px"></div></section>
+  <section class="c"><h2>📸 포트폴리오 동의</h2><div id="port-stats" class="box" style="margin-top:8px"></div></section>
+</main>
+
+<!-- TAB 4 : 설정 -->
+<main id="v-set" class="hide">
+  <section class="c">
+    <h2>💰 금액 · 운영 설정</h2><p>새 예약부터 적용돼요. 이미 등록된 예약의 금액은 바뀌지 않아요.</p>
+    <div class="g2"><div><label>기본 상품 금액</label><input id="c-total" class="inp" inputmode="numeric" oninput="fmtMoney(this)"></div><div><label>기본 계약금</label><input id="c-dep" class="inp" inputmode="numeric" oninput="fmtMoney(this)"></div></div>
+    <div class="g2"><div><label>📸 포트폴리오 동의 할인</label><input id="c-port" class="inp" inputmode="numeric" oninput="fmtMoney(this)"></div><div><label>계약금 입금 기한 (일)</label><input id="c-due" class="inp" inputmode="numeric"></div></div>
+    <div class="g2"><div><label>납품 기한 (예식 후 N일)</label><input id="c-deliv" class="inp" inputmode="numeric"></div><div><label>백업 알림 주기 (일)</label><input id="c-backup" class="inp" inputmode="numeric"></div></div>
+  </section>
+  <section class="c">
+    <h2>🤝 짝꿍코드 설정</h2><p>계약금완료가 되면 코드가 자동 발급돼요. 소개 할인은 짝꿍이 '계약금완료'가 되면 코드 주인 금액에서 자동 차감돼요.</p>
+    <div class="g2"><div><label>코드 입력한 분 할인</label><input id="c-pin" class="inp" inputmode="numeric" oninput="fmtMoney(this)"></div><div><label>코드 주인(소개한 분) 할인</label><input id="c-pout" class="inp" inputmode="numeric" oninput="fmtMoney(this)"></div></div>
+    <div class="g2"><div><label>코드 1개당 사용 횟수 (0=무제한)</label><input id="c-pmax" class="inp" inputmode="numeric"></div><div><label>코드 앞 글자 (영문/숫자)</label><input id="c-prefix" class="inp" maxlength="4" style="text-transform:uppercase"></div></div>
+    <button class="btn dk" style="width:100%;margin-top:12px" onclick="saveCfg()">금액·할인 설정 저장</button>
+  </section>
+  <section class="c">
+    <h2>🚫 휴무 · 예약 마감일</h2><p>캘린더에 표시되고, 이 날짜로 예약하면 경고가 떠요.</p>
+    <div class="g3" style="margin-top:8px;grid-template-columns:1.2fr 1fr auto"><input id="b-date" type="date" class="inp"><input id="b-label" class="inp" placeholder="사유(선택)"><button class="btn dk" onclick="addBlock()">추가</button></div>
+    <div id="b-list" style="margin-top:8px"></div>
+  </section>
+  <section class="c">
+    <h2>💬 카톡 안내 멘트 템플릿</h2><p>변수를 누르면 커서 위치에 들어가고, 복사할 때 고객 정보로 자동 치환됩니다. (<b>{할인내역}</b> 줄은 할인이 없으면 자동으로 사라져요)</p>
     <div id="vars" style="display:flex;flex-wrap:wrap;gap:4px;margin:8px 0"></div>
-    <div class="g2"><div><label>기본 상품 금액</label><input id="t-total" class="inp" inputmode="numeric" oninput="fmtMoney(this)"></div><div><label>기본 계약금</label><input id="t-dep" class="inp" inputmode="numeric" oninput="fmtMoney(this)"></div></div>
     <label>입금 계좌 ({계좌정보})</label><input id="t-bank" class="inp" onfocus="lastTpl='t-bank'">
-    <div class="g2"><div><label>계약금 입금 기한 (일)</label><input id="t-dueDays" class="inp" inputmode="numeric" placeholder="3"></div><div><label>기본 잔금 기한</label><input class="inp" value="예식 7일 전" disabled></div></div>
-    <label style="color:#1d4ed8">📤 고객용 예약문의 요청 양식</label><textarea id="t-req" rows="7" class="inp" onfocus="lastTpl='t-req'"></textarea>
-    <label style="color:#b45309">🟠 입금전 멘트 (가예약·계약금 안내)</label><textarea id="t-before" rows="9" class="inp" onfocus="lastTpl='t-before'"></textarea>
-    <label style="color:#047857">🟢 입금후 멘트 (예약 확정)</label><textarea id="t-after" rows="8" class="inp" onfocus="lastTpl='t-after'"></textarea>
+    <label style="color:#1d4ed8">📤 고객용 예약문의 요청 양식</label><textarea id="t-req" rows="9" class="inp" onfocus="lastTpl='t-req'"></textarea>
+    <label style="color:#b45309">🟠 입금전 멘트 (가예약·계약금 안내)</label><textarea id="t-before" rows="10" class="inp" onfocus="lastTpl='t-before'"></textarea>
+    <label style="color:#047857">🟢 계약금 확정 멘트</label><textarea id="t-after" rows="10" class="inp" onfocus="lastTpl='t-after'"></textarea>
+    <label style="color:#b45309">💰 잔금 안내 멘트</label><textarea id="t-balance" rows="7" class="inp" onfocus="lastTpl='t-balance'"></textarea>
+    <label style="color:#1d4ed8">📦 납품 안내 멘트</label><textarea id="t-delivery" rows="7" class="inp" onfocus="lastTpl='t-delivery'"></textarea>
+    <label style="color:#6d28d9">⭐ 후기 요청 멘트</label><textarea id="t-review" rows="7" class="inp" onfocus="lastTpl='t-review'"></textarea>
     <div class="g2" style="margin-top:10px"><button class="btn dk" onclick="saveTpl()">템플릿 저장</button><button class="btn" onclick="ask('멘트 템플릿을 기본값으로 초기화할까요?',resetTpl)">기본값 초기화</button></div>
   </section>
   <section class="c">
-    <h2>💾 백업 · 내보내기</h2><p>기기를 바꾸거나 브라우저 데이터를 지우기 전에 꼭 백업하세요.</p>
+    <h2>💾 백업 · 내보내기</h2><p id="bk-info">기기를 바꾸거나 브라우저 데이터를 지우기 전에 꼭 백업하세요.</p>
     <div class="g2" style="margin-top:8px"><button class="btn dk" onclick="exportJSON()">💾 백업 저장(.json)</button><button class="btn" onclick="$('imp').click()">📂 백업 불러오기</button></div>
     <input id="imp" type="file" accept=".json" class="hide" onchange="importJSON(event)">
     <button class="btn bl" style="width:100%;margin-top:8px" onclick="exportAllICS()">📅 전체 일정 한 번에 캘린더로 내보내기 (.ics)</button>
@@ -147,7 +197,8 @@ nav b{position:absolute;top:1px;right:22%;background:var(--b);color:var(--ink);f
 <nav>
   <button data-n="cal" onclick="tab('cal')">📅<br>캘린더</button>
   <button data-n="inq" onclick="tab('inq')">💬<br>예약문의<b id="badge" class="hide"></b></button>
-  <button data-n="set" onclick="tab('set')">📊<br>현황/멘트</button>
+  <button data-n="stat" onclick="tab('stat')">📊<br>현황</button>
+  <button data-n="set" onclick="tab('set')">⚙️<br>설정</button>
 </nav>
 </div>
 
@@ -162,7 +213,7 @@ nav b{position:absolute;top:1px;right:22%;background:var(--b);color:var(--ink);f
       <textarea id="parser" rows="4" class="inp" oninput="parseKakao(this.value)" placeholder="고객이 보낸 카톡 답장을 여기에 붙여넣기 하세요."></textarea>
       <div id="pbadge" class="hide" style="margin-top:6px;padding:8px;border-radius:10px;background:var(--a);color:#fff;font-size:11px;font-weight:800"></div>
     </div>
-    <label>진행 상태</label><div id="f-status" class="g4"></div>
+    <label>진행 상태</label><div id="f-status" class="g5"></div>
     <div class="g2"><div><label>고객명 *</label><input id="f-name" class="inp" required placeholder="김지현 & 박준호"></div><div><label>연락처</label><input id="f-phone" class="inp" type="tel" placeholder="010-0000-0000"></div></div>
     <div class="g2"><div><label>예약상품</label><select id="f-cat" class="inp"></select></div><div><label>예식장소</label><input id="f-venue" class="inp" placeholder="예: 남원새생명교회"></div></div>
     <label>💳 결제방식</label><div class="g4" id="f-paychips" style="margin-bottom:6px"></div><input id="f-pay" class="inp" placeholder="직접 입력">
@@ -173,8 +224,12 @@ nav b{position:absolute;top:1px;right:22%;background:var(--b);color:var(--ink);f
       <div id="pk-grid" class="cal"></div><div id="pk-note" style="margin-top:8px;font-weight:700;font-size:11px"></div>
     </div>
     <label>⏰ 예식 시간</label><div class="g4" id="f-timechips" style="margin-bottom:6px"></div><input id="f-time" type="time" class="inp" value="12:00">
-    <div class="g2"><div><label>총 상품 금액(원)</label><input id="f-total" class="inp" inputmode="numeric" oninput="fmtMoney(this)"></div><div><label>계약금(원)</label><input id="f-dep" class="inp" inputmode="numeric" oninput="fmtMoney(this)"></div></div>
+    <div class="g2"><div><label>📣 문의 경로</label><select id="f-src" class="inp"></select></div><div><label>🤝 짝꿍코드 입력</label><input id="f-code" class="inp" placeholder="예: RS-K7M2" autocapitalize="characters" style="text-transform:uppercase" oninput="renderFormPrice()"></div></div>
+    <div id="code-msg" style="font-size:11px;font-weight:700;margin-top:4px"></div>
+    <div class="g2"><div><label>기본 상품 금액(원)</label><input id="f-total" class="inp" inputmode="numeric" oninput="fmtMoney(this);renderFormPrice()"></div><div><label>계약금(원)</label><input id="f-dep" class="inp" inputmode="numeric" oninput="fmtMoney(this);renderFormPrice()"></div></div>
+    <div id="f-calc" class="box" style="margin-top:8px"></div>
     <div class="g2"><div><label>계약금 입금 기한</label><input id="f-due" type="date" class="inp"></div><div><label>잔금 상태</label><select id="f-bal" class="inp"><option value="0">미수 (미입금)</option><option value="1">잔금 완료</option></select></div></div>
+    <div class="g2"><div><label>🧾 영수증 발행</label><select id="f-rcpt" class="inp"><option value="0">미발행</option><option value="1">발행 완료</option></select></div><div><label>📦 납품</label><select id="f-deliv" class="inp"><option value="0">납품 전</option><option value="1">납품 완료</option></select></div></div>
     <label>메모</label><textarea id="f-notes" rows="2" class="inp" placeholder="대기실 도착시간, 요청사항 등"></textarea>
     <div class="g3" style="margin-top:12px"><button type="button" class="btn" onclick="closeM('m-inq')">취소</button><button class="btn dk" style="grid-column:span 2;padding:12px">저장 및 캘린더 반영</button></div>
   </form>
@@ -183,7 +238,7 @@ nav b{position:absolute;top:1px;right:22%;background:var(--b);color:var(--ink);f
 <!-- MODAL: 멘트 미리보기 -->
 <div id="m-prev" class="mod mid hide"><div>
   <div class="row"><h2 id="pv-title" style="margin:0;font-size:15px"></h2><button class="btn sm" onclick="closeM('m-prev')">✕</button></div>
-  <div class="g2" style="margin:10px 0"><button id="pv-b" class="btn" onclick="pvTab('before')">🟠 입금전</button><button id="pv-a" class="btn" onclick="pvTab('after')">🟢 입금후</button></div>
+  <div id="pv-tabs" class="scroll" style="margin:10px 0"></div>
   <textarea id="pv-text" rows="12" class="inp" style="font-size:12px"></textarea>
   <div class="g3" style="margin-top:10px"><button class="btn" onclick="closeM('m-prev')">닫기</button><button class="btn dk" style="grid-column:span 2" onclick="pvCopy()">📋 이 멘트 복사</button></div>
 </div></div>
@@ -199,16 +254,19 @@ nav b{position:absolute;top:1px;right:22%;background:var(--b);color:var(--ink);f
 <script>
 const $ = id => document.getElementById(id);
 const KEY = 'runic_snap_booking_manager_v1';
-const SK = {'문의접수':'q','입금전':'b','입금후':'a','취소':'x'};
-const STATUSES = Object.keys(SK);
+const STATUSES = ['문의접수','입금전','계약금완료','촬영완료','취소'];
+const SK = {'문의접수':'q','입금전':'b','계약금완료':'a','촬영완료':'d','취소':'x'};
+const isConf = i => i.status==='계약금완료' || i.status==='촬영완료';
 const CATS = ['DVD','서브스냅','DVD + 서브스냅','본식 서브스냅','본식 DVD','야외 커플스냅','가족스냅','기타'];
 const PAYS = ['카드','계좌이체','현금영수증','미정'];
 const TIMES = ['11:00','12:00','13:00','14:00','15:00','16:00','17:00'];
-const VARS = ['성함','상품','예식일자','예식시간','예식장소','결제방식','총금액','계약금','잔금','입금기한','계좌정보','포트폴리오'];
+const SOURCES = ['인스타그램','블로그','네이버 검색','지인 소개','짝꿍코드','재문의','기타'];
+const VARS = ['성함','상품','예식일자','예식시간','예식장소','결제방식','기본금액','할인내역','총금액','계약금','잔금','입금기한','계좌정보','짝꿍코드','포트폴리오','남은일수','납품기한'];
+const MSGS = [['before','🟠 입금전','beforeDeposit'],['after','🟢 계약금 확정','afterDeposit'],['balance','💰 잔금 안내','balanceNotice'],['delivery','📦 납품 안내','deliveryNotice'],['review','⭐ 후기 요청','reviewRequest']];
 
+const DEF_CFG = {defaultTotal:1100000, defaultDeposit:300000, portDiscount:60000, pairIn:30000, pairOut:30000, pairMax:1, prefix:'RS', dueDays:3, deliveryDays:30, backupDays:14};
 const DEF = {
   bankInfo:'국민은행 123401-04-567890 (예금주: 루닉스냅)',
-  defaultTotalPrice:1100000, defaultDepositAmount:300000, dueDays:3,
   inquiryRequest:`안녕하세요 😊
 예약 도와드리겠습니다! 아래 내용 작성해서 보내주시면 확인 후 안내드릴게요.
 
@@ -221,6 +279,7 @@ const DEF = {
 5. 결제방식:
 6. 연락처:
 7. 포트폴리오 사용 동의(동의/미동의):
+8. 짝꿍코드(없으면 공란):
 
 작성해서 보내주시면 일정 확인 후 계약금 안내 도와드리겠습니다.`,
   beforeDeposit:`[루닉스냅 예약 안내]
@@ -234,6 +293,7 @@ const DEF = {
 4. 예식시간: {예식시간}
 5. 결제방식: {결제방식}
 
+{할인내역}
 ■ 총 상품금액: {총금액}원
 ■ 예약 계약금: {계약금}원 (잔금 {잔금}원)
 ■ 계약금 입금기한: {입금기한}
@@ -252,13 +312,42 @@ const DEF = {
 4. 예식시간: {예식시간}
 5. 결제방식: {결제방식}
 
+{할인내역}
+■ 총 상품금액: {총금액}원
 ■ 입금내역: 계약금 {계약금}원 완료 (잔금 {잔금}원 / 예식 7일 전 안내)
 
-예식 3~4일 전 담당 작가가 최종 진행 체크 연락을 드릴 예정입니다.
-소중한 날 예쁘게 담아드리겠습니다. 감사합니다! - 루닉스냅`
-};
+🤝 짝꿍코드: {짝꿍코드}
+주변에 예식을 앞둔 분께 이 코드를 알려주세요. 예약 문의 때 코드를 말씀해주시면 할인 혜택을 드립니다!
 
-const OLD_REQ=DEF.inquiryRequest.replace('7. 포트폴리오 사용 동의(동의/미동의):\n','');
+예식 3~4일 전 담당 작가가 최종 진행 체크 연락을 드릴 예정입니다.
+소중한 날 예쁘게 담아드리겠습니다. 감사합니다! - 루닉스냅`,
+  balanceNotice:`[루닉스냅 잔금 안내]
+안녕하세요, {성함}님! 예식이 {남은일수} 앞으로 다가왔네요 :)
+
+📅 {예식일자} {예식시간}
+📍 {예식장소}
+
+■ 잔금: {잔금}원 (예식 7일 전까지 부탁드려요)
+▶ {계좌정보}
+
+입금 후 성함 남겨주시면 확인해 드리겠습니다. 감사합니다!`,
+  deliveryNotice:`[루닉스냅 납품 안내]
+{성함}님, 안녕하세요! 촬영본 편집이 완료되어 전달드립니다 :)
+
+📦 {상품}
+🔗 다운로드 링크: (여기에 링크를 붙여넣어 주세요)
+
+링크는 일정 기간 후 만료될 수 있으니 꼭 저장해 주세요.
+확인 후 수정이 필요하시면 편하게 말씀해 주세요. 감사합니다!`,
+  reviewRequest:`[루닉스냅 후기 요청]
+{성함}님, 촬영본은 마음에 드셨나요? 😊
+소중한 날을 함께할 수 있어 영광이었습니다.
+
+후기를 남겨주시면 큰 힘이 됩니다. 감사합니다!
+
+🤝 지인 분께 소개해주실 때 짝꿍코드 {짝꿍코드} 를 알려주세요.
+두 분 모두 할인 혜택을 받으실 수 있어요.`
+};
 
 /* ---------- helpers ---------- */
 const pad = n => String(n).padStart(2,'0');
@@ -268,12 +357,15 @@ const num = v => parseInt(String(v||'').replace(/[^0-9]/g,''),10) || 0;
 const won = n => Number(n||0).toLocaleString('ko-KR');
 const esc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 const DOW = ['일','월','화','수','목','금','토'];
+const mdTs = ts => { const d=new Date(ts); return `${d.getMonth()+1}.${d.getDate()}`; };
+const mdIso = s => { const p=String(s||'').split('-'); return p.length===3?`${+p[1]}.${+p[2]}`:''; };
 function kdate(s){ if(!s) return '날짜 미정'; const [y,m,d]=s.split('-').map(Number); return `${y}년 ${m}월 ${d}일 (${DOW[new Date(y,m-1,d).getDay()]})`; }
 function ktime(t){ if(!t||!t.includes(':')) return t||'시간 미정'; const [h,m]=t.split(':').map(Number); return m>0?`${h}시 ${m}분 (${t})`:`${h}시 (${t})`; }
 function daysFromToday(s){ const [y,m,d]=s.split('-').map(Number); const n=new Date(); return Math.round((new Date(y,m-1,d)-new Date(n.getFullYear(),n.getMonth(),n.getDate()))/86400000); }
+function addDays(s,n){ const [y,m,d]=s.split('-').map(Number); return iso(new Date(y,m-1,d+n)); }
 function fmtMoney(el){ const n=num(el.value); el.value=n>0?won(n):''; }
 let toastT;
-function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2600); }
+function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2800); }
 function copyText(text){
   const ta=document.createElement('textarea'); ta.value=text; ta.style.cssText='position:fixed;top:-9999px';
   document.body.appendChild(ta); ta.focus(); ta.select(); let ok=false;
@@ -286,183 +378,43 @@ function download(name,content,type){
   a.download=name; document.body.appendChild(a); a.click(); document.body.removeChild(a);
   setTimeout(()=>URL.revokeObjectURL(a.href),1000);
 }
+const normCode = v => String(v||'').toUpperCase().replace(/\s+/g,'').replace(/[–—]/g,'-');
 
 /* ---------- state ---------- */
-let S = {inquiries:[], templates:{...DEF}};
+let S = {inquiries:[], templates:{...DEF}, cfg:{...DEF_CFG}, blocked:[], meta:{}};
 let activeTab='cal', calY=new Date().getFullYear(), calM=new Date().getMonth(), selDate=todayISO();
-let calFilter='all', inqFilter='전체', formStatus='문의접수', pkY=calY, pkM=calM, pkDate=selDate, lastTpl='t-before';
+let calFilter='all', inqFilter='전체', portFilter='전체', yearFilter='전체', inqMode='created', monthOpen={};
+let formStatus='문의접수', formPort='', formEdit=null, pkY=calY, pkM=calM, pkDate=selDate, lastTpl='t-before', sampleIdx=0;
+let statY=calY, statM=calM, statScope='month', chBasis='contract';
 
-let formPort='', portFilter='전체', moneyScope='month', sampleIdx=0;
-
-function samples(){
-  const n=new Date(), p=`${n.getFullYear()}-${pad(n.getMonth()+1)}`;
-  return [
-    {id:'sample-1',status:'입금후',clientName:'김지현 & 박준호',phone:'010-4829-1920',category:'DVD',date:`${p}-21`,time:'12:30',venue:'더채플앳청담 6층 채플홀',paymentMethod:'계좌이체',totalPrice:1100000,depositAmount:300000,dueDate:'',balancePaid:false,notes:'신부대기실 11:30 도착 예정.',createdAt:Date.now()-2e8},
-    {id:'sample-2',status:'입금전',clientName:'이수빈',phone:'010-9134-7742',category:'서브스냅',date:`${p}-28`,time:'14:00',venue:'인천 아시아드 웨딩컨벤션',paymentMethod:'카드',totalPrice:650000,depositAmount:200000,dueDate:todayISO(),balancePaid:false,notes:'계약금 입금 대기',createdAt:Date.now()-1e8}
-  ];
+/* ---------- pricing / codes ---------- */
+const base = i => Number(i.basePrice!=null?i.basePrice:i.totalPrice)||0;
+function earned(i){
+  if(!i.pairCode) return 0;
+  return S.inquiries.filter(r=>r.codeUsed===i.pairCode&&isConf(r)&&r.id!==i.id).reduce((s,r)=>s+(Number(r.codeOutDisc)||0),0);
 }
-function load(){
-  try{
-    const raw=localStorage.getItem(KEY);
-    if(raw){ const p=JSON.parse(raw); S.inquiries=Array.isArray(p.inquiries)?p.inquiries:[]; S.templates={...DEF,...(p.templates||{})}; if(S.templates.inquiryRequest===OLD_REQ) S.templates.inquiryRequest=DEF.inquiryRequest; }
-    else { S.inquiries=samples(); save(); }
-  }catch(e){ console.error(e); S.inquiries=samples(); }
+const price = i => Math.max(0, base(i)-(Number(i.portDisc)||0)-(Number(i.codeInDisc)||0)-earned(i));
+const balOf = i => Math.max(0, price(i)-(Number(i.depositAmount)||0));
+function genCode(){
+  const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789', pre=(String(S.cfg.prefix||'RS').toUpperCase().replace(/[^A-Z0-9]/g,'')||'RS');
+  for(let n=0;n<300;n++){ let c=''; for(let k=0;k<4;k++) c+=A[Math.floor(Math.random()*A.length)]; c=pre+'-'+c; if(!S.inquiries.some(i=>i.pairCode===c)) return c; }
+  return pre+'-'+Date.now().toString(36).toUpperCase().slice(-5);
 }
-function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){ toast('⚠️ 저장 공간 오류: 백업을 받아두세요'); } updateBadge(); }
-function updateBadge(){
-  const n=S.inquiries.filter(i=>i.status==='문의접수'||i.status==='입금전').length, b=$('badge');
-  b.textContent=n; b.classList.toggle('hide',!n);
+function ensureCode(i){ if(isConf(i)&&!i.pairCode){ i.pairCode=genCode(); return true; } return false; }
+const findOwner = code => code?S.inquiries.find(i=>i.pairCode===code):null;
+const codeUses = (code,exceptId) => S.inquiries.filter(i=>i.codeUsed===code&&i.status!=='취소'&&i.id!==exceptId).length;
+function checkCodeFor(code,selfId){
+  if(!code) return {empty:true};
+  const o=findOwner(code);
+  if(!o) return {ok:false,msg:'❌ 존재하지 않는 코드예요'};
+  if(o.id===selfId) return {ok:false,msg:'❌ 본인 코드는 사용할 수 없어요'};
+  if(o.status==='취소') return {ok:false,msg:`❌ ${o.clientName}님 예약이 취소되어 사용할 수 없어요`};
+  const max=Number(S.cfg.pairMax)||0, used=codeUses(code,selfId);
+  if(max>0&&used>=max) return {ok:false,msg:`❌ 사용 한도(${max}회)를 모두 사용한 코드예요`};
+  return {ok:true,owner:o,used,max};
 }
-function refresh(){
-  renderCal(); renderAgenda(); renderTodo();
-  if(activeTab==='inq') renderInq();
-  if(activeTab==='set') renderSettings();
-}
-
-/* ---------- tabs ---------- */
-function tab(n){
-  activeTab=n;
-  ['cal','inq','set'].forEach(k=>$('v-'+k).classList.toggle('hide',k!==n));
-  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on2',b.dataset.n===n));
-  refresh(); window.scrollTo({top:0});
-}
-
-/* ---------- todo / alerts ---------- */
-function renderTodo(){
-  const act=S.inquiries.filter(i=>i.status!=='취소');
-  const items=[];
-  act.filter(i=>i.status==='입금전'&&i.dueDate).forEach(i=>{
-    const d=daysFromToday(i.dueDate);
-    if(d<0) items.push([0,'al-r',`⏰ ${i.clientName}님 계약금 입금기한 ${-d}일 지남`,i.id]);
-    else if(d===0) items.push([1,'al-r',`⏰ ${i.clientName}님 계약금 입금기한 오늘`,i.id]);
-    else if(d===1) items.push([2,'al-y',`⏳ ${i.clientName}님 계약금 입금기한 내일`,i.id]);
-  });
-  act.filter(i=>i.status==='문의접수').forEach(i=>items.push([3,'al-b',`💬 ${i.clientName}님 문의접수 · 입금전 안내 필요`,i.id]));
-  act.filter(i=>i.status==='입금후'&&!i.balancePaid&&Number(i.totalPrice)>Number(i.depositAmount)&&i.date).forEach(i=>{
-    const d=daysFromToday(i.date); if(d>=0&&d<=7) items.push([2,'al-y',`💰 ${i.clientName}님 잔금 ${won(i.totalPrice-i.depositAmount)}원 · 예식 D-${d}`,i.id]);
-  });
-  act.filter(i=>i.date&&i.status==='입금후').forEach(i=>{
-    const d=daysFromToday(i.date); if(d>=0&&d<=3) items.push([1,'al-r',`📷 ${i.clientName}님 ${d===0?'오늘':'D-'+d} 촬영 · ${i.time||''}`,i.id]);
-  });
-  items.sort((a,b)=>a[0]-b[0]);
-  $('todo-card').innerHTML=`<h2>🔔 오늘 할 일</h2>`+(items.length
-    ? items.slice(0,8).map(x=>`<div class="alert ${x[1]}"><span>${esc(x[2])}</span><button class="btn sm" onclick="openInq('${x[3]}')">열기</button></div>`).join('')
-    : `<p style="margin-top:4px">✅ 처리할 알림이 없습니다</p>`);
-}
-
-/* ---------- calendar ---------- */
-function moveMonth(d){ calM+=d; if(calM<0){calM=11;calY--} if(calM>11){calM=0;calY++} renderCal(); }
-function goToday(){ const t=new Date(); calY=t.getFullYear(); calM=t.getMonth(); selDate=iso(t); renderCal(); renderAgenda(); }
-function setCalFilter(f){ calFilter=f; renderCal(); renderAgenda(); }
-function pickDay(d){ selDate=d; renderCal(); renderAgenda(); }
-function dayItems(d,includeCancel){
-  return S.inquiries.filter(i=>i.date===d&&(includeCancel||i.status!=='취소')&&(calFilter==='all'||i.status===calFilter))
-    .sort((a,b)=>(a.time||'').localeCompare(b.time||''));
-}
-const PILL={q:'background:var(--q);color:#fff',b:'background:var(--b);color:var(--ink)',a:'background:var(--a);color:#fff',x:'background:#cbd5e1;color:#334155'};
-function renderCal(){
-  $('cal-title').textContent=`${calY}년 ${calM+1}월`;
-  $('cal-filters').innerHTML=[['all','전체'],['입금후','🟢 입금후'],['입금전','🟠 입금전']].map(([v,l])=>`<button class="btn sm ${calFilter===v?'on':''}" onclick="setCalFilter('${v}')">${l}</button>`).join('');
-  const first=new Date(calY,calM,1).getDay(), last=new Date(calY,calM+1,0).getDate(), t=todayISO(); let h='';
-  for(let i=0;i<first;i++) h+='<div></div>';
-  for(let d=1;d<=last;d++){
-    const ds=`${calY}-${pad(calM+1)}-${pad(d)}`, dow=new Date(calY,calM,d).getDay(), its=dayItems(ds);
-    h+=`<button class="cell ${ds===selDate?'sel':''} ${ds===t?'today':''}" onclick="pickDay('${ds}')"><i class="${dow===0?'sun':dow===6?'sat':''}">${d}</i>`
-      +its.slice(0,2).map(e=>`<s style="${PILL[SK[e.status]]}">${esc(e.clientName.split('&')[0].trim())}</s>`).join('')
-      +(its.length>2?`<em>+${its.length-2}건</em>`:'')+'</button>';
-  }
-  $('cal-grid').innerHTML=h;
-}
-function renderAgenda(){
-  const its=dayItems(selDate,true);
-  $('ag-title').textContent=`${kdate(selDate)} 일정`;
-  $('ag-sub').textContent=its.length?`총 ${its.length}건`:'예약 가능 (일정 비어있음)';
-  $('ag-list').innerHTML=its.length?its.map(cardHTML).join(''):`<div class="box" style="text-align:center;padding:20px"><b style="color:#047857">✅ 예약 가능</b><p style="margin:4px 0 10px">이 날짜에는 등록된 예약이 없습니다</p><button class="btn am" onclick="openInq(null,selDate)">+ 이 날짜에 예약 추가</button></div>`;
-}
-
-/* ---------- inquiry list & card ---------- */
-function ddayBadge(i){
-  if(i.status==='취소'||!i.date) return '';
-  const d=daysFromToday(i.date), l=d===0?'D-DAY':d>0?`D-${d}`:`D+${-d}`;
-  const st=d<0?'background:#f1f5f9;color:#64748b':d<=7?'background:#ffe4e6;color:#be123c':'background:var(--ink);color:#fcd34d';
-  return ` <span style="${st};padding:1px 6px;border-radius:6px;font-size:10px;font-weight:800">${l}</span>`;
-}
-function cardHTML(i){
-  const k=SK[i.status]||'q', total=Number(i.totalPrice||0), dep=Number(i.depositAmount||0), bal=Math.max(0,total-dep);
-  const dueTxt=i.dueDate&&i.status==='입금전'?`<div><span>입금기한</span><b style="color:#be123c">${kdate(i.dueDate)}</b></div>`:'';
-  const balTxt=i.status==='입금후'&&bal>0?`<div><span>잔금</span><b style="color:${i.balancePaid?'#047857':'#be123c'}">${i.balancePaid?'✅ 완료':'미수 '+won(bal)+'원'}</b></div>`:'';
-  return `<article class="c" style="display:flex;flex-direction:column;gap:9px">
-  <div class="row"><div class="row" style="gap:5px;min-width:0"><span class="tag t-${k}">${i.status}</span><span class="tag t-x">${esc(i.category)}</span></div>
-    <select class="btn sm" onchange="setStatus('${i.id}',this.value)">${STATUSES.map(s=>`<option ${s===i.status?'selected':''}>${s}</option>`).join('')}</select></div>
-  <div class="row"><b style="font-size:16px">${esc(i.clientName)} 님</b>${i.phone?`<a href="tel:${esc(i.phone)}" style="color:var(--mut);font-size:12px;font-weight:700;text-decoration:none">📞 ${esc(i.phone)}</a>`:''}</div>
-  <div class="box">
-    <div><span>예식일시</span><b>${kdate(i.date)} ${ktime(i.time)}${ddayBadge(i)}</b></div>
-    <div><span>예식장소</span><b>${esc(i.venue||'장소 미정')}</b></div>
-    <div><span>결제방식</span><b style="color:#4338ca">${esc(i.paymentMethod||'미정')}</b></div>
-    <div><span>포트폴리오</span><b>${portTag(i)}</b></div>
-    <div style="border-top:1px solid var(--ln);margin-top:3px;padding-top:5px"><span>금액</span><b>${won(total)}원 <span style="color:#b45309">(계약금 ${won(dep)} · 잔금 ${won(bal)})</span></b></div>
-    ${dueTxt}${balTxt}
-  </div>
-  <div class="g4">${STATUSES.map(s=>`<button class="btn sm ${s===i.status?'on-'+SK[s]:''}" onclick="setStatus('${i.id}','${s}')">${s}</button>`).join('')}</div>
-  ${i.notes?`<div class="note">📝 ${esc(i.notes)}</div>`:''}
-  <div class="g2"><button class="btn yl" onclick="copyMsg('${i.id}','before')">📋 입금전 안내 복사</button><button class="btn gn" onclick="copyMsg('${i.id}','after')">✅ 입금후 확정 복사</button></div>
-  ${i.status==='입금후'&&bal>0?`<button class="btn ${i.balancePaid?'':'am'} sm" onclick="toggleBal('${i.id}')">${i.balancePaid?'↩︎ 잔금 미수로 되돌리기':'💰 잔금 입금 완료 처리'}</button>`:''}
-  <div class="row" style="border-top:1px solid #f1f5f9;padding-top:8px;gap:5px">
-    <button class="btn sm" onclick="openPreview('${i.id}','${i.status==='입금후'?'after':'before'}')">👁️ 미리보기</button>
-    <button class="btn bl sm" style="flex:1" onclick="icsOne('${i.id}')">📅 캘린더 저장</button>
-    <button class="btn sm" onclick="openInq('${i.id}')">수정</button>
-    <button class="btn rd sm" onclick="delInq('${i.id}')">삭제</button>
-  </div></article>`;
-}
-function renderInq(){
-  $('pipe').innerHTML=['전체',...STATUSES].map(s=>{
-    const n=s==='전체'?S.inquiries.length:S.inquiries.filter(i=>i.status===s).length;
-    return `<button class="btn sm ${inqFilter===s?'on':''}" onclick="inqFilter='${s}';renderInq()">${s} ${n}</button>`;
-  }).join('');
-  const q=($('q').value||'').trim().toLowerCase();
-  const pf=k=>k==='전체'?S.inquiries.length:S.inquiries.filter(i=>k==='미확인'?!i.portfolio:i.portfolio===k).length;
-  $('port-filter').innerHTML='<span style="font-size:11px;font-weight:800;color:var(--mut);align-self:center">📸</span>'+['전체','동의','미동의','미확인'].map(k=>`<button class="btn sm ${portFilter===k?'on':''}" onclick="portFilter='${k}';renderInq()">${k} ${pf(k)}</button>`).join('');
-  const list=S.inquiries.filter(i=>inqFilter==='전체'||i.status===inqFilter)
-    .filter(i=>portFilter==='전체'||(portFilter==='미확인'?!i.portfolio:i.portfolio===portFilter))
-    .filter(i=>!q||[i.clientName,i.phone,i.venue,i.category,i.paymentMethod,i.date,i.notes,i.portfolio?'포트폴리오'+i.portfolio:''].join(' ').toLowerCase().includes(q))
-    .sort((a,b)=>(a.date||'').localeCompare(b.date||'')||(a.time||'').localeCompare(b.time||''));
-  $('inq-list').innerHTML=list.length?list.map(cardHTML).join(''):`<div class="c" style="text-align:center;padding:30px"><b>표시할 예약문의가 없습니다</b><p style="margin:6px 0 12px">[+ 문의 추가]로 등록해 보세요</p><button class="btn dk" onclick="openInq()">+ 첫 문의 등록</button></div>`;
-}
-function setStatus(id,s){
-  const i=S.inquiries.find(x=>x.id===id); if(!i) return;
-  i.status=s; save(); refresh(); toast(`'${s}' 상태로 변경되었습니다`);
-}
-function toggleBal(id){ const i=S.inquiries.find(x=>x.id===id); if(!i) return; i.balancePaid=!i.balancePaid; save(); refresh(); toast(i.balancePaid?'💰 잔금 완료 처리':'잔금 미수로 되돌림'); }
-function delInq(id){ const i=S.inquiries.find(x=>x.id===id); if(!i) return; ask(`${i.clientName} 님의 예약을 삭제할까요?`,()=>{ S.inquiries=S.inquiries.filter(x=>x.id!==id); save(); refresh(); toast('삭제되었습니다'); }); }
-
-/* ---------- messages ---------- */
-function buildMsg(i,type){
-  const tpl=type==='before'?S.templates.beforeDeposit:S.templates.afterDeposit;
-  const total=Number(i.totalPrice||0), dep=Number(i.depositAmount||0), bal=Math.max(0,total-dep);
-  const map={성함:i.clientName||'고객',고객명:i.clientName||'고객',상품:i.category||'DVD',예식일자:kdate(i.date),예식시간:ktime(i.time),예식장소:i.venue||'장소 미정',
-    결제방식:i.paymentMethod||'계좌이체',총금액:won(total),계약금:won(dep),잔금:won(bal),입금기한:i.dueDate?kdate(i.dueDate):'안내 시점 기준 3일 이내',계좌정보:S.templates.bankInfo||'',포트폴리오:i.portfolio||'미확인'};
-  return String(tpl||'').replace(/\{([^{}]+)\}/g,(m,k)=>k in map?map[k]:m);
-}
-function copyMsg(id,type){
-  const i=S.inquiries.find(x=>x.id===id); if(!i) return;
-  copyText(buildMsg(i,type));
-  if(type==='before'&&i.status==='문의접수'){ i.status='입금전'; save(); refresh(); toast(`📋 ${i.clientName}님 입금전 멘트 복사 (상태→입금전)`); }
-  else toast(type==='before'?`📋 ${i.clientName}님 입금전 멘트 복사됨`:`✅ ${i.clientName}님 입금후 확정 멘트 복사됨`);
-}
-function copyRequestTpl(){ copyText(S.templates.inquiryRequest||DEF.inquiryRequest); toast('📤 고객용 문의양식이 복사되었습니다. 카톡에 붙여넣기 하세요'); }
-let pvId=null,pvType='before';
-function openPreview(id,type){ const i=S.inquiries.find(x=>x.id===id); if(!i) return; pvId=id; $('pv-title').textContent=`👁️ ${i.clientName}님 멘트`; pvTab(type); openM('m-prev'); }
-function pvTab(t){
-  const i=S.inquiries.find(x=>x.id===pvId); if(!i) return; pvType=t;
-  $('pv-b').className='btn '+(t==='before'?'on-b':''); $('pv-a').className='btn '+(t==='after'?'on-a':'');
-  $('pv-text').value=buildMsg(i,t);
-}
-function pvCopy(){
-  copyText($('pv-text').value);
-  const i=S.inquiries.find(x=>x.id===pvId);
-  if(i&&pvType==='before'&&i.status==='문의접수'){ i.status='입금전'; save(); refresh(); }
-  closeM('m-prev'); toast('📋 멘트가 복사되었습니다');
-}
+const deliverDue = i => i.date?addDays(i.date,Number(S.cfg.deliveryDays)||30):'';
+const isBlocked = ds => S.blocked.find(b=>b.date===ds);
 
 /* ---------- kakao parser ---------- */
 const LBL={
@@ -473,6 +425,7 @@ const LBL={
   time:'예식\\s*시간|예식\\s*시각|촬영\\s*시간|본식\\s*시간|시간|시각',
   pay:'결제\\s*방식|결제\\s*방법|결제\\s*수단|결제',
   phone:'연락처|전화\\s*번호|전화|휴대폰|핸드폰|핸폰|번호',
+  code:'(?:짝꿍|추천|할인|프로모션)\\s*코드(?:\\([^)\\n]{0,20}\\))?',
   port:'(?:포트폴리오|촬영\\s*물|촬영\\s*본|SNS|인스타그램|인스타|홍보)[가-힣 ]{0,10}?(?:\\([^)\\n]{0,20}\\))?'
 };
 const KEYS=Object.keys(LBL);
@@ -641,6 +594,11 @@ function parseKakaoText(raw){
     const hits=[]; if(/현금\s*영수증/.test(unNP)) hits.push('현금영수증'); if(/카드/.test(unNP)) hits.push('카드'); if(/계좌|이체|무통장/.test(unNP)) hits.push('계좌이체');
     if(hits.length===1){ r.pay=hits[0]; r.payGuess=true; }
   }
+  // 짝꿍코드
+  let cd=lab.code?normCode(lab.code):'';
+  if(cd&&!/^[A-Z0-9]{2,8}-?[A-Z0-9]{3,8}$/.test(cd)) cd='';
+  if(!cd){ const mc=t.toUpperCase().match(/(?<![A-Z0-9])([A-Z]{2,4}-[A-Z0-9]{4,6})(?![A-Z0-9])/); if(mc) cd=mc[1]; }
+  if(cd) r.code=cd;
   // 포트폴리오 동의
   let pc=lab.port?parseConsent(lab.port):'';
   if(!pc){ for(const line of t.split(/\r?\n/)){ if(/포트폴리오|SNS|인스타|홍보|게시|촬영물|촬영본/.test(line)){ const c=parseConsent(line); if(c){ pc=c; break; } } } }
@@ -653,6 +611,8 @@ function setCat(v){
   if(f){ s.value=f.value; return; }
   const o=document.createElement('option'); o.value=o.textContent=v; s.insertBefore(o,s.firstChild); s.value=v;
 }
+
+
 
 function parseKakao(raw){
   const badge=$('pbadge');
@@ -670,11 +630,15 @@ function parseKakao(raw){
     if(d.inferred&&!d.weekdayGiven) warns.push(`연도가 없어 ${y}년으로 추정`);
     const eid=$('f-id').value, ex=S.inquiries.filter(i=>i.date===d.iso&&i.status!=='취소'&&i.id!==eid);
     if(ex.length) warns.push(`같은 날 기존 예약 ${ex.length}건 (${ex.map(e=>e.clientName).join(', ')})`);
+    const bl=isBlocked(d.iso); if(bl) warns.push('휴무/마감일로 지정된 날짜예요');
   } else miss.push('예식일자');
   if(r.time){ $('f-time').value=r.time.t24; markTime(); items.push(['시간',r.time.label]); if(r.time.guessed) warns.push('오전/오후 표시가 없어 오후로 추정'); } else miss.push('예식시간');
   if(r.venue){ $('f-venue').value=r.venue; items.push(['장소',r.venue]); if(r.venueGuess) warns.push('장소는 추정값이에요, 확인해 주세요'); } else miss.push('예식장소');
   if(r.pay){ setPay(r.pay); items.push(['결제',r.pay]); if(r.payGuess) warns.push('결제방식은 문장에서 추정'); } else miss.push('결제방식');
   if(r.port){ setPort(r.port); items.push(['포트폴리오',r.port]); } else miss.push('포트폴리오 동의');
+  if(r.code){ $('f-code').value=r.code; items.push(['짝꿍코드',r.code]); }
+  renderFormPrice();
+  if(r.code){ const c=formCalc(); if(!c.chk.ok) warns.push('짝꿍코드: '+c.chk.msg.replace('❌ ','')); }
   badge.classList.remove('hide');
   if(!items.length){
     badge.style.background='#64748b';
@@ -687,7 +651,6 @@ function parseKakao(raw){
   badge.style.background=(warns.length||miss.length)?'#b45309':'var(--a)';
   badge.innerHTML=h;
 }
-
 const REPLY_SAMPLES=[
 `안녕하세요 😊
 📦 예약상품: DVD
@@ -698,7 +661,8 @@ const REPLY_SAMPLES=[
 4. 예식시간: 12시 30분
 5. 결제방식: 카드
 6. 연락처: 010-1234-5678
-7. 포트폴리오 사용 동의(동의/미동의): 동의`,
+7. 포트폴리오 사용 동의(동의/미동의): 동의
+8. 짝꿍코드(없으면 공란):`,
 `📦 예약상품: 서브스냅
 
 1. 성함: 김하늘 / 박서준
@@ -717,98 +681,403 @@ const REPLY_SAMPLES=[
 포트폴리오는 괜찮아요`,
 `안녕하세요 예약 문의드려요. 이름은 최민아이고요 28.3.18 서울숲 웨딩홀에서 오후 3시 30분에 합니다. 카드로 결제할게요 010 5555 6666`
 ];
-
 function sampleReply(){
   const n=sampleIdx%REPLY_SAMPLES.length, s=REPLY_SAMPLES[n]; sampleIdx++;
   $('parser').value=s; parseKakao(s);
   toast(`🧪 예시 ${n+1}/${REPLY_SAMPLES.length} 분석 완료 (다시 누르면 다른 예시)`);
 }
-
-/* ---------- 포트폴리오 동의 ---------- */
-function setPort(v){
-  formPort=v||'';
-  $('f-port').innerHTML=[['동의','☑️ 동의','a'],['미동의','⬜ 미동의','r'],['','❔ 미확인','']].map(([val,l,k])=>
-    `<button type="button" class="btn sm ${formPort===val?(k?'on-'+k:'on'):''}" onclick="setPort('${val}')">${l}</button>`).join('');
-}
-function portTag(i){
-  const v=i.portfolio||'', cls=v==='동의'?'t-a':v==='미동의'?'t-r':'t-x';
-  return `<button type="button" class="tag ${cls}" onclick="cyclePort('${i.id}')">📸 ${v||'미확인'}</button>`;
-}
-function cyclePort(id){
-  const i=S.inquiries.find(x=>x.id===id); if(!i) return;
-  const o=['','동의','미동의']; i.portfolio=o[(o.indexOf(i.portfolio||'')+1)%3];
-  save(); refresh(); toast(`📸 포트폴리오: ${i.portfolio||'미확인'}`);
-}
-
-/* ---------- 금액 현황 ---------- */
-function calcMoney(list){
-  let total=0,paid=0,bal=0,pend=0,n=0;
-  list.forEach(i=>{
-    const t=Number(i.totalPrice)||0;
-    if(i.status==='입금후'){
-      n++; total+=t; const dp=Math.min(Number(i.depositAmount)||0,t);
-      if(i.balancePaid) paid+=t; else { paid+=dp; bal+=t-dp; }
-    } else if(i.status==='입금전') pend+=t;
-  });
-  return {total,paid,bal,pend,n};
-}
-function setMoneyScope(s){ moneyScope=s; renderMoney(); }
-function renderMoney(){
-  const pre=`${calY}-${pad(calM+1)}`, act=S.inquiries.filter(i=>i.status!=='취소');
-  const list=moneyScope==='month'?act.filter(i=>(i.date||'').startsWith(pre)):act, m=calcMoney(list);
-  $('ms-m').className='btn sm '+(moneyScope==='month'?'on':''); $('ms-a').className='btn sm '+(moneyScope==='all'?'on':'');
-  $('money-label').textContent=moneyScope==='month'?`${calY}년 ${calM+1}월 예식 기준 · 입금후(확정) 건`:'전체 누적 · 입금후(확정) 건';
-  const pct=m.total?Math.round(m.paid/m.total*100):0;
-  const cell=(l,v,c,sub)=>`<div class="box" style="display:block;background:${c[0]};border-color:${c[1]}"><div style="color:${c[2]};font-weight:700">${l}</div><b style="font-size:17px;display:block;text-align:left;color:${c[3]}">${won(v)}원</b>${sub?`<div style="color:${c[2]};font-weight:700;font-size:11px">${sub}</div>`:''}</div>`;
-  $('money').innerHTML=`<div class="g2">`
-    +cell(`총금액 (확정 ${m.n}건)`,m.total,['#f1f5f9','#e2e8f0','#475569','#0f172a'])
-    +cell('입금완료',m.paid,['#ecfdf5','#a7f3d0','#047857','#065f46'],`${pct}% 수금`)
-    +cell('잔금 (미수)',m.bal,['#fff1f2','#fecdd3','#be123c','#9f1239'],m.bal?'아직 못 받은 금액':'모두 수금 완료')
-    +cell('가예약 예상 (입금전)',m.pend,['#fffbeb','#fde68a','#92400e','#78350f'],'확정되면 매출')
-    +`</div><div style="height:8px;background:#e2e8f0;border-radius:99px;margin-top:10px;overflow:hidden"><div style="height:100%;width:${pct}%;background:var(--a)"></div></div>`;
-  const ps={'동의':0,'미동의':0,'미확인':0};
-  act.forEach(i=>{ ps[i.portfolio==='동의'||i.portfolio==='미동의'?i.portfolio:'미확인']++; });
-  $('port-stats').innerHTML=`<b style="color:var(--mut);display:block">📸 포트폴리오 사용 동의 (취소 제외 전체)</b><div><span>☑️ 동의</span><b>${ps['동의']}건</b></div><div><span>⬜ 미동의</span><b>${ps['미동의']}건</b></div><div><span>❔ 미확인</span><b>${ps['미확인']}건</b></div>`;
-}
-
 async function pasteClip(){
   try{ const t=await navigator.clipboard.readText(); if(t&&t.trim()){ $('parser').value=t; parseKakao(t); toast('📋 클립보드 내용을 자동 인식했습니다'); return; } }catch(e){}
   $('parser').focus(); toast('입력칸을 길게 눌러 [붙여넣기] 하세요');
 }
 function clearParser(){ $('parser').value=''; $('pbadge').classList.add('hide'); }
 
+/* ---------- data load / save ---------- */
+function samples(){
+  const n=new Date(), p=`${n.getFullYear()}-${pad(n.getMonth()+1)}`;
+  return [
+    {id:'sample-1',status:'계약금완료',clientName:'김지현 & 박준호',phone:'010-4829-1920',category:'DVD',date:`${p}-21`,time:'12:30',venue:'더채플앳청담 6층 채플홀',paymentMethod:'계좌이체',basePrice:1100000,portfolio:'동의',portDisc:60000,depositAmount:300000,dueDate:'',balancePaid:false,source:'인스타그램',notes:'신부대기실 11:30 도착 예정.',createdAt:Date.now()-2e8,depositAt:Date.now()-1.5e8},
+    {id:'sample-2',status:'입금전',clientName:'이수빈',phone:'010-9134-7742',category:'서브스냅',date:`${p}-28`,time:'14:00',venue:'인천 아시아드 웨딩컨벤션',paymentMethod:'카드',basePrice:650000,depositAmount:200000,dueDate:todayISO(),balancePaid:false,source:'지인 소개',notes:'계약금 입금 대기',createdAt:Date.now()-1e8}
+  ];
+}
+function normalizeAll(){
+  const now=Date.now();
+  S.inquiries.forEach(i=>{
+    if(i.status==='입금후') i.status='계약금완료';
+    if(!STATUSES.includes(i.status)) i.status='문의접수';
+    if(i.basePrice==null) i.basePrice=Number(i.totalPrice)||0;
+    delete i.totalPrice;
+    ['portDisc','codeInDisc','codeOutDisc','depositAmount'].forEach(k=>{ i[k]=Number(i[k])||0; });
+    i.delivered=!!i.delivered; i.receipt=!!i.receipt; i.deliveredAt=i.deliveredAt||'';
+    i.codeUsed=i.codeUsed||''; i.source=i.source||''; i.portfolio=i.portfolio||'';
+    if(!i.createdAt) i.createdAt=now;
+    ensureCode(i);
+  });
+}
+function insAfter(t,re,line){ const m=t.match(re); if(!m) return t; const k=m.index+m[0].length; return t.slice(0,k)+'\n'+line+t.slice(k); }
+function migrateTemplates(){
+  const T=S.templates;
+  ['defaultTotalPrice','defaultDepositAmount','dueDays'].forEach(k=>delete T[k]);
+  if(!/포트폴리오 사용 동의/.test(T.inquiryRequest)) T.inquiryRequest=insAfter(T.inquiryRequest,/^.*연락처:.*$/m,'7. 포트폴리오 사용 동의(동의/미동의):');
+  if(!/짝꿍코드/.test(T.inquiryRequest)) T.inquiryRequest=insAfter(T.inquiryRequest,/^.*포트폴리오 사용 동의.*$/m,'8. 짝꿍코드(없으면 공란):');
+  ['beforeDeposit','afterDeposit'].forEach(k=>{
+    if(!/\{할인내역\}/.test(T[k])) T[k]=T[k].replace(/^.*\{총금액\}.*$/m,m=>'{할인내역}\n'+m);
+  });
+  if(!/\{짝꿍코드\}/.test(T.afterDeposit)){
+    const blk='🤝 짝꿍코드: {짝꿍코드}\n주변에 예식을 앞둔 분께 이 코드를 알려주세요. 예약 문의 때 코드를 말씀해주시면 할인 혜택을 드립니다!\n';
+    T.afterDeposit=/^예식 3~4일 전/m.test(T.afterDeposit)?T.afterDeposit.replace(/^예식 3~4일 전/m,blk+'\n예식 3~4일 전'):T.afterDeposit+'\n\n'+blk;
+  }
+}
+function adopt(p){
+  S.inquiries=Array.isArray(p.inquiries)?p.inquiries:[];
+  const T=p.templates||{};
+  S.templates={...DEF,...T};
+  const old={defaultTotal:T.defaultTotalPrice,defaultDeposit:T.defaultDepositAmount,dueDays:T.dueDays};
+  Object.keys(old).forEach(k=>{ if(old[k]==null) delete old[k]; });
+  S.cfg={...DEF_CFG,...old,...(p.cfg||{})};
+  S.blocked=Array.isArray(p.blocked)?p.blocked:[];
+  S.meta=p.meta||{};
+}
+function load(){
+  try{
+    const raw=localStorage.getItem(KEY);
+    if(raw) adopt(JSON.parse(raw)); else S.inquiries=samples();
+  }catch(e){ console.error(e); S.inquiries=samples(); }
+  if(!S.meta.firstUse) S.meta.firstUse=Date.now();
+  normalizeAll(); migrateTemplates(); save();
+}
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){ toast('⚠️ 저장 공간 오류: 백업을 받아두세요'); } updateBadge(); }
+function updateBadge(){
+  const n=S.inquiries.filter(i=>i.status==='문의접수'||i.status==='입금전').length, b=$('badge');
+  b.textContent=n; b.classList.toggle('hide',!n);
+}
+function refresh(){
+  renderCal(); renderAgenda(); renderTodo();
+  if(activeTab==='inq') renderInq();
+  if(activeTab==='stat') renderStat();
+  if(activeTab==='set') renderSettings();
+}
+function tab(n){
+  activeTab=n;
+  ['cal','inq','stat','set'].forEach(k=>$('v-'+k).classList.toggle('hide',k!==n));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on2',b.dataset.n===n));
+  refresh(); window.scrollTo({top:0});
+}
+
+/* ---------- todo / alerts ---------- */
+function renderTodo(){
+  const act=S.inquiries.filter(i=>i.status!=='취소'), items=[], t=todayISO();
+  const open=id=>`<button class="btn sm" onclick="openInq('${id}')">열기</button>`;
+  const add=(p,cls,text,btn)=>items.push({p,cls,text,btn});
+  // 백업
+  if(S.inquiries.length){
+    const last=S.meta.lastBackup||S.meta.firstUse||Date.now(), days=Math.floor((Date.now()-last)/86400000), lim=Number(S.cfg.backupDays)||14;
+    if(days>=lim) add(1,'al-y',`💾 ${S.meta.lastBackup?`마지막 백업 ${days}일 전`:'아직 백업한 적이 없어요'} · 데이터는 이 폰에만 저장돼요`,`<button class="btn dk sm" onclick="exportJSON()">백업</button>`);
+  }
+  act.forEach(i=>{
+    if(i.status==='입금전'&&i.dueDate){
+      const d=daysFromToday(i.dueDate);
+      if(d<0) add(0,'al-r',`⏰ ${i.clientName}님 계약금 입금기한 ${-d}일 지남`,open(i.id));
+      else if(d===0) add(1,'al-r',`⏰ ${i.clientName}님 계약금 입금기한 오늘`,open(i.id));
+      else if(d===1) add(2,'al-y',`⏳ ${i.clientName}님 계약금 입금기한 내일`,open(i.id));
+    }
+    if(i.status==='문의접수') add(3,'al-b',`💬 ${i.clientName}님 문의접수 · 입금전 안내 필요`,open(i.id));
+    if(isConf(i)&&i.date){
+      const d=daysFromToday(i.date), bal=balOf(i);
+      if(i.status==='계약금완료'&&bal>0&&!i.balancePaid&&d>=0&&d<=7) add(2,'al-y',`💰 ${i.clientName}님 잔금 ${won(bal)}원 · 예식 ${d===0?'오늘':'D-'+d}`,open(i.id));
+      if(i.status==='계약금완료'&&d>=0&&d<=3) add(1,'al-r',`📷 ${i.clientName}님 ${d===0?'오늘':'D-'+d} 촬영 · ${i.time||''}`,open(i.id));
+      if(i.status==='계약금완료'&&d<0) add(2,'al-b',`🎬 ${i.clientName}님 촬영 끝났나요? (${mdIso(i.date)})`,`<button class="btn sm" onclick="requestStatus('${i.id}','촬영완료')">촬영완료</button>`);
+      if(!i.delivered&&d<=0){
+        const dd=daysFromToday(deliverDue(i));
+        if(dd<0) add(0,'al-r',`📦 ${i.clientName}님 납품 기한 ${-dd}일 지남`,open(i.id));
+        else if(dd<=3) add(2,'al-y',`📦 ${i.clientName}님 납품 ${dd===0?'기한 오늘':'D-'+dd}`,open(i.id));
+      }
+    }
+    if(isConf(i)&&!i.receipt&&/현금\s*영수증/.test(i.paymentMethod||'')) add(3,'al-b',`🧾 ${i.clientName}님 현금영수증 발행 필요`,`<button class="btn sm" onclick="toggleRcpt('${i.id}')">발행완료</button>`);
+  });
+  items.sort((a,b)=>a.p-b.p);
+  $('todo-card').innerHTML=`<h2>🔔 오늘 할 일</h2>`+(items.length
+    ? items.slice(0,10).map(x=>`<div class="alert ${x.cls}"><span>${esc(x.text)}</span>${x.btn}</div>`).join('')+(items.length>10?`<p style="margin-top:6px">외 ${items.length-10}건</p>`:'')
+    : `<p style="margin-top:4px">✅ 처리할 알림이 없습니다</p>`);
+}
+
+/* ---------- calendar ---------- */
+function moveMonth(d){ calM+=d; if(calM<0){calM=11;calY--} if(calM>11){calM=0;calY++} renderCal(); }
+function goToday(){ const t=new Date(); calY=t.getFullYear(); calM=t.getMonth(); selDate=iso(t); renderCal(); renderAgenda(); }
+function setCalFilter(f){ calFilter=f; renderCal(); renderAgenda(); }
+function pickDay(d){ selDate=d; renderCal(); renderAgenda(); }
+function dayItems(d,includeCancel){
+  return S.inquiries.filter(i=>i.date===d&&(includeCancel||i.status!=='취소')&&(calFilter==='all'||i.status===calFilter))
+    .sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+}
+const PILL={q:'background:var(--q);color:#fff',b:'background:var(--b);color:var(--ink)',a:'background:var(--a);color:#fff',d:'background:#7c3aed;color:#fff',x:'background:#cbd5e1;color:#334155'};
+function renderCal(){
+  $('cal-title').textContent=`${calY}년 ${calM+1}월`;
+  $('cal-filters').innerHTML=[['all','전체'],['문의접수','🔵 문의'],['입금전','🟠 입금전'],['계약금완료','🟢 계약금'],['촬영완료','🟣 촬영완료']].map(([v,l])=>`<button class="btn sm ${calFilter===v?'on':''}" onclick="setCalFilter('${v}')">${l}</button>`).join('');
+  const first=new Date(calY,calM,1).getDay(), last=new Date(calY,calM+1,0).getDate(), t=todayISO(); let h='';
+  for(let i=0;i<first;i++) h+='<div></div>';
+  for(let d=1;d<=last;d++){
+    const ds=`${calY}-${pad(calM+1)}-${pad(d)}`, dow=new Date(calY,calM,d).getDay(), its=dayItems(ds), bl=isBlocked(ds);
+    h+=`<button class="cell ${ds===selDate?'sel':''} ${ds===t?'today':''} ${bl?'blk':''}" onclick="pickDay('${ds}')"><i class="${dow===0?'sun':dow===6?'sat':''}">${d}</i>`
+      +(bl?`<s style="background:#94a3b8;color:#fff">🚫${esc((bl.label||'휴무').slice(0,3))}</s>`:'')
+      +its.slice(0,bl?1:2).map(e=>`<s style="${PILL[SK[e.status]]}">${esc(e.clientName.split('&')[0].trim())}</s>`).join('')
+      +(its.length>(bl?1:2)?`<em>+${its.length-(bl?1:2)}건</em>`:'')+'</button>';
+  }
+  $('cal-grid').innerHTML=h;
+}
+function renderAgenda(){
+  const its=dayItems(selDate,true), bl=isBlocked(selDate);
+  $('ag-title').textContent=`${kdate(selDate)} 일정`;
+  $('ag-sub').textContent=bl?'🚫 휴무/마감일':its.length?`총 ${its.length}건`:'예약 가능 (일정 비어있음)';
+  $('ag-block').innerHTML=bl
+    ?`<div class="alert al-y" style="margin:0 0 8px"><span>🚫 휴무/마감일${bl.label?' · '+esc(bl.label):''}</span><button class="btn sm" onclick="toggleBlock('${selDate}')">해제</button></div>`
+    :`<div style="text-align:right;margin-bottom:6px"><button class="btn sm" onclick="toggleBlock('${selDate}')">🚫 이 날 휴무/마감 지정</button></div>`;
+  $('ag-list').innerHTML=its.length?its.map(cardHTML).join(''):`<div class="box" style="text-align:center;padding:20px"><b style="color:#047857">${bl?'🚫 마감된 날짜':'✅ 예약 가능'}</b><p style="margin:4px 0 10px">이 날짜에는 등록된 예약이 없습니다</p><button class="btn am" onclick="openInq(null,selDate)">+ 이 날짜에 예약 추가</button></div>`;
+}
+function toggleBlock(ds){
+  if(isBlocked(ds)){ S.blocked=S.blocked.filter(b=>b.date!==ds); toast('휴무/마감 해제'); }
+  else { S.blocked.push({date:ds,label:'휴무'}); toast('🚫 휴무/마감일로 지정했어요'); }
+  save(); renderCal(); renderAgenda(); if(activeTab==='set') renderBlocked();
+}
+
+/* ---------- inquiry list & card ---------- */
+function ddayBadge(i){
+  if(i.status==='취소'||!i.date) return '';
+  const d=daysFromToday(i.date), l=d===0?'D-DAY':d>0?`D-${d}`:`D+${-d}`;
+  const st=d<0?'background:#f1f5f9;color:#64748b':d<=7?'background:#ffe4e6;color:#be123c':'background:var(--ink);color:#fcd34d';
+  return ` <span style="${st};padding:1px 6px;border-radius:6px;font-size:10px;font-weight:800">${l}</span>`;
+}
+function portTag(i){
+  const v=i.portfolio||'', cls=v==='동의'?'t-a':v==='미동의'?'t-r':'t-x';
+  return `<button type="button" class="tag ${cls}" onclick="cyclePort('${i.id}')">📸 ${v||'미확인'}</button>`;
+}
+function msgBtnsFor(i){
+  return ({'문의접수':[['before','📋 입금전 안내','yl'],['after','✅ 확정 멘트','gn']],'입금전':[['before','📋 입금전 안내','yl'],['after','✅ 확정 멘트','gn']],
+    '계약금완료':[['after','✅ 확정 멘트','gn'],['balance','💰 잔금 안내','yl']],'촬영완료':[['delivery','📦 납품 안내','bl'],['review','⭐ 후기 요청','gn']],'취소':[]})[i.status]||[];
+}
+function cardHTML(i){
+  const k=SK[i.status]||'q', tp=price(i), dep=Number(i.depositAmount)||0, bal=balOf(i), conf=isConf(i), e=earned(i);
+  const disc=[]; if(i.portDisc>0) disc.push(`포트폴리오 −${won(i.portDisc)}`); if(i.codeInDisc>0) disc.push(`짝꿍코드 −${won(i.codeInDisc)}`); if(e>0) disc.push(`소개 −${won(e)}`);
+  const tl=[`📥 접수 ${mdTs(i.createdAt)}`]; if(i.depositAt) tl.push(`💳 계약금 ${mdTs(i.depositAt)}`); if(i.shotAt) tl.push(`🎬 촬영완료 ${mdTs(i.shotAt)}`); if(i.delivered&&i.deliveredAt) tl.push(`📦 납품 ${mdIso(i.deliveredAt)}`);
+  const dueTxt=i.dueDate&&i.status==='입금전'?`<div><span>입금기한</span><b style="color:#be123c">${kdate(i.dueDate)}</b></div>`:'';
+  const balTxt=conf&&(tp>dep||i.balancePaid)&&tp>dep?`<div><span>잔금</span><b style="color:${i.balancePaid?'#047857':'#be123c'}">${i.balancePaid?'✅ 완료':'미수 '+won(bal)+'원'}</b></div>`:'';
+  let dvTxt='';
+  if(conf&&i.date){
+    if(i.delivered) dvTxt=`<div><span>납품</span><b style="color:#047857">✅ 납품 완료 ${i.deliveredAt?mdIso(i.deliveredAt):''}</b></div>`;
+    else { const dd=daysFromToday(deliverDue(i)); dvTxt=`<div><span>납품 기한</span><b style="color:${dd<0?'#be123c':'#334155'}">${kdate(deliverDue(i))}${dd<0?' · '+(-dd)+'일 지남':''}</b></div>`; }
+  }
+  const mb=msgBtnsFor(i), pv=mb.length?mb[0][0]:'before';
+  const uses=i.pairCode?codeUses(i.pairCode,null):0, max=Number(S.cfg.pairMax)||0;
+  const codeBox=i.pairCode&&i.status!=='취소'?`<div class="box" style="background:#f5f3ff;border-color:#ddd6fe"><div style="align-items:center"><span>🤝 짝꿍코드 <b style="letter-spacing:1px;color:#6d28d9">${esc(i.pairCode)}</b></span><span class="row" style="gap:6px"><span style="font-size:11px;color:#6d28d9;font-weight:800">사용 ${uses}/${max||'∞'}</span><button class="btn sm" onclick="copyCode('${i.id}')">복사</button></span></div></div>`:'';
+  const ow=i.codeUsed?findOwner(i.codeUsed):null;
+  const usedBox=i.codeUsed?`<div class="note" style="background:#f5f3ff;color:#5b21b6">🔗 사용한 짝꿍코드 <b>${esc(i.codeUsed)}</b>${ow?` (${esc(ow.clientName)}님 소개)`:''}</div>`:'';
+  const mapq=encodeURIComponent(i.venue||'');
+  return `<article class="c" style="display:flex;flex-direction:column;gap:9px">
+  <div class="row"><div class="row" style="gap:5px;min-width:0;flex-wrap:wrap"><span class="tag t-${k}">${i.status}</span><span class="tag t-x">${esc(i.category)}</span>${i.source?`<span class="tag t-x">${esc(i.source)}</span>`:''}</div>
+    <select class="btn sm" onchange="requestStatus('${i.id}',this.value)">${STATUSES.map(s=>`<option ${s===i.status?'selected':''}>${s}</option>`).join('')}</select></div>
+  <div class="row"><b style="font-size:16px">${esc(i.clientName)} 님</b>${i.phone?`<a href="tel:${esc(i.phone)}" style="color:var(--mut);font-size:12px;font-weight:700;text-decoration:none">📞 ${esc(i.phone)}</a>`:''}</div>
+  <div style="font-size:10.5px;color:var(--mut);font-weight:700">${tl.join(' · ')}</div>
+  <div class="box">
+    <div><span>예식일시</span><b>${kdate(i.date)} ${ktime(i.time)}${ddayBadge(i)}</b></div>
+    <div><span>예식장소</span><b>${esc(i.venue||'장소 미정')}${i.venue?` <a class="mapbtn" target="_blank" rel="noopener" href="https://map.naver.com/p/search/${mapq}">네이버</a><a class="mapbtn" target="_blank" rel="noopener" href="https://map.kakao.com/link/search/${mapq}">카카오</a>`:''}</b></div>
+    <div><span>결제방식</span><b style="color:#4338ca">${esc(i.paymentMethod||'미정')}</b></div>
+    <div><span>포트폴리오</span><b>${portTag(i)}</b></div>
+    <div style="border-top:1px solid var(--ln);margin-top:3px;padding-top:5px"><span>금액</span><b>${won(tp)}원 <span style="color:#b45309">(계약금 ${won(dep)} · 잔금 ${won(bal)})</span></b></div>
+    ${disc.length?`<div><span style="font-size:11px">할인 내역</span><b style="font-size:11px;color:#6d28d9">기본 ${won(base(i))} · ${disc.join(' · ')}</b></div>`:''}
+    ${dueTxt}${balTxt}${dvTxt}
+  </div>
+  ${codeBox}${usedBox}
+  <div class="g5">${STATUSES.map(s=>`<button class="btn sm ${s===i.status?'on-'+SK[s]:''}" onclick="requestStatus('${i.id}','${s}')">${s}</button>`).join('')}</div>
+  ${i.notes?`<div class="note">📝 ${esc(i.notes)}</div>`:''}
+  ${mb.length?`<div class="g2">${mb.map(([t,l,c])=>`<button class="btn ${c}" onclick="copyMsg('${i.id}','${t}')">${l} 복사</button>`).join('')}</div>`:''}
+  ${conf?`<div class="wrap">${tp>dep?`<button class="btn sm ${i.balancePaid?'':'am'}" onclick="toggleBal('${i.id}')">${i.balancePaid?'↩︎ 잔금 미수로':'💰 잔금 완료 처리'}</button>`:''}<button class="btn sm ${i.delivered?'gn':''}" onclick="toggleDeliv('${i.id}')">${i.delivered?'📦 납품 완료 ✓':'📦 납품 완료 처리'}</button><button class="btn sm ${i.receipt?'gn':''}" onclick="toggleRcpt('${i.id}')">${i.receipt?'🧾 영수증 발행 ✓':'🧾 영수증 발행 처리'}</button></div>`:''}
+  <div class="row" style="border-top:1px solid #f1f5f9;padding-top:8px;gap:5px">
+    <button class="btn sm" onclick="openPreview('${i.id}','${pv}')">👁️ 미리보기</button>
+    <button class="btn bl sm" style="flex:1" onclick="icsOne('${i.id}')">📅 캘린더 저장</button>
+    <button class="btn sm" onclick="openInq('${i.id}')">수정</button>
+    <button class="btn rd sm" onclick="delInq('${i.id}')">삭제</button>
+  </div></article>`;
+}
+const monthKey = i => inqMode==='created' ? (()=>{ const d=new Date(i.createdAt||Date.now()); return `${d.getFullYear()}-${pad(d.getMonth()+1)}`; })() : ((i.date||'').slice(0,7)||'미정');
+function toggleMonth(k,def){ const id=inqMode+':'+k; monthOpen[id]=!(id in monthOpen?monthOpen[id]:def); renderInq(); }
+function renderInq(){
+  const q=($('q').value||'').trim().toLowerCase(), filtersOn=!!q||inqFilter!=='전체'||portFilter!=='전체';
+  const allBy={}; S.inquiries.forEach(i=>{ const k=monthKey(i); (allBy[k]=allBy[k]||[]).push(i); });
+  const years=[...new Set(Object.keys(allBy).map(k=>k.slice(0,4)).filter(y=>/^\d{4}$/.test(y)))].sort().reverse();
+  if(yearFilter!=='전체'&&!years.includes(yearFilter)) yearFilter='전체';
+  $('mode-chips').innerHTML=[['created','📥 접수월'],['event','💍 예식월']].map(([v,l])=>`<button class="btn sm ${inqMode===v?'on':''}" onclick="inqMode='${v}';renderInq()">${l}</button>`).join('');
+  $('year-chips').innerHTML=['전체',...years].map(y=>`<button class="btn sm ${yearFilter===y?'on':''}" onclick="yearFilter='${y}';renderInq()">${y==='전체'?'전체 연도':y+'년'}</button>`).join('');
+  $('pipe').innerHTML=['전체',...STATUSES].map(s=>{
+    const n=s==='전체'?S.inquiries.length:S.inquiries.filter(i=>i.status===s).length;
+    return `<button class="btn sm ${inqFilter===s?'on':''}" onclick="inqFilter='${s}';renderInq()">${s} ${n}</button>`;
+  }).join('');
+  const pf=k=>k==='전체'?S.inquiries.length:S.inquiries.filter(i=>k==='미확인'?!i.portfolio:i.portfolio===k).length;
+  $('port-filter').innerHTML='<span style="font-size:11px;font-weight:800;color:var(--mut);align-self:center">📸</span>'+['전체','동의','미동의','미확인'].map(k=>`<button class="btn sm ${portFilter===k?'on':''}" onclick="portFilter='${k}';renderInq()">${k} ${pf(k)}</button>`).join('');
+  const hay=i=>[i.clientName,i.phone,i.venue,i.category,i.paymentMethod,i.date,i.notes,i.source,i.pairCode,i.codeUsed,i.portfolio?'포트폴리오'+i.portfolio:''].join(' ').toLowerCase();
+  const match=i=>(inqFilter==='전체'||i.status===inqFilter)&&(portFilter==='전체'||(portFilter==='미확인'?!i.portfolio:i.portfolio===portFilter))&&(!q||hay(i).includes(q));
+  let keys=Object.keys(allBy).filter(k=>yearFilter==='전체'||k.startsWith(yearFilter)).sort();
+  if(inqMode==='created') keys.reverse();
+  const curYM=`${new Date().getFullYear()}-${pad(new Date().getMonth()+1)}`;
+  let html='', shownGroups=0;
+  keys.forEach((k,idx)=>{
+    const all=allBy[k], shown=all.filter(match);
+    if(filtersOn&&!shown.length) return;
+    shownGroups++;
+    shown.sort(inqMode==='created'?(a,b)=>(b.createdAt||0)-(a.createdAt||0):(a,b)=>(a.date||'').localeCompare(b.date||'')||(a.time||'').localeCompare(b.time||''));
+    const conf=all.filter(isConf), shot=all.filter(i=>i.status==='촬영완료'), cancel=all.filter(i=>i.status==='취소');
+    const rev=conf.reduce((s,i)=>s+price(i),0);
+    const def=filtersOn?true:(inqMode==='created'?idx<2:(k>=curYM||k==='미정'));
+    const id=inqMode+':'+k, isOpen=filtersOn?true:(id in monthOpen?monthOpen[id]:def);
+    const title=k==='미정'?'날짜 미정':`${k.slice(0,4)}년 ${+k.slice(5)}월`;
+    html+=`<div style="display:flex;flex-direction:column;gap:10px"><button class="mh" onclick="toggleMonth('${k}',${def})"><div><b>${title}</b><span>${inqMode==='created'?'접수':'예식'} ${all.length} · 계약 ${conf.length} · 촬영완료 ${shot.length}${cancel.length?` · 취소 ${cancel.length}`:''}${filtersOn?` · 표시 ${shown.length}`:''}</span></div><em>${won(rev)}원 ${isOpen?'▾':'▸'}</em></button>${isOpen?shown.map(cardHTML).join(''):''}</div>`;
+  });
+  $('inq-list').innerHTML=shownGroups?html:`<div class="c" style="text-align:center;padding:30px"><b>표시할 예약문의가 없습니다</b><p style="margin:6px 0 12px">[+ 문의 추가]로 등록해 보세요</p><button class="btn dk" onclick="openInq()">+ 첫 문의 등록</button></div>`;
+}
+
+/* ---------- status / toggles ---------- */
+function stampStatus(i){
+  const now=Date.now();
+  if(isConf(i)){ if(!i.depositAt) i.depositAt=now; }
+  else if(i.status!=='취소') i.depositAt=null;
+  if(i.status==='촬영완료'){ if(!i.shotAt) i.shotAt=now; }
+  else if(i.status!=='취소') i.shotAt=null;
+  return ensureCode(i);
+}
+function requestStatus(id,s){
+  const i=S.inquiries.find(x=>x.id===id); if(!i||i.status===s){ refresh(); return; }
+  if(s==='촬영완료'&&balOf(i)>0&&!i.balancePaid){
+    ask(`잔금 미수 ${won(balOf(i))}원이 남아 있어요. 그래도 '촬영완료'로 바꿀까요?`,()=>setStatus(id,s)); refresh(); return;
+  }
+  setStatus(id,s);
+}
+function setStatus(id,s){
+  const i=S.inquiries.find(x=>x.id===id); if(!i) return;
+  i.status=s; const newCode=stampStatus(i); save(); refresh();
+  toast(newCode?`'${s}' 변경 · 🤝 짝꿍코드 ${i.pairCode} 발급`:`'${s}' 상태로 변경되었습니다`);
+}
+function toggleBal(id){ const i=S.inquiries.find(x=>x.id===id); if(!i) return; i.balancePaid=!i.balancePaid; save(); refresh(); toast(i.balancePaid?'💰 잔금 완료 처리':'잔금 미수로 되돌림'); }
+function toggleRcpt(id){ const i=S.inquiries.find(x=>x.id===id); if(!i) return; i.receipt=!i.receipt; save(); refresh(); toast(i.receipt?'🧾 영수증 발행 완료 처리':'영수증 미발행으로 되돌림'); }
+function toggleDeliv(id){
+  const i=S.inquiries.find(x=>x.id===id); if(!i) return;
+  i.delivered=!i.delivered; i.deliveredAt=i.delivered?todayISO():'';
+  if(i.delivered&&i.status==='계약금완료'){ i.status='촬영완료'; stampStatus(i); }
+  save(); refresh(); toast(i.delivered?'📦 납품 완료 처리 (상태: 촬영완료)':'납품 전으로 되돌림');
+}
+function cyclePort(id){
+  const i=S.inquiries.find(x=>x.id===id); if(!i) return;
+  const o=['','동의','미동의']; i.portfolio=o[(o.indexOf(i.portfolio||'')+1)%3];
+  i.portDisc=i.portfolio==='동의'?(Number(S.cfg.portDiscount)||0):0;
+  save(); refresh();
+  toast(`📸 포트폴리오: ${i.portfolio||'미확인'}${i.portDisc?` · −${won(i.portDisc)}원 할인 적용`:''}`);
+}
+function copyCode(id){ const i=S.inquiries.find(x=>x.id===id); if(!i||!i.pairCode) return; copyText(i.pairCode); toast(`🤝 ${i.pairCode} 복사됨`); }
+function delInq(id){ const i=S.inquiries.find(x=>x.id===id); if(!i) return; ask(`${i.clientName} 님의 예약을 삭제할까요?`,()=>{ S.inquiries=S.inquiries.filter(x=>x.id!==id); save(); refresh(); toast('삭제되었습니다'); }); }
+
+/* ---------- messages ---------- */
+function buildMsg(i,type){
+  const key=(MSGS.find(m=>m[0]===type)||MSGS[0])[2];
+  let t=String(S.templates[key]||'');
+  const tp=price(i), dep=Number(i.depositAmount)||0, bal=balOf(i), e=earned(i), lines=[];
+  if(i.portDisc>0) lines.push(`· 포트폴리오 동의 할인 −${won(i.portDisc)}원`);
+  if(i.codeInDisc>0) lines.push(`· 짝꿍코드 할인 −${won(i.codeInDisc)}원`);
+  if(e>0) lines.push(`· 짝꿍 소개 할인 −${won(e)}원`);
+  const dtext=lines.length?[`■ 기본금액: ${won(base(i))}원`,...lines].join('\n'):'';
+  const dd=i.date?daysFromToday(i.date):null;
+  const map={성함:i.clientName||'고객',고객명:i.clientName||'고객',상품:i.category||'DVD',예식일자:kdate(i.date),예식시간:ktime(i.time),예식장소:i.venue||'장소 미정',
+    결제방식:i.paymentMethod||'계좌이체',기본금액:won(base(i)),할인내역:dtext,총금액:won(tp),계약금:won(dep),잔금:won(bal),
+    입금기한:i.dueDate?kdate(i.dueDate):'안내 시점 기준 3일 이내',계좌정보:S.templates.bankInfo||'',짝꿍코드:i.pairCode||'(계약금 확정 후 발급)',
+    포트폴리오:i.portfolio||'미확인',남은일수:dd==null?'-':(dd===0?'D-DAY':dd>0?`D-${dd}`:`D+${-dd}`),납품기한:i.date?kdate(deliverDue(i)):'-'};
+  if(!dtext) t=t.replace(/^[ \t]*\{할인내역\}[ \t]*(?:\r?\n|$)/gm,'');
+  return t.replace(/\{([^{}]+)\}/g,(m,k)=>k in map?map[k]:m);
+}
+function copyMsg(id,type){
+  const i=S.inquiries.find(x=>x.id===id); if(!i) return;
+  copyText(buildMsg(i,type));
+  const label=(MSGS.find(m=>m[0]===type)||[])[1]||'';
+  if(type==='before'&&i.status==='문의접수'){ i.status='입금전'; save(); refresh(); toast(`📋 ${i.clientName}님 입금전 멘트 복사 (상태→입금전)`); }
+  else toast(`📋 ${i.clientName}님 ${label} 멘트 복사됨`);
+}
+function copyRequestTpl(){ copyText(S.templates.inquiryRequest||DEF.inquiryRequest); toast('📤 고객용 문의양식이 복사되었습니다. 카톡에 붙여넣기 하세요'); }
+let pvId=null,pvType='before';
+function openPreview(id,type){ const i=S.inquiries.find(x=>x.id===id); if(!i) return; pvId=id; $('pv-title').textContent=`👁️ ${i.clientName}님 멘트`; pvTab(type); openM('m-prev'); }
+function pvTab(t){
+  const i=S.inquiries.find(x=>x.id===pvId); if(!i) return; pvType=t;
+  $('pv-tabs').innerHTML=MSGS.map(([k,l])=>`<button type="button" class="btn sm ${k===t?'on':''}" onclick="pvTab('${k}')">${l}</button>`).join('');
+  $('pv-text').value=buildMsg(i,t);
+}
+function pvCopy(){
+  copyText($('pv-text').value);
+  const i=S.inquiries.find(x=>x.id===pvId);
+  if(i&&pvType==='before'&&i.status==='문의접수'){ i.status='입금전'; save(); refresh(); }
+  closeM('m-prev'); toast('📋 멘트가 복사되었습니다');
+}
+
 /* ---------- form modal ---------- */
 function setPay(v){
   $('f-pay').value=v||'';
   document.querySelectorAll('#f-paychips .btn').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+}
+function setPort(v){
+  formPort=v||'';
+  $('f-port').innerHTML=[['동의','☑️ 동의','a'],['미동의','⬜ 미동의','r'],['','❔ 미확인','']].map(([val,l,k])=>
+    `<button type="button" class="btn sm ${formPort===val?(k?'on-'+k:'on'):''}" onclick="setPort('${val}')">${l}</button>`).join('');
+  renderFormPrice();
 }
 function markTime(){ const v=$('f-time').value; document.querySelectorAll('#f-timechips .btn').forEach(b=>b.classList.toggle('on',b.dataset.v===v)); }
 function setFormStatus(s){
   formStatus=s;
   $('f-status').innerHTML=STATUSES.map(x=>`<button type="button" class="btn sm ${x===s?'on-'+SK[x]:''}" onclick="setFormStatus('${x}')">${x}</button>`).join('');
 }
+function formCalc(){
+  const ed=formEdit, baseP=num($('f-total').value), code=normCode($('f-code').value), chk=checkCodeFor(code,ed?ed.id:null);
+  const port=formPort==='동의'?((ed&&ed.portfolio==='동의'&&ed.portDisc!=null)?Number(ed.portDisc):(Number(S.cfg.portDiscount)||0)):0;
+  let inD=0,outD=0;
+  if(chk.ok){
+    if(ed&&ed.codeUsed===code){ inD=Number(ed.codeInDisc)||0; outD=Number(ed.codeOutDisc)||0; }
+    else { inD=Number(S.cfg.pairIn)||0; outD=Number(S.cfg.pairOut)||0; }
+  }
+  const earn=ed?earned(ed):0, fin=Math.max(0,baseP-port-inD-earn), dep=num($('f-dep').value);
+  return {baseP,code,chk,port,inD,outD,earn,fin,dep};
+}
+function renderFormPrice(){
+  const c=formCalc(), msg=$('code-msg');
+  if(c.chk.empty){ msg.textContent=''; }
+  else if(c.chk.ok){ msg.style.color='#047857'; msg.textContent=`✅ ${c.chk.owner.clientName}님의 짝꿍코드 (${c.chk.used+1}/${c.chk.max||'∞'}회째) · 할인 −${won(c.inD)}원${c.outD?` · ${c.chk.owner.clientName}님께도 −${won(c.outD)}원 (계약금완료 시 적용)`:''}`; }
+  else { msg.style.color='#be123c'; msg.textContent=c.chk.msg; }
+  const row=(l,v,st)=>`<div style="${st||''}"><span>${l}</span><b>${v}</b></div>`;
+  let h=row('기본 금액',won(c.baseP)+'원');
+  if(c.port) h+=row('📸 포트폴리오 할인','−'+won(c.port)+'원','color:#6d28d9');
+  if(c.inD) h+=row('🤝 짝꿍코드 할인','−'+won(c.inD)+'원','color:#6d28d9');
+  if(c.earn) h+=row('🤝 소개 할인 (내 코드 사용)','−'+won(c.earn)+'원','color:#6d28d9');
+  h+=row('최종 금액',won(c.fin)+'원','border-top:1px solid var(--ln);margin-top:3px;padding-top:5px;font-size:14px');
+  h+=row('잔금 (최종 − 계약금)',won(Math.max(0,c.fin-c.dep))+'원','color:#b45309');
+  $('f-calc').innerHTML=h;
+}
 function openInq(editId,prefillDate,focusParser){
   $('form').reset(); clearParser();
+  formEdit=editId?S.inquiries.find(x=>x.id===editId)||null:null;
   $('f-cat').innerHTML=CATS.map(c=>`<option>${c}</option>`).join('');
+  $('f-src').innerHTML='<option value="">선택 안 함</option>'+SOURCES.map(c=>`<option>${c}</option>`).join('');
   $('f-paychips').innerHTML=PAYS.map(p=>`<button type="button" class="btn sm" data-v="${p}" onclick="setPay('${p}')">${p}</button>`).join('');
   $('f-timechips').innerHTML=TIMES.map(p=>`<button type="button" class="btn sm" data-v="${p}" onclick="$('f-time').value='${p}';markTime()">${p}</button>`).join('');
-  const T=S.templates;
-  if(editId){
-    const i=S.inquiries.find(x=>x.id===editId); if(!i) return;
+  const C=S.cfg;
+  if(formEdit){
+    const i=formEdit;
     $('inq-title').textContent='예약문의 수정'; $('f-id').value=i.id;
     $('f-name').value=i.clientName||''; $('f-phone').value=i.phone||''; setCat(i.category||'DVD'); $('f-venue').value=i.venue||'';
-    setPay(i.paymentMethod||''); setPort(i.portfolio||''); $('f-total').value=i.totalPrice?won(i.totalPrice):''; $('f-dep').value=i.depositAmount?won(i.depositAmount):'';
+    setPay(i.paymentMethod||''); $('f-total').value=base(i)?won(base(i)):''; $('f-dep').value=i.depositAmount?won(i.depositAmount):'';
     $('f-due').value=i.dueDate||''; $('f-bal').value=i.balancePaid?'1':'0'; $('f-notes').value=i.notes||'';
-    $('f-time').value=i.time||'12:00'; setFormStatus(i.status||'문의접수'); pkDate=i.date||selDate;
+    $('f-rcpt').value=i.receipt?'1':'0'; $('f-deliv').value=i.delivered?'1':'0'; $('f-src').value=i.source||''; $('f-code').value=i.codeUsed||'';
+    $('f-time').value=i.time||'12:00'; setFormStatus(i.status||'문의접수'); pkDate=i.date||selDate; formPort=i.portfolio||'';
   } else {
     $('inq-title').textContent='새 예약문의 등록'; $('f-id').value='';
-    setFormStatus('문의접수'); setCat('DVD'); setPay('카드'); setPort('');
-    $('f-total').value=T.defaultTotalPrice?won(T.defaultTotalPrice):''; $('f-dep').value=T.defaultDepositAmount?won(T.defaultDepositAmount):'';
+    setFormStatus('문의접수'); setCat('DVD'); setPay('카드'); formPort='';
+    $('f-total').value=C.defaultTotal?won(C.defaultTotal):''; $('f-dep').value=C.defaultDeposit?won(C.defaultDeposit):'';
     $('f-time').value='12:00'; pkDate=prefillDate||selDate||todayISO();
-    const d=new Date(); d.setDate(d.getDate()+(Number(T.dueDays)||3)); $('f-due').value=iso(d);
+    const d=new Date(); d.setDate(d.getDate()+(Number(C.dueDays)||3)); $('f-due').value=iso(d);
   }
   const [y,m]=pkDate.split('-').map(Number); pkY=y; pkM=m-1; $('f-date').value=pkDate;
-  markTime(); renderPicker(); openM('m-inq');
+  setPort(formPort); markTime(); renderPicker(); openM('m-inq');
   if(focusParser) setTimeout(()=>$('parser').focus(),150);
 }
 function movePicker(d){ pkM+=d; if(pkM<0){pkM=11;pkY--} if(pkM>11){pkM=0;pkY++} renderPicker(); }
@@ -817,104 +1086,231 @@ function renderPicker(){
   const eid=$('f-id').value, first=new Date(pkY,pkM,1).getDay(), last=new Date(pkY,pkM+1,0).getDate(); let h='';
   for(let i=0;i<first;i++) h+='<div></div>';
   for(let d=1;d<=last;d++){
-    const ds=`${pkY}-${pad(pkM+1)}-${pad(d)}`, ex=S.inquiries.filter(i=>i.date===ds&&i.status!=='취소'&&i.id!==eid), sel=ds===pkDate;
-    const dots=ex.some(i=>i.status==='입금후')?'<i class="dot" style="background:var(--a)"></i>':ex.some(i=>i.status==='입금전')?'<i class="dot" style="background:var(--b)"></i>':ex.length?'<i class="dot" style="background:var(--q)"></i>':'';
+    const ds=`${pkY}-${pad(pkM+1)}-${pad(d)}`, ex=S.inquiries.filter(i=>i.date===ds&&i.status!=='취소'&&i.id!==eid), sel=ds===pkDate, bl=isBlocked(ds);
+    const dots=bl?'<i class="dot" style="background:#94a3b8"></i>':ex.some(isConf)?'<i class="dot" style="background:var(--a)"></i>':ex.some(i=>i.status==='입금전')?'<i class="dot" style="background:var(--b)"></i>':ex.length?'<i class="dot" style="background:var(--q)"></i>':'';
     h+=`<button type="button" class="pk ${sel?'on':''}" onclick="pkDate='${ds}';$('f-date').value='${ds}';renderPicker()">${d}<br>${dots||'&nbsp;'}</button>`;
   }
   $('pk-grid').innerHTML=h;
-  const ex=S.inquiries.filter(i=>i.date===pkDate&&i.status!=='취소'&&i.id!==eid), n=$('pk-note');
-  if(ex.length){ n.style.color='#92400e'; n.innerHTML=`⚠️ ${pkDate} 에 기존 일정 ${ex.length}건: ${esc(ex.map(e=>`${e.status} ${e.time||''} ${e.clientName}`).join(', '))}`; }
+  const ex=S.inquiries.filter(i=>i.date===pkDate&&i.status!=='취소'&&i.id!==eid), n=$('pk-note'), bl=isBlocked(pkDate);
+  if(bl){ n.style.color='#be123c'; n.textContent=`🚫 ${pkDate} 은(는) 휴무/마감일로 지정된 날짜예요${bl.label?' ('+bl.label+')':''}`; }
+  else if(ex.length){ n.style.color='#92400e'; n.innerHTML=`⚠️ ${pkDate} 에 기존 일정 ${ex.length}건: ${esc(ex.map(e=>`${e.status} ${e.time||''} ${e.clientName}`).join(', '))}`; }
   else { n.style.color='#047857'; n.textContent=`✅ ${pkDate} 은(는) 예약 가능한 날짜입니다`; }
 }
 function saveInq(e){
   e.preventDefault();
   const id=$('f-id').value, name=$('f-name').value.trim(); if(!name){ toast('고객명을 입력해 주세요'); return; }
-  const date=$('f-date').value||pkDate;
-  const p={id:id||('inq-'+Date.now()),status:formStatus,clientName:name,phone:$('f-phone').value.trim(),category:$('f-cat').value,date,time:$('f-time').value||'12:00',
-    venue:$('f-venue').value.trim(),paymentMethod:$('f-pay').value.trim()||'미정',totalPrice:num($('f-total').value),depositAmount:num($('f-dep').value),
-    dueDate:$('f-due').value||'',balancePaid:$('f-bal').value==='1',notes:$('f-notes').value.trim(),portfolio:formPort,createdAt:Date.now()};
-  const idx=S.inquiries.findIndex(x=>x.id===p.id);
-  if(idx>=0){ p.createdAt=S.inquiries[idx].createdAt; S.inquiries[idx]=p; } else S.inquiries.unshift(p);
-  selDate=date; const [y,m]=date.split('-').map(Number); calY=y; calM=m-1;
-  save(); closeM('m-inq'); refresh(); toast(`✅ ${name}님 일정이 저장되었습니다`);
+  const c=formCalc();
+  if(c.code&&!c.chk.ok){ toast('짝꿍코드: '+c.chk.msg.replace('❌ ','')); $('f-code').focus(); return; }
+  const date=$('f-date').value||pkDate, old=id?S.inquiries.find(x=>x.id===id):null;
+  const p=Object.assign({},old||{},{id:id||('inq-'+Date.now()),status:formStatus,clientName:name,phone:$('f-phone').value.trim(),category:$('f-cat').value,date,time:$('f-time').value||'12:00',
+    venue:$('f-venue').value.trim(),paymentMethod:$('f-pay').value.trim()||'미정',basePrice:c.baseP,portDisc:c.port,codeUsed:c.code,codeInDisc:c.inD,codeOutDisc:c.outD,
+    depositAmount:c.dep,dueDate:$('f-due').value||'',balancePaid:$('f-bal').value==='1',receipt:$('f-rcpt').value==='1',delivered:$('f-deliv').value==='1',
+    source:$('f-src').value||(c.code?'짝꿍코드':''),notes:$('f-notes').value.trim(),portfolio:formPort});
+  delete p.totalPrice;
+  if(!old) p.createdAt=Date.now();
+  p.deliveredAt=p.delivered?(p.deliveredAt||todayISO()):'';
+  if(p.delivered&&p.status==='계약금완료') p.status='촬영완료';
+  const doSave=()=>{
+    const hadCode=!!p.pairCode; stampStatus(p);
+    const idx=S.inquiries.findIndex(x=>x.id===p.id);
+    if(idx>=0) S.inquiries[idx]=p; else S.inquiries.unshift(p);
+    selDate=date; const [y,m]=date.split('-').map(Number); calY=y; calM=m-1;
+    save(); closeM('m-inq'); refresh();
+    toast(!hadCode&&p.pairCode?`✅ ${name}님 저장 · 🤝 짝꿍코드 ${p.pairCode} 발급`:`✅ ${name}님 일정이 저장되었습니다`);
+    if(p.status==='촬영완료'&&balOf(p)>0&&!p.balancePaid) setTimeout(()=>toast(`⚠️ 잔금 미수 ${won(balOf(p))}원이 남아있어요`),2900);
+  };
+  if(isBlocked(date)&&(!old||old.date!==date)) ask(`${kdate(date)}은 휴무/마감일로 지정돼 있어요. 그래도 저장할까요?`,doSave); else doSave();
 }
 
 /* ---------- calendar export (.ics) ---------- */
 const icsT=(d,t,add=0)=>{ const [y,m,dd]=d.split('-').map(Number); const [h,mi]=(t||'12:00').split(':').map(Number); const x=new Date(y,m-1,dd,h+add,mi); return `${x.getFullYear()}${pad(x.getMonth()+1)}${pad(x.getDate())}T${pad(x.getHours())}${pad(x.getMinutes())}00`; };
 const icsE=s=>String(s||'').replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\r?\n/g,'\\n');
 function vevent(i){
-  const bal=Math.max(0,Number(i.totalPrice||0)-Number(i.depositAmount||0));
   const sum=`[루닉스냅/${i.status}] ${i.clientName} (${i.category})`;
-  const desc=[`고객명: ${i.clientName}`,`연락처: ${i.phone||'-'}`,`진행상태: ${i.status}`,`장소: ${i.venue||'-'}`,`금액: 총 ${won(i.totalPrice)}원 (계약금 ${won(i.depositAmount)} / 잔금 ${won(bal)})`,i.portfolio?`포트폴리오: ${i.portfolio}`:'',i.notes?`메모: ${i.notes}`:''].filter(Boolean).join('\n');
+  const desc=[`고객명: ${i.clientName}`,`연락처: ${i.phone||'-'}`,`진행상태: ${i.status}`,`장소: ${i.venue||'-'}`,`금액: 총 ${won(price(i))}원 (계약금 ${won(i.depositAmount)} / 잔금 ${won(balOf(i))})`,i.portfolio?`포트폴리오: ${i.portfolio}`:'',i.notes?`메모: ${i.notes}`:''].filter(Boolean).join('\n');
   return ['BEGIN:VEVENT',`UID:${i.id}@runicsnap.local`,`DTSTAMP:${new Date().toISOString().replace(/[-:]/g,'').split('.')[0]}Z`,`DTSTART:${icsT(i.date,i.time)}`,`DTEND:${icsT(i.date,i.time,2)}`,
     `SUMMARY:${icsE(sum)}`,`LOCATION:${icsE(i.venue)}`,`DESCRIPTION:${icsE(desc)}`,'BEGIN:VALARM','TRIGGER:-PT120M','ACTION:DISPLAY',`DESCRIPTION:${icsE(sum)}`,'END:VALARM','END:VEVENT'];
 }
 const vcal=evs=>['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//RunicSnap//Booking//KO','CALSCALE:GREGORIAN',...evs.flat(),'END:VCALENDAR'].join('\r\n');
-function icsOne(id){ const i=S.inquiries.find(x=>x.id===id); if(!i) return; download(`루닉스냅_${i.date}_${i.clientName.replace(/\s+/g,'_')}.ics`,vcal([vevent(i)]),'text/calendar;charset=utf-8'); toast('📲 .ics 저장됨 — 열어서 캘린더에 등록하세요'); }
+function icsOne(id){ const i=S.inquiries.find(x=>x.id===id); if(!i||!i.date){ toast('예식일자가 없어요'); return; } download(`루닉스냅_${i.date}_${i.clientName.replace(/\s+/g,'_')}.ics`,vcal([vevent(i)]),'text/calendar;charset=utf-8'); toast('📲 .ics 저장됨 — 열어서 캘린더에 등록하세요'); }
 function exportAllICS(){
   const l=S.inquiries.filter(i=>i.status!=='취소'&&i.date); if(!l.length){ toast('내보낼 일정이 없습니다'); return; }
   download(`루닉스냅_전체일정_${todayISO()}.ics`,vcal(l.map(vevent)),'text/calendar;charset=utf-8'); toast(`📅 ${l.length}건 일정이 .ics로 저장되었습니다`);
 }
 
-/* ---------- settings ---------- */
-function renderSettings(){
-  const pre=`${calY}-${pad(calM+1)}`, mi=S.inquiries.filter(i=>(i.date||'').startsWith(pre));
-  const f=s=>mi.filter(i=>i.status===s), sum=a=>a.reduce((x,i)=>x+Number(i.totalPrice||0),0);
-  $('st-label').textContent=`${calY}년 ${calM+1}월 기준 및 전체 누적`;
-  const box=(c,l,n,s)=>`<div class="box" style="background:${c[0]};border-color:${c[1]};display:block"><div style="color:${c[2]};font-weight:700">${l}</div><b style="font-size:18px;display:block;text-align:left">${n}</b><div style="color:${c[2]};font-weight:700">${s}</div></div>`;
-  $('stats').innerHTML=box(['#ecfdf5','#a7f3d0','#047857'],'입금후(확정)',f('입금후').length+'건',won(sum(f('입금후')))+'원')
-    +box(['#fffbeb','#fde68a','#92400e'],'입금전(가예약)',f('입금전').length+'건','예상 '+won(sum(f('입금전')))+'원')
-    +box(['#eff6ff','#bfdbfe','#1d4ed8'],'문의접수',f('문의접수').length+'건','상담 진행 중')
-    +box(['#f1f5f9','#e2e8f0','#475569'],'전체 누적',S.inquiries.length+'건','취소 제외 '+S.inquiries.filter(i=>i.status!=='취소').length+'건');
-  const cats={}; S.inquiries.filter(i=>i.status!=='취소').forEach(i=>cats[i.category]=(cats[i.category]||0)+1);
+/* ---------- 현황 tab ---------- */
+function moveStat(d){ statM+=d; if(statM<0){statM=11;statY--} if(statM>11){statM=0;statY++} renderStat(); }
+function setScope(s){ statScope=s; renderStat(); }
+const inScope = i => statScope==='all' || (i.date||'').startsWith(`${statY}-${pad(statM+1)}`);
+function calcMoney(list){
+  let total=0,paid=0,bal=0,pend=0,n=0;
+  list.forEach(i=>{
+    const t=price(i);
+    if(isConf(i)){ n++; total+=t; if(i.balancePaid) paid+=t; else { const dp=Math.min(Number(i.depositAmount)||0,t); paid+=dp; bal+=t-dp; } }
+    else if(i.status==='입금전') pend+=t;
+  });
+  return {total,paid,bal,pend,n};
+}
+function groupedBars(labels,series,fmt,name){
+  const W=480,H=190,pl=6,pr=6,pt=20,pb=22, iw=W-pl-pr, ih=H-pt-pb, n=labels.length, gw=iw/n, k=series.length, bw=Math.min(22,(gw-8)/k);
+  const mx=Math.max(1,...series.flatMap(s=>s.vals)); let g='';
+  for(let t=0;t<=3;t++){ const y=pt+ih-ih*t/3; g+=`<line x1="${pl}" x2="${W-pr}" y1="${y}" y2="${y}" stroke="#94a3b8" stroke-opacity="${t?0.18:0.55}" stroke-width="1"/>`; }
+  labels.forEach((lb,m)=>{
+    const cx=pl+gw*m+gw/2;
+    series.forEach((s,si)=>{
+      const v=s.vals[m], h=ih*v/mx, x=cx-bw*k/2+bw*si, y=pt+ih-h;
+      if(v>0) g+=`<path d="M${x},${pt+ih} V${y+3} Q${x},${y} ${x+3},${y} H${x+bw-5} Q${x+bw-2},${y} ${x+bw-2},${y+3} V${pt+ih} Z" fill="${s.color}"><title>${lb} ${s.name} ${fmt(v)}</title></path><text x="${x+(bw-2)/2}" y="${y-4}" font-size="9" font-weight="700" text-anchor="middle" fill="#334155">${fmt(v)}</text>`;
+    });
+    g+=`<text x="${cx}" y="${H-6}" font-size="10" text-anchor="middle" fill="#64748b">${lb}</text>`;
+  });
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc(name)}" style="display:block;font-family:inherit">${g}</svg>`;
+}
+const fmtMan = v => v>=10000?(Math.round(v/1000)/10)+'만':String(v);
+function renderStat(){
+  $('st-title').textContent=`${statY}년 ${statM+1}월`;
+  $('sc-m').className='btn sm '+(statScope==='month'?'on':''); $('sc-a').className='btn sm '+(statScope==='all'?'on':'');
+  $('st-sub').textContent=statScope==='month'?'예식일이 이 달인 예약 기준 (그래프는 해당 연도 전체)':'전체 누적 기준 (그래프는 해당 연도 전체)';
+  // chart
+  const inq=Array(12).fill(0), con=Array(12).fill(0), rev=Array(12).fill(0);
+  S.inquiries.forEach(i=>{
+    const c=new Date(i.createdAt); if(c.getFullYear()===statY) inq[c.getMonth()]++;
+    if(isConf(i)){
+      const d=new Date(i.depositAt||i.createdAt); if(d.getFullYear()===statY) con[d.getMonth()]++;
+      const rd=chBasis==='contract'?d:(i.date?new Date(i.date+'T00:00:00'):d); if(rd.getFullYear()===statY) rev[rd.getMonth()]+=price(i);
+    }
+  });
+  const L=['1','2','3','4','5','6','7','8','9','10','11','12'].map(x=>x+'월'), sI=inq.reduce((a,b)=>a+b,0), sC=con.reduce((a,b)=>a+b,0), sR=rev.reduce((a,b)=>a+b,0);
+  $('ch-sub').textContent=`${statY}년 · 문의 ${sI}건 · 계약 ${sC}건 · 전환율 ${sI?Math.round(sC/sI*100):0}% · 매출 ${won(sR)}원`;
+  $('ch-basis').innerHTML=[['contract','계약월'],['event','예식월']].map(([v,l])=>`<button class="btn sm ${chBasis===v?'on':''}" onclick="chBasis='${v}';renderStat()">${l}</button>`).join('');
+  const tbl=(cols,rows)=>`<details><summary>표로 보기</summary><table class="tb"><tr><th>월</th>${cols.map(c=>`<th>${c}</th>`).join('')}</tr>${rows.map((r,m)=>`<tr><td>${m+1}월</td>${r.map(v=>`<td>${v}</td>`).join('')}</tr>`).join('')}</table></details>`;
+  $('ch-a').innerHTML=`<div class="lg"><span><i style="background:#2563eb"></i>문의량 (접수월)</span><span><i style="background:#059669"></i>계약량 (계약금 입금월)</span></div>`
+    +groupedBars(L,[{name:'문의량',color:'#2563eb',vals:inq},{name:'계약량',color:'#059669',vals:con}],v=>String(v),'월별 문의량과 계약량')
+    +tbl(['문의','계약'],inq.map((v,m)=>[v,con[m]]));
+  $('ch-b').innerHTML=`<div class="lg" style="margin-top:12px"><span><i style="background:#d97706"></i>매출 (${chBasis==='contract'?'계약월':'예식월'} 기준, 단위 만원)</span></div>`
+    +groupedBars(L,[{name:'매출',color:'#d97706',vals:rev}],fmtMan,'월별 매출')
+    +tbl(['매출(원)'],rev.map(v=>[won(v)]));
+  // money
+  const act=S.inquiries.filter(i=>i.status!=='취소'), list=act.filter(inScope), m=calcMoney(list);
+  $('money-label').textContent=(statScope==='month'?`${statY}년 ${statM+1}월 예식 기준`:'전체 누적')+` · 계약금완료/촬영완료 ${m.n}건`;
+  const pct=m.total?Math.round(m.paid/m.total*100):0;
+  const cell=(l,v,c,sub)=>`<div class="box" style="display:block;background:${c[0]};border-color:${c[1]}"><div style="color:${c[2]};font-weight:700;display:block">${l}</div><b style="font-size:17px;display:block;text-align:left;color:${c[3]}">${won(v)}원</b>${sub?`<div style="color:${c[2]};font-weight:700;font-size:11px;display:block">${sub}</div>`:''}</div>`;
+  $('money').innerHTML=`<div class="g2">`
+    +cell('총금액 (할인 반영)',m.total,['#f1f5f9','#e2e8f0','#475569','#0f172a'])
+    +cell('입금완료',m.paid,['#ecfdf5','#a7f3d0','#047857','#065f46'],`${pct}% 수금`)
+    +cell('잔금 (미수)',m.bal,['#fff1f2','#fecdd3','#be123c','#9f1239'],m.bal?'아직 못 받은 금액':'모두 수금 완료')
+    +cell('가예약 예상 (입금전)',m.pend,['#fffbeb','#fde68a','#92400e','#78350f'],'확정되면 매출')
+    +`</div><div class="bar" style="margin-top:10px"><i style="width:${pct}%;background:var(--a)"></i></div>`;
+  const cf=list.filter(isConf), pd=cf.reduce((s,i)=>s+(Number(i.portDisc)||0),0), cd=cf.reduce((s,i)=>s+(Number(i.codeInDisc)||0)+earned(i),0);
+  $('disc-box').innerHTML=`<b style="color:var(--mut);display:block">🏷️ 할인 합계 (확정 건)</b><div><span>📸 포트폴리오 할인</span><b>−${won(pd)}원</b></div><div><span>🤝 짝꿍 할인</span><b>−${won(cd)}원</b></div>`;
+  // status counts
+  const sc=s=>list.filter(i=>i.status===s);
+  const box=(c,l,n,s)=>`<div class="box" style="background:${c[0]};border-color:${c[1]};display:block"><div style="color:${c[2]};font-weight:700;display:block">${l}</div><b style="font-size:18px;display:block;text-align:left">${n}</b><div style="color:${c[2]};font-weight:700;font-size:11px;display:block">${s}</div></div>`;
+  const sum=a=>a.reduce((x,i)=>x+price(i),0);
+  const allScope=S.inquiries.filter(inScope);
+  $('stats').innerHTML=box(['#ecfdf5','#a7f3d0','#047857'],'계약금완료',sc('계약금완료').length+'건',won(sum(sc('계약금완료')))+'원')
+    +box(['#f5f3ff','#ddd6fe','#6d28d9'],'촬영완료',sc('촬영완료').length+'건',won(sum(sc('촬영완료')))+'원')
+    +box(['#fffbeb','#fde68a','#92400e'],'입금전(가예약)',sc('입금전').length+'건','예상 '+won(sum(sc('입금전')))+'원')
+    +box(['#eff6ff','#bfdbfe','#1d4ed8'],'문의접수',sc('문의접수').length+'건','상담 진행 중')
+    +box(['#f1f5f9','#e2e8f0','#475569'],'취소',allScope.filter(i=>i.status==='취소').length+'건','취소 제외 '+list.length+'건');
+  const cats={}; list.forEach(i=>cats[i.category]=(cats[i.category]||0)+1);
   $('cats').innerHTML=`<b style="color:var(--mut);display:block">상품별 유효 예약 (취소 제외)</b>`+(Object.keys(cats).length?Object.entries(cats).map(([k,v])=>`<div><span>${esc(k)}</span><b>${v}건</b></div>`).join(''):'<div><span>데이터 없음</span></div>');
-  renderMoney();
-  const up=S.inquiries.filter(i=>i.status==='입금후'&&!i.balancePaid&&Number(i.totalPrice)>Number(i.depositAmount)).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
-  const tot=up.reduce((x,i)=>x+i.totalPrice-i.depositAmount,0);
-  $('unpaid').innerHTML=up.length?`<div class="alert al-y" style="margin:0 0 8px"><span>미수 합계</span><b>${won(tot)}원 (${up.length}건)</b></div>`+up.map(i=>`<div class="row" style="padding:7px 0;border-top:1px solid #f1f5f9"><div><b>${esc(i.clientName)}</b><p>${kdate(i.date)}${ddayBadge(i)}</p></div><div style="text-align:right"><b>${won(i.totalPrice-i.depositAmount)}원</b><br><button class="btn am sm" style="margin-top:3px" onclick="toggleBal('${i.id}')">완료</button></div></div>`).join(''):'<p>✅ 미수 잔금이 없습니다</p>';
-  const T=S.templates;
+  // unpaid
+  const up=S.inquiries.filter(i=>i.status==='계약금완료'&&!i.balancePaid&&balOf(i)>0).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  const tot=up.reduce((x,i)=>x+balOf(i),0);
+  $('unpaid').innerHTML=up.length?`<div class="alert al-y" style="margin:0 0 8px"><span>미수 합계</span><b>${won(tot)}원 (${up.length}건)</b></div>`+up.map(i=>`<div class="lrow"><div><b>${esc(i.clientName)}</b><p>${kdate(i.date)}${ddayBadge(i)}</p></div><div style="text-align:right"><b>${won(balOf(i))}원</b><br><button class="btn am sm" style="margin-top:3px" onclick="toggleBal('${i.id}')">완료</button></div></div>`).join(''):'<p>✅ 미수 잔금이 없습니다</p>';
+  // delivery
+  const confAll=S.inquiries.filter(isConf), wait=confAll.filter(i=>!i.delivered), done=confAll.filter(i=>i.delivered);
+  const due=wait.filter(i=>i.date&&daysFromToday(i.date)<=0).sort((a,b)=>deliverDue(a).localeCompare(deliverDue(b)));
+  $('dv-sub').textContent=`납품 대기 ${wait.length}건 (촬영 전 ${wait.length-due.length} · 촬영 후 ${due.length}) · 납품 완료 ${done.length}건 · 기한 예식 후 ${S.cfg.deliveryDays}일`;
+  $('deliv').innerHTML=due.length?due.map(i=>{ const dd=daysFromToday(deliverDue(i)); return `<div class="lrow"><div><b>${esc(i.clientName)}</b><p>예식 ${mdIso(i.date)} · 기한 ${mdIso(deliverDue(i))}</p></div><div style="text-align:right"><span class="tag ${dd<0?'t-r':dd<=3?'t-b':'t-x'}">${dd<0?(-dd)+'일 지남':dd===0?'오늘':'D-'+dd}</span><br><button class="btn am sm" style="margin-top:3px" onclick="toggleDeliv('${i.id}')">납품완료</button></div></div>`; }).join(''):'<p>✅ 납품할 건이 없습니다</p>';
+  // codes
+  const owners=S.inquiries.filter(i=>i.pairCode&&i.status!=='취소').sort((a,b)=>codeUses(b.pairCode)-codeUses(a.pairCode));
+  const max=Number(S.cfg.pairMax)||0;
+  $('codes').innerHTML=owners.length?owners.map(o=>{
+    const us=S.inquiries.filter(i=>i.codeUsed===o.pairCode&&i.status!=='취소');
+    return `<div class="lrow" style="align-items:flex-start"><div style="min-width:0"><b style="letter-spacing:1px;color:#6d28d9">${esc(o.pairCode)}</b> <span style="font-weight:700">${esc(o.clientName)}</span>${us.length?us.map(u=>`<p>↳ ${esc(u.clientName)}님 <span style="color:#6d28d9">(−${won(u.codeInDisc)}${u.codeOutDisc?` / 주인 −${won(u.codeOutDisc)}${isConf(u)?'':' 대기'}`:''})</span> · ${esc(u.status)}</p>`).join(''):'<p>아직 사용 내역 없음</p>'}</div><div style="text-align:right;flex-shrink:0"><span class="tag ${max&&us.length>=max?'t-x':'t-a'}">사용 ${us.length}/${max||'∞'}</span><br><button class="btn sm" style="margin-top:3px" onclick="copyCode('${o.id}')">복사</button></div></div>`;
+  }).join(''):'<p>아직 발급된 코드가 없어요. 예약이 \'계약금완료\'가 되면 자동 발급돼요.</p>';
+  // source
+  const sr={}; allScope.forEach(i=>{ const k=i.source||'미입력'; sr[k]=sr[k]||{n:0,c:0}; sr[k].n++; if(isConf(i)) sr[k].c++; });
+  const tot2=allScope.length, cv=allScope.filter(isConf).length;
+  $('src-sub').textContent=`${statScope==='month'?'이 달 예식':'전체'} ${tot2}건 · 계약 전환 ${cv}건 (${tot2?Math.round(cv/tot2*100):0}%)`;
+  const ent=Object.entries(sr).sort((a,b)=>b[1].n-a[1].n), mxn=Math.max(1,...ent.map(e=>e[1].n));
+  $('src').innerHTML=ent.length?ent.map(([k,v])=>`<div style="margin-bottom:8px"><div class="row" style="font-size:12px;font-weight:700"><span>${esc(k)}</span><span>${v.n}건 · 계약 ${v.c}</span></div><div class="bar" style="margin-top:3px"><i style="width:${v.n/mxn*100}%;background:#2563eb"></i></div></div>`).join(''):'<p>데이터 없음</p>';
+  // portfolio
+  const ps={'동의':0,'미동의':0,'미확인':0}; S.inquiries.filter(i=>i.status!=='취소').forEach(i=>{ ps[i.portfolio==='동의'||i.portfolio==='미동의'?i.portfolio:'미확인']++; });
+  $('port-stats').innerHTML=`<b style="color:var(--mut);display:block">취소 제외 전체</b><div><span>☑️ 동의</span><b>${ps['동의']}건</b></div><div><span>⬜ 미동의</span><b>${ps['미동의']}건</b></div><div><span>❔ 미확인</span><b>${ps['미확인']}건</b></div>`;
+}
+
+/* ---------- 설정 tab ---------- */
+function renderBlocked(){
+  const l=[...S.blocked].sort((a,b)=>a.date.localeCompare(b.date));
+  $('b-list').innerHTML=l.length?l.map(b=>`<div class="lrow"><span><b>${kdate(b.date)}</b> ${esc(b.label||'')}</span><button class="btn rd sm" onclick="delBlock('${b.date}')">삭제</button></div>`).join(''):'<p>지정된 날짜가 없어요</p>';
+}
+function addBlock(){
+  const d=$('b-date').value; if(!d){ toast('날짜를 선택해 주세요'); return; }
+  const label=$('b-label').value.trim()||'휴무', ex=S.blocked.find(b=>b.date===d);
+  if(ex) ex.label=label; else S.blocked.push({date:d,label});
+  $('b-date').value=''; $('b-label').value=''; save(); renderBlocked(); renderCal(); renderAgenda(); toast('🚫 휴무/마감일을 저장했어요');
+}
+function delBlock(d){ S.blocked=S.blocked.filter(b=>b.date!==d); save(); renderBlocked(); renderCal(); renderAgenda(); }
+function renderSettings(){
+  const C=S.cfg, T=S.templates;
+  $('c-total').value=C.defaultTotal?won(C.defaultTotal):''; $('c-dep').value=C.defaultDeposit?won(C.defaultDeposit):''; $('c-port').value=C.portDiscount?won(C.portDiscount):'';
+  $('c-due').value=C.dueDays; $('c-deliv').value=C.deliveryDays; $('c-backup').value=C.backupDays;
+  $('c-pin').value=C.pairIn?won(C.pairIn):''; $('c-pout').value=C.pairOut?won(C.pairOut):''; $('c-pmax').value=C.pairMax; $('c-prefix').value=C.prefix;
   $('vars').innerHTML=VARS.map(v=>`<button class="btn sm" onclick="insVar('{${v}}')">{${v}}</button>`).join('');
-  $('t-bank').value=T.bankInfo||''; $('t-total').value=T.defaultTotalPrice?won(T.defaultTotalPrice):''; $('t-dep').value=T.defaultDepositAmount?won(T.defaultDepositAmount):'';
-  $('t-dueDays').value=T.dueDays??3; $('t-req').value=T.inquiryRequest||''; $('t-before').value=T.beforeDeposit||''; $('t-after').value=T.afterDeposit||'';
+  $('t-bank').value=T.bankInfo||''; $('t-req').value=T.inquiryRequest||''; $('t-before').value=T.beforeDeposit||''; $('t-after').value=T.afterDeposit||'';
+  $('t-balance').value=T.balanceNotice||''; $('t-delivery').value=T.deliveryNotice||''; $('t-review').value=T.reviewRequest||'';
+  const lb=S.meta.lastBackup; $('bk-info').textContent=lb?`마지막 백업: ${new Date(lb).getMonth()+1}월 ${new Date(lb).getDate()}일 (${Math.floor((Date.now()-lb)/86400000)}일 전) · 기기를 바꾸거나 브라우저 데이터를 지우기 전에 꼭 백업하세요.`:'아직 백업한 적이 없어요. 기기를 바꾸거나 브라우저 데이터를 지우면 예약이 사라져요.';
+  renderBlocked();
 }
 function insVar(v){
   const el=$(lastTpl)||$('t-before'), s=el.selectionStart??el.value.length, e=el.selectionEnd??el.value.length;
   el.value=el.value.slice(0,s)+v+el.value.slice(e); el.focus(); el.selectionStart=el.selectionEnd=s+v.length;
 }
+function saveCfg(){
+  const pre=($('c-prefix').value||'').toUpperCase().replace(/[^A-Z0-9]/g,'')||'RS';
+  Object.assign(S.cfg,{defaultTotal:num($('c-total').value),defaultDeposit:num($('c-dep').value),portDiscount:num($('c-port').value),dueDays:num($('c-due').value)||3,
+    deliveryDays:num($('c-deliv').value)||30,backupDays:num($('c-backup').value)||14,pairIn:num($('c-pin').value),pairOut:num($('c-pout').value),pairMax:num($('c-pmax').value),prefix:pre});
+  save(); $('c-prefix').value=pre; refresh(); toast('💰 금액·할인 설정이 저장되었습니다 (새 예약부터 적용)');
+}
 function saveTpl(){
-  Object.assign(S.templates,{bankInfo:$('t-bank').value.trim(),defaultTotalPrice:num($('t-total').value),defaultDepositAmount:num($('t-dep').value),
-    dueDays:num($('t-dueDays').value)||3,inquiryRequest:$('t-req').value,beforeDeposit:$('t-before').value,afterDeposit:$('t-after').value});
+  Object.assign(S.templates,{bankInfo:$('t-bank').value.trim(),inquiryRequest:$('t-req').value,beforeDeposit:$('t-before').value,afterDeposit:$('t-after').value,
+    balanceNotice:$('t-balance').value,deliveryNotice:$('t-delivery').value,reviewRequest:$('t-review').value});
   save(); toast('💬 템플릿 설정이 저장되었습니다');
 }
 function resetTpl(){ S.templates={...DEF}; save(); renderSettings(); toast('기본 템플릿으로 복원되었습니다'); }
-function exportJSON(){ download(`runiq_snap_backup_${todayISO()}.json`,JSON.stringify(S,null,2),'application/json'); toast('💾 백업 파일이 저장되었습니다'); }
+function exportJSON(){
+  S.meta.lastBackup=Date.now(); save();
+  download(`runiq_snap_backup_${todayISO()}.json`,JSON.stringify(S,null,2),'application/json'); toast('💾 백업 파일이 저장되었습니다'); refresh();
+}
 function importJSON(ev){
   const f=ev.target.files[0]; if(!f) return; const r=new FileReader();
   r.onload=e=>{
     try{
       const p=JSON.parse(e.target.result);
       if(!p||!Array.isArray(p.inquiries)){ toast('올바른 백업 파일이 아닙니다'); return; }
-      ask(`백업의 예약 ${p.inquiries.length}건으로 복원할까요? (현재 데이터는 덮어씌워집니다)`,()=>{ S.inquiries=p.inquiries; S.templates={...DEF,...(p.templates||{})}; save(); refresh(); toast(`📂 ${S.inquiries.length}건 복원 완료`); });
+      ask(`백업의 예약 ${p.inquiries.length}건으로 복원할까요? (현재 데이터는 덮어씌워집니다)`,()=>{ adopt(p); S.meta.firstUse=S.meta.firstUse||Date.now(); S.meta.lastBackup=Date.now(); normalizeAll(); migrateTemplates(); save(); refresh(); toast(`📂 ${S.inquiries.length}건 복원 완료`); });
     }catch(err){ toast('백업 파일을 읽는 중 오류가 발생했습니다'); }
     ev.target.value='';
   };
   r.readAsText(f);
 }
-function addSamples(){ S.inquiries=[...samples().map((s,i)=>({...s,id:'sample-'+Date.now()+'-'+i})),...S.inquiries]; save(); refresh(); toast('✨ 샘플 2건이 추가되었습니다'); }
+function addSamples(){ S.inquiries=[...samples().map((s,i)=>({...s,id:'sample-'+Date.now()+'-'+i})),...S.inquiries]; normalizeAll(); save(); refresh(); toast('✨ 샘플 2건이 추가되었습니다'); }
 function clearAll(){ S.inquiries=[]; save(); refresh(); toast('🗑️ 모두 삭제되었습니다'); }
 
 /* ---------- modals + Android back button ---------- */
-let skipPop=false, lastBack=0, cfCb=null;
+let skipPop=0, lastBack=0, cfCb=null;
 function openM(id){ $(id).classList.remove('hide'); try{ history.pushState({m:1},''); }catch(e){} }
 function closeM(id,fromPop){
   const el=$(id); if(el.classList.contains('hide')) return;
   el.classList.add('hide');
-  if(!fromPop){ skipPop=true; try{ history.back(); }catch(e){ skipPop=false; } }
+  if(!fromPop){ skipPop++; try{ history.back(); }catch(e){ skipPop--; } }
 }
 function ask(msg,cb){ $('cf-msg').textContent=msg; cfCb=cb; openM('m-confirm'); }
-$('cf-ok').onclick=()=>{ const f=cfCb; closeM('m-confirm'); if(typeof f==='function') f(); };
+$('cf-ok').onclick=()=>{ const f=cfCb; cfCb=null; closeM('m-confirm'); if(typeof f==='function') f(); };
 window.addEventListener('popstate',()=>{
-  if(skipPop){ skipPop=false; return; }
+  if(skipPop>0){ skipPop--; return; }
   const top=['m-confirm','m-prev','m-inq'].find(id=>!$(id).classList.contains('hide'));
   if(top){ closeM(top,true); return; }
   if(activeTab!=='cal'){ tab('cal'); try{ history.pushState({b:1},''); }catch(e){} return; }
