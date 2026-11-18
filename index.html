@@ -87,8 +87,8 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
 <body>
 <div id="app">
 <header>
-  <div><h1>📷 루닉스냅 매니저</h1><small>카톡 자동파싱 · 입금관리 · 캘린더</small></div>
-  <button class="btn am" onclick="openInq()">+ 문의 추가</button>
+  <div style="min-width:0"><h1>📷 루닉스냅 매니저</h1><small style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">카톡 자동파싱 · 입금관리 · 캘린더</small></div>
+  <div class="row" style="gap:6px;flex-shrink:0"><button class="btn" style="background:#ffffff1a;color:#fff;border-color:#ffffff30" onclick="openEvt(null,selDate)">+ 일정</button><button class="btn am" onclick="openInq()">+ 문의 추가</button></div>
 </header>
 
 <!-- TAB 1 : 캘린더 -->
@@ -182,6 +182,10 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
     <div id="pr-list" style="margin-top:8px"></div></section>
   <section class="c"><h2>🎒 촬영 당일 체크리스트</h2><p>한 줄에 하나씩 적어 주세요. 계약금완료 예약마다 체크할 수 있어요.</p>
     <textarea id="t-check" rows="7" class="inp" style="margin-top:8px"></textarea><button class="btn dk" style="width:100%;margin-top:8px" onclick="saveChecklist()">체크리스트 저장</button></section>
+  <section class="c"><h2>🎤 인터뷰 질문</h2><p>그룹별로 질문을 한 줄에 하나씩 적어 주세요. 예약마다 질문을 체크하고 답변 메모를 남길 수 있어요. 그룹 이름도 바꿀 수 있어요.</p>
+    <div id="iv-groups" style="margin-top:8px"></div>
+    <div class="g2" style="margin-top:8px"><button class="btn" onclick="addIvGroup()">+ 그룹 추가</button><button class="btn dk" onclick="saveIvSettings()">인터뷰 질문 저장</button></div>
+    <button class="btn" style="width:100%;margin-top:8px" onclick="ask('인터뷰 질문을 기본값으로 되돌릴까요? (직접 쓴 질문은 사라져요)',resetIv)">기본 질문으로 되돌리기</button></section>
   <section class="c">
     <h2>🚫 휴무 · 예약 마감일</h2><p>캘린더에 표시되고, 이 날짜로 예약하면 경고가 떠요.</p>
     <div class="g3" style="margin-top:8px;grid-template-columns:1.2fr 1fr auto"><input id="b-date" type="date" class="inp"><input id="b-label" class="inp" placeholder="사유(선택)"><button class="btn dk" onclick="addBlock()">추가</button></div>
@@ -324,6 +328,17 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
   <div id="pm-days" class="scroll" style="margin-bottom:8px"></div>
   <textarea id="pm-text" rows="10" class="inp" style="font-size:12px"></textarea>
   <div class="g3" style="margin-top:10px"><button class="btn" onclick="closeM('m-promo')">닫기</button><button class="btn dk" style="grid-column:span 2" onclick="copyText($('pm-text').value);toast('📋 홍보 문구가 복사되었습니다')">📋 문구 복사</button></div>
+</div></div>
+
+<!-- MODAL: 인터뷰 질문 -->
+<div id="m-iv" class="mod hide"><div>
+  <div class="row"><h2 id="iv-title" style="margin:0;font-size:15px"></h2><button class="btn sm" onclick="closeM('m-iv')">✕</button></div>
+  <p id="iv-sub" style="margin:6px 0"></p>
+  <div id="iv-tabs" class="scroll" style="margin-bottom:10px"></div>
+  <div id="iv-list" style="display:flex;flex-direction:column;gap:8px"></div>
+  <label>📝 이 그룹 답변 메모</label><textarea id="iv-note" rows="4" class="inp" oninput="saveIvNote(this.value)" placeholder="핵심 답변, 영상에 쓸 포인트 등"></textarea>
+  <div class="g2" style="margin-top:10px"><button class="btn" onclick="copyIv(false)">📋 이 그룹 질문 복사</button><button class="btn" onclick="copyIv(true)">📋 전체 질문 복사</button></div>
+  <button class="btn dk" style="width:100%;margin-top:8px" onclick="closeM('m-iv')">닫기</button>
 </div></div>
 
 <div id="toast"></div>
@@ -487,7 +502,14 @@ const normCode = v => String(v||'').toUpperCase().replace(/\s+/g,'').replace(/[�
 /* ---------- state ---------- */
 const DEF_PRESETS=[{label:'🔍 사전답사',time:''},{label:'🎞️ 편집',time:''},{label:'📦 납품',time:''},{label:'🛠️ 장비점검',time:''}];
 const DEF_CHECK=['배터리 충전 완료','메모리카드 포맷·여유 확인','렌즈·장비 점검','대기실 도착시간 확인','예식장 주차·동선 확인','촬영 콘티·요청사항 확인'];
-let S = {inquiries:[], templates:{...DEF}, cfg:{...DEF_CFG}, blocked:[], meta:{}, events:[], wait:[], presets:DEF_PRESETS.map(x=>({...x})), checklist:[...DEF_CHECK]};
+const DEF_IV=[
+ {name:'신랑',qs:['신부를 처음 만났을 때 첫인상은 어땠나요?','프러포즈는 어떻게 했나요? 기억에 남는 순간이 있다면?','신부의 가장 좋아하는 점은 무엇인가요?','오늘 아침 일어났을 때 기분은 어땠나요?','신부에게 하고 싶은 한마디를 해주세요.']},
+ {name:'신부',qs:['신랑을 처음 만났을 때 첫인상은 어땠나요?','이 사람과 결혼하기로 결심한 순간은 언제였나요?','오늘 가장 기대되는(혹은 떨리는) 순간은 무엇인가요?','신랑에게 하고 싶은 한마디를 해주세요.','부모님께 전하고 싶은 말이 있나요?']},
+ {name:'혼주(부모님)',qs:['신랑·신부의 어릴 적 가장 기억에 남는 모습은 무엇인가요?','오늘 결혼하는 자녀를 보며 어떤 마음이 드세요?','사위·며느리를 처음 만났을 때 인상은 어떠셨나요?','두 사람에게 꼭 해주고 싶은 당부나 조언이 있다면?','자녀에게 하고 싶은 말씀을 해주세요.']},
+ {name:'하객·친구',qs:['신랑(신부)과 어떤 사이인가요?','두 사람과의 기억에 남는 추억 한 가지를 들려주세요.','두 사람이 잘 어울리는 이유는 무엇인가요?','오늘 두 사람의 모습을 보니 어떠세요?','두 사람에게 축하의 한마디를 해주세요.']},
+ {name:'두 분께 (공통)',qs:['서로의 어떤 점이 가장 닮았다고 생각하세요?','10년 뒤 우리의 모습은 어떨 것 같나요?','결혼생활에서 꼭 지키고 싶은 약속이 있다면?','오늘 이 영상을 훗날 다시 볼 두 분께 한마디를 해주세요.']}
+];
+let S = {inquiries:[], templates:{...DEF}, cfg:{...DEF_CFG}, blocked:[], meta:{}, events:[], wait:[], presets:DEF_PRESETS.map(x=>({...x})), checklist:[...DEF_CHECK], interview:DEF_IV.map(g=>({name:g.name,qs:[...g.qs]}))};
 let activeTab='cal', calY=new Date().getFullYear(), calM=new Date().getMonth(), selDate=todayISO();
 let calFilter='all', inqFilter='전체', portFilter='전체', yearFilter='전체', inqMode='created', monthOpen={};
 let formStatus='문의접수', formPort='', formEdit=null, pkY=calY, pkM=calM, pkDate=selDate, lastTpl='t-before', sampleIdx=0;
@@ -818,7 +840,7 @@ function normalizeAll(){
     delete i.totalPrice;
     ['portDisc','codeInDisc','codeOutDisc','depositAmount'].forEach(k=>{ i[k]=Number(i[k])||0; });
     i.delivered=!!i.delivered; i.receipt=!!i.receipt; i.deliveredAt=i.deliveredAt||'';
-    i.codeUsed=i.codeUsed||''; i.source=i.source||''; i.portfolio=i.portfolio||''; i.address=i.address||''; i.cost=i.cost||{}; i.checks=Array.isArray(i.checks)?i.checks:[]; if(i.contract===undefined) i.contract=true;
+    i.codeUsed=i.codeUsed||''; i.source=i.source||''; i.portfolio=i.portfolio||''; i.address=i.address||''; i.cost=i.cost||{}; i.checks=Array.isArray(i.checks)?i.checks:[]; if(!i.iv||typeof i.iv!=='object') i.iv={}; i.iv.done=i.iv.done||{}; i.iv.notes=i.iv.notes||{}; if(i.contract===undefined) i.contract=true;
     if(!i.createdAt) i.createdAt=now;
     ensureCode(i);
   });
@@ -847,6 +869,7 @@ function adopt(p){
   S.blocked=Array.isArray(p.blocked)?p.blocked:[];
   S.events=Array.isArray(p.events)?p.events:[]; S.wait=Array.isArray(p.wait)?p.wait:[];
   S.presets=Array.isArray(p.presets)?p.presets:DEF_PRESETS.map(x=>({...x})); S.checklist=Array.isArray(p.checklist)?p.checklist:[...DEF_CHECK];
+  S.interview=Array.isArray(p.interview)?p.interview:DEF_IV.map(g=>({name:g.name,qs:[...g.qs]}));
   if(!Array.isArray(S.cfg.alarms)) S.cfg.alarms=[120];
   S.meta=p.meta||{};
 }
@@ -1022,7 +1045,7 @@ function cardHTML(i){
   ${i.notes?`<div class="note">📝 ${esc(i.notes)}</div>`:''}
   ${mb.length?`<div class="wrap">${mb.map(([t,l,c])=>`<button class="btn ${c}" onclick="copyMsg('${i.id}','${t}')">${l} 복사</button>`).join('')}</div>`:''}
   ${conf?`<div class="wrap">${tp>dep?`<button class="btn sm ${i.balancePaid?'':'am'}" onclick="toggleBal('${i.id}')">${i.balancePaid?'↩︎ 잔금 미수로':'💰 잔금 완료 처리'}</button>`:''}<button class="btn sm ${i.delivered?'gn':''}" onclick="toggleDeliv('${i.id}')">${i.delivered?'📦 납품 완료 ✓':'📦 납품 완료 처리'}</button><button class="btn sm ${i.receipt?'gn':''}" onclick="toggleRcpt('${i.id}')">${i.receipt?'🧾 영수증 발행 ✓':'🧾 영수증 발행 처리'}</button><button class="btn sm ${i.contract?'gn':''}" onclick="toggleContract('${i.id}')">${i.contract?'📝 계약서 수신 ✓':'📝 계약서 받음 처리'}</button></div>`:''}
-  ${pre?`<div class="wrap"><button class="btn sm yl" onclick="openCheck('${i.id}')">🎒 체크리스트 ${ckDone(i)}/${S.checklist.length}</button><button class="btn sm bl" onclick="copySite('${i.id}')">📍 현장정보 복사</button></div>`:''}
+  ${pre?`<div class="wrap"><button class="btn sm yl" onclick="openCheck('${i.id}')">🎒 체크리스트 ${ckDone(i)}/${S.checklist.length}</button><button class="btn sm bl" onclick="copySite('${i.id}')">📍 현장정보 복사</button><button class="btn sm gn" onclick="openIv('${i.id}')">🎤 인터뷰 ${ivDone(i)}/${ivTotal()}</button></div>`:''}
   <div class="wrap" style="border-top:1px solid #f1f5f9;padding-top:8px">
     <button class="btn sm" onclick="openPreview('${i.id}','${pv}')">👁️ 미리보기</button>
     ${i.date?`<a class="btn bl sm" target="_blank" rel="noopener" href="${gcalBooking(i)}">📆 구글캘린더</a><button class="btn bl sm" onclick="icsOne('${i.id}')">📅 .ics</button>`:''}
@@ -1657,7 +1680,7 @@ function renderSettingsExtra(){
   const C=S.cfg, T=S.templates;
   $('c-gap').value=C.gapHours; $('c-contract').value=C.contractLink||'';
   $('t-contract').value=T.contractNotice||''; $('t-cancel').value=T.cancelNotice||''; $('t-resched').value=T.rescheduleNotice||''; $('t-promo').value=T.promoTpl||'';
-  $('t-check').value=S.checklist.join('\n'); renderAlarmChips(); renderPresets();
+  $('t-check').value=S.checklist.join('\n'); renderAlarmChips(); renderPresets(); renderIvSettings();
   const ys=new Set([new Date().getFullYear()]); S.inquiries.forEach(i=>{ if(i.date) ys.add(+i.date.slice(0,4)); });
   const keepY=$('x-year').value, keepM=$('x-month').value;
   $('x-year').innerHTML=[...ys].sort((a,b)=>b-a).map(y=>`<option value="${y}">${y}년</option>`).join('');
@@ -1689,6 +1712,46 @@ function handleShared(){
   }catch(e){ console.error(e); }
 }
 
+/* ---------- v5: 인터뷰 질문 ---------- */
+const ivKey=(g,q)=>g+'||'+q;
+const ivTotal=()=>S.interview.reduce((s,g)=>s+g.qs.length,0);
+const ivDone=i=>{ const d=(i.iv&&i.iv.done)||{}; return S.interview.reduce((s,g)=>s+g.qs.filter(q=>d[ivKey(g.name,q)]).length,0); };
+let ivId=null, ivGroup=0;
+function ivEnsure(i){ i.iv=i.iv&&typeof i.iv==='object'?i.iv:{}; i.iv.done=i.iv.done||{}; i.iv.notes=i.iv.notes||{}; }
+function openIv(id){ ivId=id; ivGroup=0; const i=S.inquiries.find(x=>x.id===id); if(!i) return; ivEnsure(i); renderIv(); openM('m-iv'); }
+function renderIv(){
+  const i=S.inquiries.find(x=>x.id===ivId); if(!i) return; ivEnsure(i);
+  if(ivGroup>=S.interview.length) ivGroup=0;
+  $('iv-title').textContent=`🎤 ${i.clientName}님 인터뷰 질문`;
+  $('iv-sub').textContent=`전체 ${ivDone(i)}/${ivTotal()} 완료 · 질문을 누르면 체크돼요`;
+  $('iv-tabs').innerHTML=S.interview.map((x,k)=>{ const dn=x.qs.filter(q=>i.iv.done[ivKey(x.name,q)]).length; return `<button type="button" class="btn sm ${k===ivGroup?'on':''}" onclick="ivGroup=${k};renderIv()">${esc(x.name)} ${dn}/${x.qs.length}</button>`; }).join('');
+  const g=S.interview[ivGroup];
+  if(!g){ $('iv-list').innerHTML='<p>설정 탭에서 인터뷰 질문을 먼저 작성해 주세요</p>'; $('iv-note').value=''; return; }
+  $('iv-list').innerHTML=g.qs.length?g.qs.map((q,k)=>{ const on=!!i.iv.done[ivKey(g.name,q)]; return `<button type="button" class="ck ${on?'on':''}" onclick="toggleIv(${k})">${on?'☑️':'⬜'} ${esc(q)}</button>`; }).join(''):'<p>이 그룹에 질문이 없어요</p>';
+  const nv=i.iv.notes[g.name]||''; if($('iv-note').value!==nv) $('iv-note').value=nv;
+}
+function toggleIv(k){
+  const i=S.inquiries.find(x=>x.id===ivId), g=S.interview[ivGroup]; if(!i||!g) return; ivEnsure(i);
+  const key=ivKey(g.name,g.qs[k]); if(i.iv.done[key]) delete i.iv.done[key]; else i.iv.done[key]=true;
+  save(); renderIv(); refresh();
+}
+function saveIvNote(v){ const i=S.inquiries.find(x=>x.id===ivId), g=S.interview[ivGroup]; if(!i||!g) return; ivEnsure(i); if(v.trim()) i.iv.notes[g.name]=v; else delete i.iv.notes[g.name]; save(); }
+function copyIv(all){
+  const gs=all?S.interview:[S.interview[ivGroup]].filter(Boolean); if(!gs.length){ toast('복사할 질문이 없어요'); return; }
+  copyText(gs.map(g=>`[${g.name}]\n`+g.qs.map((q,k)=>`${k+1}. ${q}`).join('\n')).join('\n\n')); toast(all?'📋 전체 질문이 복사되었습니다':'📋 이 그룹 질문이 복사되었습니다');
+}
+function renderIvSettings(){
+  $('iv-groups').innerHTML=S.interview.map((g,k)=>`<div class="c" style="padding:10px;margin-bottom:8px"><div class="row" style="gap:6px"><input class="inp" id="ivn-${k}" value="${esc(g.name)}" placeholder="그룹 이름 (예: 신랑)"><button class="btn rd sm" onclick="delIvGroup(${k})">삭제</button></div><textarea id="ivq-${k}" rows="6" class="inp" style="margin-top:6px" placeholder="질문을 한 줄에 하나씩">${esc(g.qs.join('\n'))}</textarea></div>`).join('')||'<p>그룹이 없어요. + 그룹 추가를 눌러 주세요</p>';
+}
+function readIvSettings(){ return S.interview.map((g,k)=>{ const n=$('ivn-'+k), q=$('ivq-'+k); return n&&q?{name:n.value.trim()||g.name,qs:q.value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean)}:g; }); }
+function addIvGroup(){ S.interview=readIvSettings(); S.interview.push({name:'새 그룹',qs:[]}); save(); renderIvSettings(); toast('그룹을 추가했어요. 이름과 질문을 적고 저장하세요'); }
+function delIvGroup(k){ S.interview=readIvSettings(); S.interview.splice(k,1); save(); renderIvSettings(); refresh(); toast('그룹을 삭제했어요'); }
+function saveIvSettings(){
+  const gs=readIvSettings(), seen={}; gs.forEach(g=>{ let n=g.name,c=1; while(seen[n]) n=g.name+(++c); g.name=n; seen[n]=1; });
+  S.interview=gs; save(); renderIvSettings(); refresh(); toast('🎤 인터뷰 질문이 저장되었습니다');
+}
+function resetIv(){ S.interview=DEF_IV.map(g=>({name:g.name,qs:[...g.qs]})); save(); renderIvSettings(); refresh(); toast('기본 질문으로 되돌렸어요'); }
+
 /* ---------- modals + Android back button ---------- */
 let skipPop=0, lastBack=0, cfCb=null;
 function openM(id){ $(id).classList.remove('hide'); try{ history.pushState({m:1},''); }catch(e){} }
@@ -1701,7 +1764,7 @@ function ask(msg,cb){ $('cf-msg').textContent=msg; cfCb=cb; openM('m-confirm'); 
 $('cf-ok').onclick=()=>{ const f=cfCb; cfCb=null; closeM('m-confirm'); if(typeof f==='function') f(); };
 window.addEventListener('popstate',()=>{
   if(skipPop>0){ skipPop--; return; }
-  const top=['m-confirm','m-evt','m-past','m-wait','m-check','m-promo','m-prev','m-inq'].find(id=>!$(id).classList.contains('hide'));
+  const top=['m-confirm','m-iv','m-evt','m-past','m-wait','m-check','m-promo','m-prev','m-inq'].find(id=>!$(id).classList.contains('hide'));
   if(top){ closeM(top,true); return; }
   if(activeTab!=='cal'){ tab('cal'); try{ history.pushState({b:1},''); }catch(e){} return; }
   const n=Date.now(); if(n-lastBack<2000) return;
