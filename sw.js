@@ -1,5 +1,5 @@
-const CACHE = 'runiq-snap-v15';
-const ASSETS = ['./', './index.html', './manifest.json', './icons/icon-192.png', './icons/icon-512.png', './icons/icon.svg'];
+const CACHE = 'runiq-snap-v16';
+const ASSETS = ['./', './index.html', './manifest.json', './icons/icon-192.png', './icons/icon-512.png', './icons/icon.svg', './rqpdf.js', './vendor/html2canvas.min.js', './vendor/jspdf.umd.min.js'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 // 캐시 우선 + 백그라운드 갱신 (오프라인에서도 앱 실행, Tailwind/폰트도 캐시)
