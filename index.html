@@ -52,7 +52,7 @@ label{display:block;font-size:12px;font-weight:800;margin:10px 0 4px;color:#3341
 .box div{display:flex;justify-content:space-between;gap:8px;padding:2px 0}.box b{text-align:right}
 .note{font-size:12px;color:#475569;background:#f8fafc;padding:8px;border-radius:10px;white-space:pre-wrap}
 .scroll{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}.scroll::-webkit-scrollbar{display:none}.scroll>*{flex-shrink:0}
-nav{position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:auto;z-index:40;background:#fffffff2;backdrop-filter:blur(8px);border-top:1px solid var(--ln);display:grid;grid-template-columns:repeat(5,1fr);padding:6px 4px calc(6px + var(--bot))}
+nav{position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:auto;z-index:40;background:#fffffff2;backdrop-filter:blur(8px);border-top:1px solid var(--ln);display:grid;grid-template-columns:repeat(6,1fr);padding:6px 4px calc(6px + var(--bot))}
 nav button{background:0;color:#94a3b8;font-size:10px;letter-spacing:-.5px;font-weight:700;padding:7px 0;border-radius:12px;position:relative}
 nav button.on2{background:#f1f5f9;color:var(--ink);font-weight:800}
 nav b{position:absolute;top:1px;right:22%;background:var(--b);color:var(--ink);font-size:10px;border-radius:99px;min-width:16px;padding:0 4px}
@@ -108,7 +108,8 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
   .wk{font-size:12px}.pk{height:40px}
   #v-inq:not(.hide){display:grid;grid-template-columns:360px minmax(0,1fr);align-items:start;column-gap:20px}
   #v-inq>section{grid-column:1}
-  #inq-list{grid-column:2;grid-row:1/span 6}
+  #v-inq:not(.hide){grid-template-rows:auto auto 1fr}
+  #inq-list{grid-column:2;grid-row:1/span 3}
   #v-ck:not(.hide),#v-iv:not(.hide){max-width:1000px}
   #v-stat:not(.hide){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
   #v-stat>section:nth-child(-n+2){grid-column:1/-1}
@@ -118,6 +119,8 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
   .mod{align-items:center;padding:24px}
   .mod>div{max-width:680px;max-height:90vh;border-radius:20px}
   #toast{bottom:28px}
+  #v-led:not(.hide){display:grid;grid-template-columns:400px minmax(0,1fr);align-items:start;column-gap:20px;grid-template-areas:"top list" "act list" "sum list" "set list";grid-template-rows:auto auto auto 1fr}
+  #led-top{grid-area:top}#led-act{grid-area:act}#led-sum{grid-area:sum}#led-set{grid-area:set}#led-listcard{grid-area:list}
 }
 </style>
 </head>
@@ -206,6 +209,30 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
   <section class="c"><h2>🤝 짝꿍코드 사용현황</h2><p>발급된 코드와 사용 내역</p><div id="codes" style="margin-top:8px"></div></section>
   <section class="c"><h2>📣 문의 경로</h2><p id="src-sub"></p><div id="src" style="margin-top:8px"></div></section>
   <section class="c"><h2>📸 포트폴리오 동의</h2><div id="port-stats" class="box" style="margin-top:8px"></div></section>
+</main>
+
+<!-- TAB: 가계부 -->
+<main id="v-led" class="hide">
+  <section class="c" id="led-top">
+    <div class="row"><div class="row" style="gap:6px"><button class="btn" onclick="ledMove(-1)">◀</button><b id="led-title" style="font-size:15px"></b><button class="btn" onclick="ledMove(1)">▶</button></div>
+      <div class="row" style="gap:4px"><button id="ls-month" class="btn sm" onclick="ledScope('month')">월</button><button id="ls-year" class="btn sm" onclick="ledScope('year')">연</button><button id="ls-all" class="btn sm" onclick="ledScope('all')">전체</button></div></div>
+    <div class="row" style="justify-content:flex-start;gap:4px;margin-top:8px"><span style="font-size:11px;font-weight:800;color:var(--mut)">예약 매출 기준</span><span id="led-basis" class="row" style="gap:4px"></span></div>
+  </section>
+  <section class="c" id="led-act">
+    <div class="g2"><button class="btn am" onclick="ledOpenImp()">📥 카드내역 가져오기</button><button class="btn dk" onclick="ledStoreOpen()">🛒 스토어 정산 입력</button></div>
+    <div class="g3" style="margin-top:8px"><button class="btn" onclick="ledOpen(null,'out')">+ 지출</button><button class="btn" onclick="ledOpen(null,'in')">+ 수입</button><button class="btn gn" onclick="ledCSV()">📄 엑셀(CSV)</button></div>
+  </section>
+  <section class="c" id="led-sum"></section>
+  <section class="c" id="led-listcard">
+    <div id="led-filter" class="scroll" style="margin-bottom:8px"></div>
+    <input class="inp" placeholder="🔍 거래처, 항목, 메모 검색" oninput="LF.q=this.value;LF.lim=150;renderLed()">
+    <div id="led-list" style="display:flex;flex-direction:column;gap:8px;margin-top:8px"></div>
+    <button id="led-more" class="btn hide" style="width:100%;margin-top:8px" onclick="LF.lim+=150;renderLed()"></button>
+  </section>
+  <details class="c acc" id="led-set"><summary>⚙️ 가계부 설정</summary><p>해외결제 환산과 스토어 수수료 계산에 쓰는 값이에요. 실제 청구 금액과 다를 수 있어요.</p>
+    <div class="g2"><div><label>해외결제 환율 (원/$)</label><input id="lc-rate" class="inp" inputmode="numeric" oninput="fmtMoney(this)"></div><div><label>스토어 수수료율 (%)</label><input id="lc-fee" class="inp" inputmode="decimal"></div></div>
+    <button class="btn dk" style="width:100%;margin-top:8px" onclick="ledCfgSave()">저장</button>
+  </details>
 </main>
 
 <!-- TAB 4 : 설정 -->
@@ -303,8 +330,59 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
   <button data-n="ck" onclick="tab('ck')">🎒<br>체크리스트</button>
   <button data-n="iv" onclick="tab('iv')">🎤<br>인터뷰</button>
   <button data-n="stat" onclick="tab('stat')">📊<br>현황</button>
+  <button data-n="led" onclick="tab('led')">💰<br>가계부</button>
 </nav>
 </div>
+
+
+<!-- MODAL: 카드내역 가져오기 -->
+<div id="m-limp" class="mod hide"><div>
+  <div class="row"><h2 style="margin:0;font-size:16px">📥 카드내역 가져오기</h2><button class="btn sm" onclick="closeM('m-limp')">✕</button></div>
+  <div id="li-step1">
+    <p style="margin:8px 0">카드사에서 받은 <b>엑셀(.xls · .xlsx · .csv)</b>을 고르거나, 내역 표를 복사해서 아래에 붙여넣으세요. 같은 내역을 다시 가져와도 중복은 건너뛰어요.</p>
+    <input type="file" id="li-file" accept=".xls,.xlsx,.csv" class="inp" onchange="ledFile(this)">
+    <label>또는 복사한 내역 붙여넣기</label>
+    <textarea id="li-text" rows="5" class="inp" placeholder="이용일  이용시간  카드명  이용하신곳  금액 …"></textarea>
+    <button class="btn dk" style="width:100%;margin-top:8px" onclick="ledReadText()">내용 읽기</button>
+  </div>
+  <div id="li-step2" class="hide">
+    <div id="li-sum" class="box" style="margin:8px 0"></div>
+    <p style="margin-bottom:6px">가맹점별로 <b>사업 / 공제후보 / 개인 / 제외</b>를 골라주세요. 고른 내용은 다음부터 자동 적용돼요. ✨추천은 이름으로 짐작한 것이니 꼭 확인하세요.</p>
+    <div class="scroll" id="li-chips" style="margin-bottom:8px"></div>
+    <div id="li-groups" style="display:flex;flex-direction:column;gap:8px"></div>
+    <div class="g2" style="margin-top:10px"><button class="btn" onclick="ledAllPersonal()">남은 미분류 → 개인</button><button class="btn am" onclick="ledImportGo()">가져오기</button></div>
+    <p style="margin-top:6px">'제외'는 저장하지 않아요. '미분류'는 일단 가져와서 나중에 고칠 수 있어요.</p>
+  </div>
+</div></div>
+
+<!-- MODAL: 가계부 내역 편집 -->
+<div id="m-led" class="mod hide"><div>
+  <div class="row"><h2 id="le-title" style="margin:0;font-size:16px">내역</h2><button class="btn sm" onclick="closeM('m-led')">✕</button></div>
+  <form onsubmit="ledSaveE(event)">
+    <div id="le-io" class="row" style="justify-content:flex-start;gap:6px;margin-top:10px"></div>
+    <div class="g2"><div><label>날짜</label><input id="le-date" type="date" class="inp"></div><div><label>금액 (원)</label><input id="le-amt" class="inp" inputmode="numeric" oninput="fmtMoney(this)"></div></div>
+    <div id="le-neg-box"><label style="display:flex;gap:8px;align-items:center;font-weight:700"><input type="checkbox" id="le-neg" style="width:18px;height:18px"> 환불·취소 (마이너스 금액)</label></div>
+    <label>내용 (거래처)</label><input id="le-shop" class="inp" placeholder="예: 주유소, 렌즈 구매">
+    <div id="le-cls-box"><label>분류</label><div id="le-cls" class="wrap"></div></div>
+    <div id="le-cat-box"><label>항목</label><select id="le-cat" class="inp"></select></div>
+    <label>증빙</label><select id="le-proof" class="inp"><option>카드</option><option>현금영수증</option><option>세금계산서</option><option>없음</option></select>
+    <label>메모</label><input id="le-memo" class="inp" placeholder="예: 촬영용 SSD, 김지현 예식 주유">
+    <div id="le-allbox" class="hide"><label style="display:flex;gap:8px;align-items:center;font-weight:700"><input type="checkbox" id="le-all" style="width:18px;height:18px"> 같은 거래처 <span id="le-allcnt"></span>건 모두 이 분류로 바꾸기</label></div>
+    <div class="g2" style="margin-top:12px"><button type="button" id="le-del" class="btn rd hide" onclick="ledDel()">삭제</button><button class="btn dk">저장</button></div>
+  </form>
+</div></div>
+
+<!-- MODAL: 스토어 정산 -->
+<div id="m-lstore" class="mod hide"><div>
+  <div class="row"><h2 style="margin:0;font-size:16px">🛒 네이버스토어 정산 입력</h2><button class="btn sm" onclick="closeM('m-lstore')">✕</button></div>
+  <form onsubmit="ledStoreSave(event)">
+    <div class="g2"><div><label>정산일(입금일)</label><input id="ls-date" type="date" class="inp"></div><div><label>판매금액 (원)</label><input id="ls-gross" class="inp" inputmode="numeric" oninput="fmtMoney(this);ledStorePrev()"></div></div>
+    <label>실제 정산받은 금액 (선택)</label><input id="ls-net" class="inp" inputmode="numeric" placeholder="입력하면 차이를 수수료로 기록" oninput="fmtMoney(this);ledStorePrev()">
+    <label>메모 (선택)</label><input id="ls-memo" class="inp" placeholder="예: 11월 1차 정산">
+    <div id="ls-prev" class="box" style="margin-top:10px"></div>
+    <button class="btn dk" style="width:100%;margin-top:12px">기록하기</button>
+  </form>
+</div></div>
 
 <!-- MODAL: 문의 등록/수정 -->
 <div id="m-inq" class="mod hide"><div>
@@ -444,7 +522,7 @@ const SOURCES = ['인스타그램','블로그','유튜브','네이버 검색','�
 const VARS = ['성함','상품','예식일자','예식시간','예식장소','결제방식','기본금액','할인내역','총금액','계약금','잔금','입금기한','계좌정보','짝꿍코드','포트폴리오','남은일수','납품기한','주소','계약서링크'];
 const MSGS = [['before','🟠 입금전','beforeDeposit'],['after','🟢 계약금 확정','afterDeposit'],['balance','💰 잔금 안내','balanceNotice'],['delivery','📦 납품 안내','deliveryNotice'],['review','⭐ 후기 요청','reviewRequest'],['contract','📝 계약서 요청','contractNotice'],['copy','✍️ 서명본 사본 안내','copyNotice'],['pdf','📥 PDF 저장 안내','pdfRemind'],['cancel','❎ 취소·환불','cancelNotice'],['resched','🔁 일정변경','rescheduleNotice']];
 
-const DEF_CFG = {seller:{name:'루닉',rep:'박희윤',biz:'637-12-03118',tel:'010-2838-1688',addr:'새비봉남로 39, 106동 1204호'}, defaultTotal:1100000, defaultDeposit:300000, portDiscount:60000, pairIn:30000, pairOut:30000, pairMax:1, prefix:'RS', dueDays:3, deliveryDays:30, backupDays:14, gapHours:3, alarms:[120], contractLink:''};
+const DEF_CFG = {seller:{name:'루닉',rep:'박희윤',biz:'637-12-03118',tel:'010-2838-1688',addr:'새비봉남로 39, 106동 1204호'}, defaultTotal:1100000, defaultDeposit:300000, portDiscount:60000, pairIn:30000, pairOut:30000, pairMax:1, prefix:'RS', dueDays:3, deliveryDays:30, backupDays:14, gapHours:3, alarms:[120], contractLink:'', usdRate:1400, storeFee:0};
 /* ---------- 계약서 문구 도우미 (조항 합치기 · 강조) ---------- */
 function mergeTerms(body){
   const parts=String(body||'').split(/\n={3,}[ \t]*\n/), re=/^촬영 계약 및 이용 안내 \(\d\)$/, idx=[];
@@ -811,7 +889,7 @@ const DEF_IV=[
  {name:'하객·친구',qs:['신랑(신부)과 어떤 사이인가요?','두 사람과의 기억에 남는 추억 한 가지를 들려주세요.','두 사람이 잘 어울리는 이유는 무엇인가요?','오늘 두 사람의 모습을 보니 어떠세요?','두 사람에게 축하의 한마디를 해주세요.']},
  {name:'두 분께 (공통)',qs:['서로의 어떤 점이 가장 닮았다고 생각하세요?','10년 뒤 우리의 모습은 어떨 것 같나요?','결혼생활에서 꼭 지키고 싶은 약속이 있다면?','오늘 이 영상을 훗날 다시 볼 두 분께 한마디를 해주세요.']}
 ];
-let S = {inquiries:[], templates:{...DEF}, cfg:{...DEF_CFG}, blocked:[], meta:{}, events:[], wait:[], presets:DEF_PRESETS.map(x=>({...x})), checklist:[...DEF_CHECK], interview:DEF_IV.map(g=>({name:g.name,qs:[...g.qs]}))};
+let S = {inquiries:[], templates:{...DEF}, cfg:{...DEF_CFG}, blocked:[], meta:{}, events:[], wait:[], ledger:[], rules:{}, presets:DEF_PRESETS.map(x=>({...x})), checklist:[...DEF_CHECK], interview:DEF_IV.map(g=>({name:g.name,qs:[...g.qs]}))};
 let activeTab='cal', calY=new Date().getFullYear(), calM=new Date().getMonth(), selDate=todayISO();
 let calFilter='all', inqFilter='전체', portFilter='전체', yearFilter='전체', inqMode='created', monthOpen={};
 let formStatus='문의접수', formPort='', formEdit=null, pkY=calY, pkM=calM, pkDate=selDate, lastTpl='t-before', sampleIdx=0;
@@ -1194,6 +1272,7 @@ function adopt(p){
   S.presets=Array.isArray(p.presets)?p.presets:DEF_PRESETS.map(x=>({...x})); S.checklist=Array.isArray(p.checklist)?p.checklist:[...DEF_CHECK];
   S.interview=Array.isArray(p.interview)?p.interview:DEF_IV.map(g=>({name:g.name,qs:[...g.qs]}));
   if(!Array.isArray(S.cfg.alarms)) S.cfg.alarms=[120];
+  S.ledger=Array.isArray(p.ledger)?p.ledger:[]; S.rules=(p.rules&&typeof p.rules==='object'&&!Array.isArray(p.rules))?p.rules:{};
   S.meta=p.meta||{};
 }
 function load(){
@@ -1215,11 +1294,12 @@ function refresh(){
   if(activeTab==='ck') renderCkTab();
   if(activeTab==='iv') renderIvTab();
   if(activeTab==='stat') renderStat();
+  if(activeTab==='led'&&typeof renderLed==='function') renderLed();
   if(activeTab==='set') renderSettings();
 }
 function tab(n){
   activeTab=n; saveUI();
-  ['cal','inq','ck','iv','stat','set'].forEach(k=>$('v-'+k).classList.toggle('hide',k!==n));
+  ['cal','inq','ck','iv','stat','led','set'].forEach(k=>$('v-'+k).classList.toggle('hide',k!==n));
   document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on2',b.dataset.n===n)); $('gear').classList.toggle('on',n==='set');
   refresh(); window.scrollTo({top:0}); if(typeof clContractAuto==='function') clContractAuto();
 }
@@ -2210,8 +2290,8 @@ async function clRestore(){
 }
 
 /* ---------- v22: 자동 동기화 (여러 기기, 예약 단위 합치기) ---------- */
-const SYNC_COLS={inquiries:'id',events:'id',wait:'id',blocked:'date'};
-const SYNC_ONE=['templates','cfg','presets','checklist','interview'];
+const SYNC_COLS={inquiries:'id',events:'id',wait:'id',blocked:'date',ledger:'id'};
+const SYNC_ONE=['templates','cfg','presets','checklist','interview','rules'];
 let SYG={}, clSyncing=false, clLastSync=0, clSyncState='';
 function sj(o){
   if(o===null||typeof o!=='object') return JSON.stringify(o)||'null';
@@ -2506,7 +2586,7 @@ function ask(msg,cb){ $('cf-msg').textContent=msg; cfCb=cb; openM('m-confirm'); 
 $('cf-ok').onclick=()=>{ const f=cfCb; cfCb=null; closeM('m-confirm'); if(typeof f==='function') f(); };
 window.addEventListener('popstate',()=>{
   if(skipPop>0){ skipPop--; return; }
-  const top=['m-confirm','m-con','m-iv','m-evt','m-past','m-wait','m-check','m-promo','m-prev','m-inq'].find(id=>!$(id).classList.contains('hide'));
+  const top=['m-confirm','m-con','m-iv','m-evt','m-past','m-wait','m-check','m-promo','m-prev','m-inq','m-led','m-limp','m-lstore'].find(id=>!$(id).classList.contains('hide'));
   if(top){ closeM(top,true); return; }
   if(activeTab!=='cal'){ tab('cal'); try{ history.pushState({b:1},''); }catch(e){} return; }
   const n=Date.now(); if(n-lastBack<2000) return;
@@ -2524,5 +2604,6 @@ if('serviceWorker' in navigator && location.protocol!=='file:'){
   window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 }
 </script>
+<script src="ledger.js"></script>
 </body>
 </html>
