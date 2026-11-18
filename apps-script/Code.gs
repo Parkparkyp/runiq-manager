@@ -52,7 +52,7 @@ function doPost(e) {
 
 function doGet(e) {
   const c = e && e.parameter && e.parameter.c;
-  if (!c) return out_({ ok: true, msg: BRAND + ' 서버 동작 중', version: 'v17-source' });   // 배포된 코드 버전 확인용
+  if (!c) return out_({ ok: true, msg: BRAND + ' 서버 동작 중', version: 'v18-source' });   // 배포된 코드 버전 확인용
   if (e.parameter.action === 'contract') return out_(Object.assign({ ok: true }, contractView_(String(c))));
   return out_({ ok: false, error: 'use-post' });
 }
@@ -94,6 +94,11 @@ function writeChunks_(sheet, str) {
 }
 function backup_(b) {
   if (typeof b.data !== 'string' || b.data.length < 2) return { ok: false, error: 'data' };
+  const lock = LockService.getScriptLock();            // 두 기기가 동시에 저장해도 순서대로 처리 (자동 동기화용)
+  try { lock.waitLock(20000); } catch (e) { return { ok: false, error: 'busy' }; }
+  try { return backupLocked_(b); } finally { lock.releaseLock(); }
+}
+function backupLocked_(b) {
   const cur = curTs_();
   if (!b.force && cur && Number(b.baseTs) !== cur) return { ok: false, conflict: true, ts: cur };
   const dSheet = sh_(S_DATA);

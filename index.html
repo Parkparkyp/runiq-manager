@@ -91,20 +91,47 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
 .acc>summary::after{content:'▾';color:var(--mut);font-size:15px;transition:transform .15s}
 .acc[open]>summary::after{transform:rotate(180deg)}
 .acc[open]>summary{margin-bottom:6px}
+@media (max-width:999px){.sy-t{display:none}}
 #gear.on{background:#fbbf24!important;color:#0f172a!important;border-color:#fbbf24!important}
+
+/* ---------- v22: 데스크톱(넓은 화면) 레이아웃 — 폰은 그대로 ---------- */
+@media (min-width:1000px){
+  #app{max-width:1440px;padding-left:92px;padding-bottom:28px;box-shadow:0 0 30px #0002;background:#f1f5f9}
+  header{margin-left:-92px;min-height:60px}
+  nav{top:60px;bottom:auto;left:max(0px,calc((100vw - 1440px)/2));right:auto;width:92px;max-width:none;margin:0;height:calc(100vh - 60px);grid-template-columns:1fr;grid-auto-rows:min-content;align-content:start;gap:6px;padding:12px 8px;border-top:0;border-right:1px solid var(--ln);background:#fff;backdrop-filter:none}
+  nav button{font-size:11px;padding:10px 0}
+  nav b{right:14%}
+  main{padding:18px 22px;gap:16px}
+  #v-cal:not(.hide){display:grid;grid-template-columns:minmax(0,1.55fr) minmax(360px,1fr);grid-template-areas:"cal todo" "cal ag";grid-template-rows:auto 1fr;align-items:start}
+  #todo-card{grid-area:todo}#cal-card{grid-area:cal}#ag-card{grid-area:ag}
+  .cell{min-height:108px;padding:5px}.cell i{font-size:12.5px}.cell s{font-size:11px;padding:2px 4px}.cell em{font-size:10.5px}
+  .wk{font-size:12px}.pk{height:40px}
+  #v-inq:not(.hide){display:grid;grid-template-columns:360px minmax(0,1fr);align-items:start;column-gap:20px}
+  #v-inq>section{grid-column:1}
+  #inq-list{grid-column:2;grid-row:1/span 6}
+  #v-ck:not(.hide),#v-iv:not(.hide){max-width:1000px}
+  #v-stat:not(.hide){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
+  #v-stat>section:nth-child(-n+2){grid-column:1/-1}
+  #v-set:not(.hide){display:block;columns:2 440px;column-gap:18px}
+  #v-set>*{break-inside:avoid;margin-bottom:12px}
+  #v-set>div:first-child{column-span:all}
+  .mod{align-items:center;padding:24px}
+  .mod>div{max-width:680px;max-height:90vh;border-radius:20px}
+  #toast{bottom:28px}
+}
 </style>
 </head>
 <body>
 <div id="app">
 <header>
   <div style="min-width:0"><h1>📷 루닉필름 매니저</h1><small style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">카톡 자동파싱 · 입금관리 · 캘린더</small></div>
-  <div class="row" style="gap:6px;flex-shrink:0"><button class="btn" style="background:#ffffff1a;color:#fff;border-color:#ffffff30" onclick="openEvt(null,selDate)">+ 일정</button><button class="btn am" onclick="openInq()">+ 문의 추가</button><button id="gear" class="btn" aria-label="설정" style="background:#ffffff1a;color:#fff;border-color:#ffffff30;font-size:15px;padding:6px 10px" onclick="tab('set')">⚙️</button></div>
+  <div class="row" style="gap:6px;flex-shrink:0"><button id="sync-st" class="btn hide" style="background:#ffffff1a;color:#fff;border-color:#ffffff30;font-size:12px;padding:6px 9px" onclick="clSync(false)" aria-label="동기화">☁️</button><button class="btn" style="background:#ffffff1a;color:#fff;border-color:#ffffff30" onclick="openEvt(null,selDate)">+ 일정</button><button class="btn am" onclick="openInq()">+ 문의 추가</button><button id="gear" class="btn" aria-label="설정" style="background:#ffffff1a;color:#fff;border-color:#ffffff30;font-size:15px;padding:6px 10px" onclick="tab('set')">⚙️</button></div>
 </header>
 
 <!-- TAB 1 : 캘린더 -->
 <main id="v-cal">
   <section class="c" id="todo-card"></section>
-  <section class="c">
+  <section class="c" id="cal-card">
     <div class="row" style="margin-bottom:8px">
       <div class="row" style="gap:6px"><button class="btn" onclick="moveMonth(-1)">◀</button><b id="cal-title" style="font-size:15px"></b><button class="btn" onclick="moveMonth(1)">▶</button></div>
       <div class="row" style="gap:4px"><button class="btn" onclick="openPromo()">📣 홍보</button><button class="btn dk" onclick="goToday()">오늘</button></div>
@@ -116,7 +143,7 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
       <span><i class="dot" style="background:var(--q)"></i>문의</span><span><i class="dot" style="background:var(--b)"></i>입금전</span><span><i class="dot" style="background:var(--a)"></i>계약금완료</span><span><i class="dot" style="background:#7c3aed"></i>촬영완료</span><span>🚫휴무</span>
     </div>
   </section>
-  <section class="c">
+  <section class="c" id="ag-card">
     <div class="row" style="margin-bottom:8px">
       <div><h2 id="ag-title"></h2><p id="ag-sub"></p></div>
       <div class="row" style="gap:4px"><button class="btn sm" onclick="openEvt(null,selDate)">+ 일정</button><button class="btn dk sm" onclick="openInq(null,selDate)">+ 예약</button></div>
@@ -225,12 +252,12 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
     <label style="color:#047857">📣 빈 날짜 홍보 문구 ({월} {날짜목록} {남은수})</label><textarea id="t-promo" rows="6" class="inp" onfocus="lastTpl='t-promo'"></textarea>
     <div class="g2" style="margin-top:10px"><button class="btn dk" onclick="saveTpl()">템플릿 저장</button><button class="btn" onclick="ask('멘트 템플릿을 기본값으로 초기화할까요?',resetTpl)">기본값 초기화</button></div>
   </details>
-  <details class="c acc"><summary>☁️ 구글 시트 클라우드 백업</summary><p id="cl-info">내 구글 시트에 자동으로 백업하고, 다른 기기에서 불러올 수 있어요.</p>
+  <details class="c acc"><summary>☁️ 구글 시트 클라우드 백업</summary><p id="cl-info">내 구글 시트에 백업하고, 자동 동기화를 켜면 폰·컴퓨터의 예약이 서로 합쳐져요.</p>
     <label>웹 앱 주소 (Apps Script 배포 URL)</label><input id="cl-url" class="inp" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off">
     <label>비밀키 (Code.gs 의 SECRET 과 같은 값)</label><input id="cl-key" class="inp" type="password" placeholder="나만 아는 긴 비밀키" autocomplete="off">
-    <label style="display:flex;gap:8px;align-items:center;margin-top:8px"><input type="checkbox" id="cl-auto" style="width:18px;height:18px"> 데이터가 바뀌면 자동 백업 (인터넷 연결 시)</label>
-    <div class="g2" style="margin-top:8px"><button class="btn" onclick="clSaveCfg(true)">🔌 저장 · 연결 테스트</button><button class="btn dk" onclick="clBackup(false,false)">☁️ 지금 백업</button></div>
-    <button class="btn bl" style="width:100%;margin-top:8px" onclick="clRestore()">☁️ 클라우드에서 불러오기</button>
+    <label style="display:flex;gap:8px;align-items:center;margin-top:8px"><input type="checkbox" id="cl-auto" style="width:18px;height:18px" onchange="clSaveCfg(false);if(this.checked) clSync(false)"> 🔄 자동 동기화 (여러 기기 · 켜면 폰과 컴퓨터가 알아서 맞춰져요)</label>
+    <div class="g2" style="margin-top:8px"><button class="btn" onclick="clSaveCfg(true)">🔌 저장 · 연결 테스트</button><button class="btn dk" onclick="clSync(false)">🔄 지금 동기화</button></div>
+    <div class="g2" style="margin-top:8px"><button class="btn bl" onclick="clRestore()">☁️ 클라우드로 덮어쓰기(복원)</button><button class="btn" onclick="clBackup(false,false)">☁️ 이 기기로 덮어쓰기(백업)</button></div>
     <details style="margin-top:8px"><summary style="font-size:12px;font-weight:800;cursor:pointer">📖 처음 연결하는 방법</summary>
       <ol style="font-size:12px;line-height:1.7;margin:6px 0 0;padding-left:18px;color:var(--mut)">
         <li>구글 드라이브에서 새 구글 시트를 만들어요 (이름 예: 루닉필름 데이터)</li>
@@ -1175,9 +1202,9 @@ function load(){
     if(raw) adopt(JSON.parse(raw)); else S.inquiries=samples();
   }catch(e){ console.error(e); S.inquiries=samples(); }
   if(!S.meta.firstUse) S.meta.firstUse=Date.now();
-  normalizeAll(); migrateTemplates(); save();
+  normalizeAll(); migrateTemplates(); syncBaseline(); save();
 }
-function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){ toast('⚠️ 저장 공간 오류: 백업을 받아두세요'); } updateBadge(); if(typeof clQueue==='function'&&!clSkip) clQueue(); }
+function save(){ try{ syncStamp(); }catch(e){ console.error(e); } try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){ toast('⚠️ 저장 공간 오류: 백업을 받아두세요'); } updateBadge(); if(typeof clQueue==='function'&&!clSkip) clQueue(); }
 function updateBadge(){
   const n=S.inquiries.filter(i=>i.status==='문의접수'||i.status==='입금전').length, b=$('badge');
   b.textContent=n; b.classList.toggle('hide',!n);
@@ -2118,7 +2145,7 @@ function renderCloud(){
   if(document.activeElement!==$('cl-url')) $('cl-url').value=CL.url;
   if(document.activeElement!==$('cl-key')) $('cl-key').value=CL.key;
   $('cl-auto').checked=!!CL.auto;
-  $('cl-info').textContent=CL.status||(CL.url?(CL.lastAt?`마지막 클라우드 백업: ${clAgo(CL.lastAt)}`:'연결됨 · 아직 백업한 적이 없어요'):'내 구글 시트에 자동으로 백업하고, 다른 기기에서 불러올 수 있어요.');
+  $('cl-info').textContent=CL.status||(CL.url?(CL.lastAt?`마지막 클라우드 백업: ${clAgo(CL.lastAt)}`:'연결됨 · 아직 백업한 적이 없어요'):'내 구글 시트에 백업하고, 자동 동기화를 켜면 폰·컴퓨터의 예약이 서로 합쳐져요.');
 }
 async function clPost(body){
   const ac=new AbortController(), to=setTimeout(()=>ac.abort(),30000);
@@ -2132,7 +2159,7 @@ async function clPost(body){
 function clReady(){ if(!CL.url||!CL.key){ toast('웹 앱 주소와 비밀키를 먼저 입력해 주세요'); return false; } return true; }
 function clErr(r){ return r.error==='key'?'비밀키가 달라요':r.error==='empty'?'클라우드에 저장된 백업이 없어요':'오류: '+(r.error||'알 수 없음'); }
 async function clSaveCfg(test){
-  CL.url=$('cl-url').value.trim(); CL.key=$('cl-key').value.trim(); CL.auto=$('cl-auto').checked; CL.blocked=false; CL.status=''; clStore();
+  CL.url=$('cl-url').value.trim(); CL.key=$('cl-key').value.trim(); CL.auto=$('cl-auto').checked; CL.blocked=false; CL.status=''; clStore(); syncUI(CL.auto?'ok':'');
   if(!test) return renderCloud();
   if(!clReady()) return;
   if(!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec/.test(CL.url)){ toast('주소가 올바르지 않아요 (…/exec 로 끝나야 해요)'); return; }
@@ -2164,8 +2191,8 @@ async function clBackup(force,silent){
   clBusy=false; renderCloud(); if(activeTab==='cal'||activeTab==='inq') refresh();
 }
 function clQueue(){
-  if(!CL.auto||!CL.url||!CL.key||CL.blocked) return;
-  clearTimeout(clTimer); clTimer=setTimeout(()=>{ if(navigator.onLine) clBackup(false,true); },15000);
+  if(!CL.auto||!CL.url||!CL.key) return;
+  clearTimeout(clTimer); clTimer=setTimeout(()=>{ clSync(true); },8000);
 }
 async function clRestore(){
   if(!clReady()) return; toast('☁️ 불러오는 중…');
@@ -2176,11 +2203,118 @@ async function clRestore(){
     if(!p||!Array.isArray(p.inquiries)){ toast('클라우드 데이터가 올바르지 않아요'); return; }
     const when=new Date(r.ts); const w=`${when.getMonth()+1}/${when.getDate()} ${pad(when.getHours())}:${pad(when.getMinutes())}`;
     ask(`클라우드 백업(${w} · 예약 ${p.inquiries.length}건)으로 복원할까요?\n현재 이 기기의 데이터는 덮어씌워져요.`,()=>{
-      clSkip=true; adopt(p); S.meta.firstUse=S.meta.firstUse||Date.now(); S.meta.lastBackup=Date.now(); normalizeAll(); migrateTemplates(); save(); clSkip=false;
+      clSkip=true; adopt(p); S.meta.firstUse=S.meta.firstUse||Date.now(); S.meta.lastBackup=Date.now(); normalizeAll(); migrateTemplates(); syncBaseline(); save(); clSkip=false;
       CL.lastTs=r.ts; CL.lastAt=Date.now(); CL.blocked=false; CL.status=''; clStore(); refresh(); renderCloud(); toast(`☁️ ${S.inquiries.length}건 복원 완료`);
     });
   }catch(e){ toast('❌ 불러오기 실패 — 인터넷 연결을 확인해 주세요'); }
 }
+
+/* ---------- v22: 자동 동기화 (여러 기기, 예약 단위 합치기) ---------- */
+const SYNC_COLS={inquiries:'id',events:'id',wait:'id',blocked:'date'};
+const SYNC_ONE=['templates','cfg','presets','checklist','interview'];
+let SYG={}, clSyncing=false, clLastSync=0, clSyncState='';
+function sj(o){
+  if(o===null||typeof o!=='object') return JSON.stringify(o)||'null';
+  if(Array.isArray(o)) return '['+o.map(sj).join(',')+']';
+  return '{'+Object.keys(o).filter(k=>k!=='_u'&&o[k]!==undefined).sort().map(k=>JSON.stringify(k)+':'+sj(o[k])).join(',')+'}';
+}
+function syncBaseline(){
+  S.meta=S.meta||{}; S.meta.del=S.meta.del||{}; S.meta.su=S.meta.su||{};
+  SYG={};
+  Object.keys(SYNC_COLS).forEach(c=>{ const k=SYNC_COLS[c]; (S[c]||[]).forEach(it=>{ if(it&&it[k]!=null){ SYG[c+':'+it[k]]=sj(it); if(!it._u) it._u=1; } }); });
+  SYNC_ONE.forEach(n=>{ SYG['one:'+n]=sj(S[n]); if(!S.meta.su[n]) S.meta.su[n]=1; });
+}
+function syncStamp(){
+  if(!S.meta) S.meta={}; if(!S.meta.del) S.meta.del={}; if(!S.meta.su) S.meta.su={};
+  const now=Date.now(), ns={};
+  Object.keys(SYNC_COLS).forEach(c=>{ const k=SYNC_COLS[c]; (S[c]||[]).forEach(it=>{
+    if(!it||it[k]==null) return; const key=c+':'+it[k], sg=sj(it); ns[key]=sg;
+    if(SYG[key]!==sg||!it._u) it._u=now;
+  }); });
+  SYNC_ONE.forEach(n=>{ const sg=sj(S[n]); ns['one:'+n]=sg; if(SYG['one:'+n]!==sg) S.meta.su[n]=now; });
+  Object.keys(SYG).forEach(k=>{ if(!(k in ns)&&k.indexOf('one:')!==0) S.meta.del[k]=now; });
+  SYG=ns;
+}
+function syncMerge(R){
+  const del={...((R.meta&&R.meta.del)||{})};
+  Object.entries(S.meta.del||{}).forEach(([k,t])=>{ if(!(del[k]>=t)) del[k]=t; });
+  const cut=Date.now()-120*864e5; Object.keys(del).forEach(k=>{ if(del[k]<cut) delete del[k]; });
+  let chL=false, chR=false;
+  Object.keys(SYNC_COLS).forEach(c=>{
+    const key=SYNC_COLS[c], rl=Array.isArray(R[c])?R[c].filter(x=>x&&x[key]!=null):[], ll=(S[c]||[]).filter(x=>x&&x[key]!=null);
+    const lm=new Map(ll.map(x=>[x[key],x])), rm=new Map(rl.map(x=>[x[key],x]));
+    const keys=[...lm.keys()]; rm.forEach((_,k)=>{ if(!lm.has(k)) keys.push(k); });
+    const out=[];
+    keys.forEach(k=>{
+      const l=lm.get(k), r=rm.get(k), d=del[c+':'+k]||0; let pick;
+      if(l&&r){ const lu=l._u||0, ru=r._u||0; pick=lu>ru?l:ru>lu?r:(sj(l)>=sj(r)?l:r); } else pick=l||r;
+      if(d&&d>(pick._u||0)){ if(l) chL=true; if(r) chR=true; return; }
+      if(!l||sj(l)!==sj(pick)) chL=true;
+      if(!r||sj(r)!==sj(pick)) chR=true;
+      out.push(pick);
+    });
+    S[c]=out;
+  });
+  SYNC_ONE.forEach(n=>{
+    const lt=S.meta.su[n]||0, rt=(R.meta&&R.meta.su&&R.meta.su[n])||0;
+    if(R[n]==null){ chR=true; return; }
+    const same=sj(R[n])===sj(S[n]);
+    if(same){ S.meta.su[n]=Math.max(lt,rt); return; }
+    if(rt>lt||(rt===lt&&sj(R[n])>sj(S[n]))){ S[n]=R[n]; S.meta.su[n]=rt; chL=true; }
+    else chR=true;
+  });
+  S.meta.del=del;
+  return {chL,chR};
+}
+function syncUI(st,extra){
+  clSyncState=st; const b=$('sync-st'); if(!b) return;
+  const map={ok:['☁️','동기화됨'],sync:['🔄','동기화 중'],off:['📴','오프라인'],err:['⚠️','동기화 실패']};
+  const m=map[st]; if(!m||!CL.auto||!CL.url||!CL.key){ b.classList.add('hide'); return; }
+  b.classList.remove('hide'); b.innerHTML=`${m[0]}<span class="sy-t"> ${m[1]}</span>`; b.title=extra||m[1];
+}
+function modalOpen(){ return !!document.querySelector('.mod:not(.hide)'); }
+async function clSync(silent){
+  if(!CL.url||!CL.key){ if(!silent) toast('웹 앱 주소와 비밀키를 먼저 입력해 주세요'); return; }
+  if(clSyncing) return;
+  if(!navigator.onLine){ syncUI('off'); if(!silent) toast('📴 오프라인이에요. 연결되면 자동으로 맞춰요'); return; }
+  if(silent&&modalOpen()){ clearTimeout(clTimer); clTimer=setTimeout(()=>clSync(true),20000); return; }
+  clSyncing=true; syncUI('sync'); let msg='';
+  try{
+    for(let n=0;n<3;n++){
+      const r=await clPost({action:'restore'}); let R=null, rts=0;
+      if(r.ok){ rts=r.ts; try{ R=JSON.parse(r.data); }catch(e){ throw new Error('클라우드 데이터가 올바르지 않아요'); } }
+      else if(r.error!=='empty') throw new Error(clErr(r));
+      let chL=false, chR=true;
+      if(R&&Array.isArray(R.inquiries)){
+        if(!CL.synced){ try{ const raw=JSON.stringify(S,null,2); download(`runiq_snap_before_sync_${todayISO()}.json`,raw,'application/json'); }catch(e){} }
+        const m=syncMerge(R); chL=m.chL; chR=m.chR;
+        if(chL){ S.templates={...DEF,...S.templates}; S.cfg={...DEF_CFG,...S.cfg}; if(!Array.isArray(S.cfg.alarms)) S.cfg.alarms=[120]; normalizeAll(); migrateTemplates(); }
+        syncBaseline(); clSkip=true; save(); clSkip=false;
+        if(chL){ refresh(); msg='다른 기기의 변경사항을 반영했어요'; }
+      }
+      if(!chR){ CL.lastTs=rts; CL.lastAt=Date.now(); break; }
+      const b=await clPost({action:'backup',data:JSON.stringify(S),rows:clRows(),baseTs:rts,force:false});
+      if(b.ok){ CL.lastTs=b.ts; CL.lastAt=Date.now(); S.meta.lastBackup=Date.now(); clSkip=true; save(); clSkip=false; break; }
+      if(b.conflict&&n<2) continue;
+      throw new Error(b.conflict?'다른 기기와 동시에 저장됐어요. 잠시 후 다시 시도해요':clErr(b));
+    }
+    CL.synced=true; CL.blocked=false; clLastSync=Date.now(); const d=new Date(); CL.status=`✅ 동기화 완료 ${pad(d.getHours())}:${pad(d.getMinutes())}`; clStore(); syncUI('ok',CL.status);
+    if(!silent) toast('☁️ 동기화 완료'+(msg?' · '+msg:'')); else if(msg) toast('☁️ '+msg);
+  }catch(e){
+    const t=(e&&e.name==='AbortError')?'시간 초과':(e&&e.message)||'인터넷 연결을 확인해 주세요';
+    CL.status='❌ 동기화 실패: '+t; clStore(); syncUI('err',CL.status); if(!silent) toast('❌ 동기화 실패 — '+t);
+  }
+  clSyncing=false; renderCloud();
+}
+function clSyncAuto(){
+  if(!CL.auto||!CL.url||!CL.key||document.hidden) return;
+  if(Date.now()-clLastSync<45000) return; clSync(true);
+}
+document.addEventListener('visibilitychange',clSyncAuto);
+window.addEventListener('focus',clSyncAuto);
+window.addEventListener('online',()=>{ if(CL.auto) clSync(true); });
+window.addEventListener('offline',()=>syncUI('off'));
+setInterval(()=>{ if(!document.hidden&&Date.now()-clLastSync>170000) clSyncAuto(); },60000);
 
 /* ---------- v8: 전자 계약서 ---------- */
 function genToken(){ const a=new Uint8Array(24); crypto.getRandomValues(a); const c='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'; return Array.from(a,x=>c[x%62]).join(''); }
@@ -2382,7 +2516,7 @@ window.addEventListener('popstate',()=>{
 /* ---------- boot ---------- */
 window.addEventListener('DOMContentLoaded',()=>{
   try{ if(navigator.storage&&navigator.storage.persist) navigator.storage.persist(); }catch(e){}
-  load(); loadUI(); tab(uiTab);
+  load(); loadUI(); tab(uiTab); syncUI(CL.auto?(navigator.onLine?'ok':'off'):''); if(CL.auto) setTimeout(()=>clSync(true),1500);
   try{ history.replaceState({r:1},'',location.pathname); history.pushState({b:1},''); }catch(e){}
   handleShared();
 });
