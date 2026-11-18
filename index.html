@@ -39,6 +39,7 @@ label{display:block;font-size:12px;font-weight:800;margin:10px 0 4px;color:#3341
 .t-q{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}.t-b{background:#fffbeb;color:#92400e;border-color:#fcd34d}.t-a{background:#ecfdf5;color:#065f46;border-color:#6ee7b7}.t-x{background:#f1f5f9;color:#64748b;border-color:var(--ln)}.t-r{background:#fff1f2;color:#be123c;border-color:#fecdd3}
 .on-q{background:var(--q);color:#fff}.on-r{background:#e11d48;color:#fff}.on-b{background:var(--b);color:var(--ink)}.on-a{background:var(--a);color:#fff}.on-x{background:#475569;color:#fff}.on{background:var(--ink)!important;color:#fcd34d!important;border-color:var(--ink)!important}
 .wk{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;font-size:11px;font-weight:700;color:var(--mut);margin-bottom:4px}
+#cal-grid{touch-action:pan-y}
 .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
 .cell{min-height:62px;min-width:0;padding:3px;border:1px solid #f1f5f9;border-radius:10px;background:#fff;text-align:left;overflow:hidden}
 .cell.sel{border-color:var(--ink);box-shadow:0 0 0 2px #0f172a30}
@@ -125,6 +126,12 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
   #v-led:not(.hide){display:grid;grid-template-columns:400px minmax(0,1fr);align-items:start;column-gap:20px;grid-template-areas:"top list" "act list" "sum list" "set list";grid-template-rows:auto auto auto 1fr}
   #led-top{grid-area:top}#led-act{grid-area:act}#led-sum{grid-area:sum}#led-set{grid-area:set}#led-listcard{grid-area:list}
 }
+.bigdt{font-size:20px;font-weight:900;margin:8px 0 10px;letter-spacing:-.3px}
+.bigdt small{display:block;font-size:12px;font-weight:800;color:#be123c;margin-top:2px}
+.bigdt .okb{margin-left:8px;vertical-align:middle}
+.dpsel{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:8px}
+.dpsel .inp{font-size:16px;font-weight:800;padding:12px 8px;text-align:center;text-align-last:center}
+.dpbox .bigdt.bad{color:#be123c}
 </style>
 </head>
 <body>
@@ -413,17 +420,19 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
     <input id="f-addr" type="hidden">
     <div class="g2"><div><label>예약상품</label><select id="f-cat" class="inp"></select></div><div><label>예식장소</label><input id="f-venue" class="inp" placeholder="예: 남원새생명교회"></div></div>
     <label>💳 결제방식</label><div class="g4" id="f-paychips" style="margin-bottom:6px"></div><input id="f-pay" class="inp" placeholder="직접 입력">
-    <label>📸 포트폴리오 사용 동의</label><div id="f-port" class="g3"></div>
-    <div class="box" style="margin-top:12px">
-      <div style="align-items:center"><b>📅 날짜 선택</b><span class="row" style="gap:4px"><button type="button" class="btn sm" onclick="movePicker(-1)">◀</button><b id="pk-label"></b><button type="button" class="btn sm" onclick="movePicker(1)">▶</button></span></div>
-      <div class="row" style="gap:6px;margin:8px 0 6px"><input id="f-dtxt" class="inp" style="padding:8px" placeholder="직접 입력: 12/5 · 1205 · 2027-3-14 · 3월 첫째주 토요일" autocomplete="off" onkeydown="if(event.key==='Enter'){event.preventDefault();dtApply();}" onblur="dtApply(true)"><button type="button" class="btn sm dk" style="flex-shrink:0" onclick="dtApply()">적용</button></div>
-      <div id="pk-quick" class="scroll" style="margin-bottom:6px"></div>
-      <div id="pk-picked" style="margin-bottom:6px;font-weight:800;font-size:13px"></div>
-      <div class="wk"><span class="sun">일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span class="sat">토</span></div>
-      <div id="pk-grid" class="cal"></div><div id="pk-note" style="margin-top:8px;font-weight:700;font-size:11px"></div>
+    <div id="f-port" class="hide"></div><select id="f-src" class="hide"></select>
+    <div class="box dpbox" style="margin-top:12px">
+      <b>📅 예식 날짜</b>
+      <div id="pk-picked" class="bigdt"></div>
+      <div class="dpsel"><select id="dp-y" class="inp" onchange="dpChange()" aria-label="년"></select><select id="dp-m" class="inp" onchange="dpChange()" aria-label="월"></select><select id="dp-d" class="inp" onchange="dpChange()" aria-label="일"></select></div>
+      <div id="pk-note" style="margin-top:8px;font-weight:700;font-size:12px"></div>
     </div>
-    <label>⏰ 예식 시간</label><div class="g4" id="f-timechips" style="margin-bottom:6px"></div><input id="f-time" type="time" class="inp" value="12:00" oninput="markTime()">
-    <div class="g2"><div><label>📣 문의 경로</label><select id="f-src" class="inp"></select></div><div><label>🤝 짝꿍코드 입력</label><input id="f-code" class="inp" placeholder="예: RS-K7M2" autocapitalize="characters" style="text-transform:uppercase" oninput="renderFormPrice()"></div></div>
+    <div class="box dpbox" style="margin-top:10px">
+      <b>⏰ 예식 시간</b>
+      <div id="tp-label" class="bigdt"></div>
+      <div class="dpsel"><select id="tp-ap" class="inp" onchange="tpChange()" aria-label="오전/오후"><option>오전</option><option>오후</option></select><select id="tp-h" class="inp" onchange="tpChange()" aria-label="시"></select><select id="tp-m" class="inp" onchange="tpChange()" aria-label="분"></select></div>
+    </div><input id="f-time" type="hidden" value="12:00">
+    <div><label>🤝 짝꿍코드 입력</label><input id="f-code" class="inp" placeholder="예: RS-K7M2" autocapitalize="characters" style="text-transform:uppercase" oninput="renderFormPrice()"></div>
     <div id="code-msg" style="font-size:11px;font-weight:700;margin-top:4px"></div>
     <div data-fx="pay">
     <div class="g2"><div><label>기본 상품 금액(원)</label><input id="f-total" class="inp" inputmode="numeric" oninput="fmtMoney(this);renderFormPrice()"></div><div><label>계약금(원)</label><input id="f-dep" class="inp" inputmode="numeric" oninput="fmtMoney(this);renderFormPrice()"></div></div>
@@ -1034,7 +1043,9 @@ function parseDateSmart(raw,labelled){
   const ok=(y,m,d)=>{ const x=new Date(y,m-1,d); return m>=1&&m<=12&&d>=1&&d<=31&&x.getFullYear()===y&&x.getMonth()===m-1&&x.getDate()===d; };
   const Y2=v=>{ v=+v; return v<100?2000+v:v; };
   let y=null,m=null,d=null,explicit=false,mm;
-  if((mm=t.match(/(?<!\d)(20\d{2})\s*[년.\-\/]\s*(\d{1,2})\s*[월.\-\/]\s*(\d{1,2})/))){ y=+mm[1];m=+mm[2];d=+mm[3];explicit=true; }
+  let cmp=null; { const re=/(?<![\d\-.])(\d{8}|\d{6})(?![\d\-.:]|\s*[\-:])/g; let q; while((q=re.exec(t))){ const g=q[1], yy=g.length===8?+g.slice(0,4):2000+(+g.slice(0,2)), mo=+g.slice(g.length-4,g.length-2), dd=+g.slice(g.length-2); if(yy>=cy-1&&yy<=cy+6&&ok(yy,mo,dd)){ cmp=[yy,mo,dd]; break; } } }
+  if(cmp){ y=cmp[0];m=cmp[1];d=cmp[2];explicit=true; }
+  else if((mm=t.match(/(?<!\d)(20\d{2})\s*[년.\-\/]\s*(\d{1,2})\s*[월.\-\/]\s*(\d{1,2})/))){ y=+mm[1];m=+mm[2];d=+mm[3];explicit=true; }
   else if((mm=t.match(/(?<!\d)(\d{2})\s*년\s*(\d{1,2})\s*월\s*(\d{1,2})/))){ y=Y2(mm[1]);m=+mm[2];d=+mm[3];explicit=true; }
   else if((mm=t.match(/(?<![\d.])(\d{1,2})\s*[.\/\-]\s*(\d{1,2})\s*[.\/\-]\s*(\d{1,2})(?![\d.])/))){
     const a=+mm[1],b=+mm[2],c=+mm[3], cands=[];
@@ -1098,7 +1109,7 @@ function parseKakaoText(raw){
   const t=raw.replace(/[​-‍﻿]/g,'').replace(/ /g,' ');
   const lab=extractLabelled(t);
   for(const k of ['prod','name','date','venue','time','pay','phone']) if(!lab[k]){ const v=lineFallback(t,k); if(v) lab[k]=v; }
-  let un=t; for(const v of Object.values(lab)) un=un.replace(v,' ');
+  let un=t; for(const [k,v] of Object.entries(lab)) un=un.replace(k==='phone'?((String(v).match(PHONE_RE)||[v])[0]):v,' ');
   const unNP=un.replace(PHONE_RE,' ');
   const r={};
 
@@ -1162,8 +1173,6 @@ function dtNth(y,m,wd,n){
 function dtParse(raw){
   const t=String(raw||'').replace(/\s+/g,' ').trim(); if(!t) return null; let mm;
   const now=new Date(), today=new Date(now.getFullYear(),now.getMonth(),now.getDate()), WD='일월화수목금토';
-  if(/^\d{8}$/.test(t)) return dtShape(+t.slice(0,4),+t.slice(4,6),+t.slice(6,8),false,false);
-  if(/^\d{6}$/.test(t)) return dtShape(2000+(+t.slice(0,2)),+t.slice(2,4),+t.slice(4,6),false,false);
   if(/^\d{4}$/.test(t)){ const m=+t.slice(0,2), d=+t.slice(2); const r=dtShape(dtNextYear(m,d),m,d,true,false); return r; }
   if((mm=t.match(/(다다음|이번|다음|담)\s*주\s*([일월화수목금토])(?:요일)?/))){
     const wd=WD.indexOf(mm[2]), off={'이번':0,'다음':7,'담':7,'다다음':14}[mm[1]];
@@ -1182,18 +1191,7 @@ function dtParse(raw){
 }
 function dtParseAny(txt){ return dtParse(txt)||parseDateSmart(txt,true); }
 function dtLabel(iso){ if(!iso) return ''; const [y,m,d]=iso.split('-').map(Number); return `${y}년 ${m}월 ${d}일 (${DOW[new Date(y,m-1,d).getDay()]})`; }
-function dtSet(iso){ pkDate=iso; $('f-date').value=iso; const [y,m]=iso.split('-').map(Number); pkY=y; pkM=m-1; if($('f-dtxt')) $('f-dtxt').value=''; renderPicker(); }
-function dtApply(silent){
-  const el=$('f-dtxt'), t=el.value.trim(); if(!t) return;
-  const r=dtParseAny(t);
-  if(r){ dtSet(r.iso); if(r.inferred&&!silent) toast(`연도가 없어 ${r.iso.slice(0,4)}년으로 정했어요. 맞는지 확인하세요`); }
-  else if(!silent) toast('날짜를 이해하지 못했어요. 예: 12/5 · 1205 · 2027-3-14 · 3월 첫째주 토요일');
-}
-function renderQuick(){
-  const el=$('pk-quick'); if(!el) return; const now=new Date(), today=new Date(now.getFullYear(),now.getMonth(),now.getDate()), out=[];
-  [6,0].forEach(wd=>{ let c=0; for(let k=0;k<70&&c<4;k++){ const d=new Date(today); d.setDate(today.getDate()+k); if(d.getDay()===wd){ const ds=iso(d); out.push(`<button type="button" class="btn sm ${ds===pkDate?'on':''}" onclick="dtSet('${ds}')">${DOW[wd]} ${d.getMonth()+1}/${d.getDate()}</button>`); c++; } } });
-  el.innerHTML=out.join('');
-}
+function dtSet(iso){ pkDate=iso; $('f-date').value=iso; dtUnsure=''; dpSync(); renderPicker(); }
 function parseKakao(raw){
   const badge=$('pbadge');
   if(!raw||!raw.trim()){ badge.classList.add('hide'); return; }
@@ -1202,8 +1200,8 @@ function parseKakao(raw){
   if(r.name){ $('f-name').value=r.name; items.push(['성함',r.name]); } else miss.push('성함');
   if(r.phone){ $('f-phone').value=r.phone; items.push(['연락처',r.phone]); } else miss.push('연락처');
   if(r.date){
-    const d=r.date; pkDate=d.iso; $('f-date').value=d.iso;
-    const [y,m]=d.iso.split('-').map(Number); pkY=y; pkM=m-1; renderPicker();
+    const d=r.date; pkDate=d.iso; $('f-date').value=d.iso; const y=+d.iso.slice(0,4);
+    dtUnsure=(d.wdMismatch?`입력한 요일과 달라요 (실제 ${d.weekday}요일)`:(d.inferred&&!d.weekdayGiven)?`연도가 없어 ${y}년으로 추정했어요`:''); dpSync(); renderPicker();
     items.push(['날짜',`${d.iso} (${d.weekday})`]);
     if(d.past) warns.push('지난 날짜예요');
     if(d.wdMismatch) warns.push(`입력한 요일과 달라요 (실제 ${d.weekday}요일)`);
@@ -1212,10 +1210,10 @@ function parseKakao(raw){
     if(ex.length) warns.push(`같은 날 기존 예약 ${ex.length}건 (${ex.map(e=>e.clientName).join(', ')})`);
     const bl=isBlocked(d.iso); if(bl) warns.push('휴무/마감일로 지정된 날짜예요');
   } else miss.push('예식일자');
-  if(r.time){ $('f-time').value=r.time.t24; markTime(); items.push(['시간',r.time.label]); if(r.time.guessed) warns.push('오전/오후 표시가 없어 오후로 추정'); } else miss.push('예식시간');
+  if(r.time){ $('f-time').value=r.time.t24; tmUnsure=!!r.time.guessed; markTime(); items.push(['시간',r.time.label]); if(r.time.guessed) warns.push('오전/오후 표시가 없어 오후로 추정'); } else miss.push('예식시간');
   if(r.venue){ $('f-venue').value=r.venue; items.push(['장소',r.venue]); if(r.venueGuess) warns.push('장소는 추정값이에요, 확인해 주세요'); } else miss.push('예식장소');
   if(r.pay){ setPay(r.pay); items.push(['결제',r.pay]); if(r.payGuess) warns.push('결제방식은 문장에서 추정'); } else miss.push('결제방식');
-  if(r.port){ setPort(r.port); items.push(['포트폴리오',r.port]); } else miss.push('포트폴리오 동의');
+  if(r.port){ setPort(r.port); items.push(['포트폴리오',r.port]); } 
   if(r.code){ $('f-code').value=r.code; items.push(['짝꿍코드',r.code]); }
   if(r.addr){ $('f-addr').value=r.addr; items.push(['주소',r.addr]); }
   renderFormPrice();
@@ -1424,6 +1422,15 @@ function renderTodo(){
 }
 
 /* ---------- calendar ---------- */
+(function(){ // v29: 캘린더 좌우 스와이프
+  let x0=0,y0=0,t0=0,on=false;
+  const g=()=>document.getElementById('cal-grid');
+  document.addEventListener('touchstart',e=>{ const el=g(); on=!!(el&&e.touches.length===1&&el.contains(e.target)); if(on){ x0=e.touches[0].clientX; y0=e.touches[0].clientY; t0=Date.now(); } },{passive:true});
+  document.addEventListener('touchend',e=>{ if(!on) return; on=false; const t=e.changedTouches[0], dx=t.clientX-x0, dy=t.clientY-y0;
+    if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.6&&Date.now()-t0<700){ moveMonth(dx<0?1:-1); } },{passive:true});
+  document.addEventListener('keydown',e=>{ if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight') return; const a=document.activeElement; if(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)) return;
+    if(typeof activeTab==='undefined'||activeTab!=='cal'||document.querySelector('.mod:not(.hide)')) return; moveMonth(e.key==='ArrowRight'?1:-1); });
+})();
 function moveMonth(d){ calM+=d; if(calM<0){calM=11;calY--} if(calM>11){calM=0;calY++} renderCal(); }
 function goToday(){ const t=new Date(); calY=t.getFullYear(); calM=t.getMonth(); selDate=iso(t); renderCal(); renderAgenda(); }
 function setCalFilter(f){ calFilter=f; renderCal(); renderAgenda(); }
@@ -1714,7 +1721,44 @@ function setPort(v){
     `<button type="button" class="btn sm ${formPort===val?(k?'on-'+k:'on'):''}" onclick="setPort('${val}')">${l}</button>`).join('');
   renderFormPrice();
 }
-function markTime(){ const v=$('f-time').value; document.querySelectorAll('#f-timechips .btn').forEach(b=>b.classList.toggle('on',b.dataset.v===v)); renderPicker(); }
+let tmUnsure=false, dtUnsure='';
+function tpLabel(v){ const m=/^(\d{1,2}):(\d{2})/.exec(v||''); if(!m) return ''; const h=+m[1], mi=+m[2]; return `${h<12?'오전':'오후'} ${h%12||12}시${mi?' '+mi+'분':''}`; }
+function tpBuild(){
+  const hs=$('tp-h'), ms=$('tp-m'); if(hs.options.length) return;
+  for(let h=1;h<=12;h++) hs.add(new Option(h+'시',h));
+  for(let m=0;m<60;m+=5) ms.add(new Option(pad(m)+'분',m));
+}
+function tpChange(){
+  const ap=$('tp-ap').value, h=+$('tp-h').value, m=+$('tp-m').value; let h24=h%12+(ap==='오후'?12:0);
+  $('f-time').value=`${pad(h24)}:${pad(m)}`; tmUnsure=false; markTime(true);
+}
+function markTime(skipSync){
+  tpBuild(); const v=$('f-time').value||'12:00', mt=/^(\d{1,2}):(\d{2})/.exec(v);
+  if(mt&&!skipSync){ const h=+mt[1], mi=+mt[2]; $('tp-ap').value=h<12?'오전':'오후'; $('tp-h').value=h%12||12;
+    const ms=$('tp-m'); if(!Array.from(ms.options).some(o=>+o.value===mi)){ ms.add(new Option(pad(mi)+'분',mi)); } ms.value=mi; }
+  const L=$('tp-label'); if(L){ L.classList.toggle('bad',tmUnsure); L.innerHTML=esc(tpLabel(v))+(tmUnsure?'<small>⚠️ 오전/오후를 알 수 없어 추정했어요 · 맞으면 <button type="button" class="btn sm dk okb" onclick="tmUnsure=false;markTime(true)">맞아요</button> 아니면 아래에서 바꾸세요</small>':''); }
+  renderPicker();
+}
+function dpBuild(){
+  const ys=$('dp-y'); if(ys.options.length) return; const cy=new Date().getFullYear();
+  ys.add(new Option('년',''));  for(let y=cy-1;y<=cy+4;y++) ys.add(new Option(y+'년',y));
+  const ms=$('dp-m'); ms.add(new Option('월','')); for(let m=1;m<=12;m++) ms.add(new Option(m+'월',m));
+  dpDays();
+}
+function dpDays(){
+  const y=+$('dp-y').value||new Date().getFullYear(), m=+$('dp-m').value||1, ds=$('dp-d'), cur=ds.value, n=new Date(y,m,0).getDate();
+  ds.innerHTML=''; ds.add(new Option('일','')); for(let d=1;d<=n;d++) ds.add(new Option(d+'일',d)); if(cur&&+cur<=n) ds.value=cur;
+}
+function dpSync(){
+  dpBuild(); const ys=$('dp-y');
+  if(pkDate){ const [y,m,d]=pkDate.split('-').map(Number); if(!Array.from(ys.options).some(o=>+o.value===y)) ys.add(new Option(y+'년',y)); ys.value=y; $('dp-m').value=m; dpDays(); $('dp-d').value=d; }
+  else { ys.value=''; $('dp-m').value=''; dpDays(); $('dp-d').value=''; }
+}
+function dpChange(){
+  dpDays(); const y=$('dp-y').value, m=$('dp-m').value, d=$('dp-d').value; dtUnsure='';
+  if(y&&m&&d){ pkDate=`${y}-${pad(+m)}-${pad(+d)}`; $('f-date').value=pkDate; } else { pkDate=''; $('f-date').value=''; }
+  renderPicker();
+}
 function applyFormFx(){ const s=formStatus, show={pay:s!=='문의접수',due:s==='입금전',late:(s==='계약금완료'||s==='촬영완료'||s==='취소')}; document.querySelectorAll('[data-fx]').forEach(el=>el.classList.toggle('hide',!show[el.dataset.fx])); }
 function setFormStatus(s){
   formStatus=s;
@@ -1754,7 +1798,6 @@ function openInq(editId,prefillDate,focusParser){
   $('f-cat').innerHTML=CATS.map(c=>`<option>${c}</option>`).join('');
   $('f-src').innerHTML='<option value="">선택 안 함</option>'+SOURCES.map(c=>`<option>${c}</option>`).join('');
   $('f-paychips').innerHTML=PAYS.map(p=>`<button type="button" class="btn sm" data-v="${p}" onclick="setPay('${p}')">${p}</button>`).join('');
-  $('f-timechips').innerHTML=TIMES.map(p=>`<button type="button" class="btn sm" data-v="${p}" onclick="$('f-time').value='${p}';markTime()">${p}</button>`).join('');
   const C=S.cfg;
   if(formEdit){
     const i=formEdit, c=i.cost||{};
@@ -1773,23 +1816,17 @@ function openInq(editId,prefillDate,focusParser){
     $('f-time').value='12:00'; pkDate=prefillDate||'';
     const d=new Date(); d.setDate(d.getDate()+(Number(C.dueDays)||3)); $('f-due').value=iso(d);
   }
-  const [y,m]=(pkDate||todayISO()).split('-').map(Number); pkY=y; pkM=m-1; $('f-date').value=pkDate||'';
+  tmUnsure=false; dtUnsure=''; $('f-date').value=pkDate||''; dpSync();
   setPort(formPort); markTime(); openM('m-inq');
   if(focusParser) setTimeout(()=>$('parser').focus(),150);
 }
-function movePicker(d){ pkM+=d; if(pkM<0){pkM=11;pkY--} if(pkM>11){pkM=0;pkY++} renderPicker(); }
 function renderPicker(){
-  $('pk-label').textContent=`${pkY}년 ${pkM+1}월`; renderQuick();
-  const pp=$('pk-picked'); if(pp){ pp.style.color=pkDate?'var(--ink)':'#be123c'; pp.textContent=pkDate?`📌 선택한 날짜: ${dtLabel(pkDate)}`:'⚠️ 날짜를 선택해 주세요 (아래 달력을 누르거나 직접 입력)'; }
-  const eid=$('f-id').value, first=new Date(pkY,pkM,1).getDay(), last=new Date(pkY,pkM+1,0).getDate(); let h='';
-  for(let i=0;i<first;i++) h+='<div></div>';
-  for(let d=1;d<=last;d++){
-    const ds=`${pkY}-${pad(pkM+1)}-${pad(d)}`, ex=S.inquiries.filter(i=>i.date===ds&&i.status!=='취소'&&i.id!==eid), sel=ds===pkDate, bl=isBlocked(ds);
-    const dots=bl?'<i class="dot" style="background:#94a3b8"></i>':ex.some(isConf)?'<i class="dot" style="background:var(--a)"></i>':ex.some(i=>i.status==='입금전')?'<i class="dot" style="background:var(--b)"></i>':ex.length?'<i class="dot" style="background:var(--q)"></i>':'';
-    h+=`<button type="button" class="pk ${sel?'on':''}" onclick="dtSet('${ds}')">${d}<br>${dots||'&nbsp;'}</button>`;
+  const pp=$('pk-picked'); if(pp){
+    pp.classList.toggle('bad',!pkDate||!!dtUnsure);
+    pp.innerHTML=pkDate?esc(dtLabel(pkDate))+(dtUnsure?`<small>⚠️ ${esc(dtUnsure)} · 맞으면 <button type="button" class="btn sm dk okb" onclick="dtUnsure='';renderPicker()">맞아요</button> 아니면 아래에서 바꾸세요</small>`:''):'날짜를 선택해 주세요';
   }
-  $('pk-grid').innerHTML=h;
-  const n=$('pk-note'); if(!pkDate){ n.style.color='#be123c'; n.textContent='날짜가 아직 선택되지 않았어요'; return; }
+  const eid=$('f-id').value;
+  const n=$('pk-note'); if(!pkDate){ n.style.color='#be123c'; n.textContent='아래에서 년 · 월 · 일을 골라 주세요'; return; }
   const ex=S.inquiries.filter(i=>i.date===pkDate&&i.status!=='취소'&&i.id!==eid), bl=isBlocked(pkDate);
   const gh=Number(S.cfg.gapHours)||0, tm=timeMin($('f-time').value); let gapWarn='';
   if(gh&&tm!=null) ex.forEach(e=>{ const em=timeMin(e.time); if(em!=null){ const df=Math.abs(em-tm)/60; if(df<gh) gapWarn+=`<br>⏱️ ${esc(e.clientName)}님(${esc(e.time)})과 간격 ${Math.round(df*10)/10}시간 · 설정(${gh}시간)보다 짧아요`; } });
@@ -1805,6 +1842,8 @@ function saveInq(e){
   const c=formCalc();
   if(c.code&&!c.chk.ok){ toast('짝꿍코드: '+c.chk.msg.replace('❌ ','')); $('f-code').focus(); return; }
   const date=$('f-date').value||pkDate, old=id?S.inquiries.find(x=>x.id===id):null;
+  if(dtUnsure){ toast('날짜를 확인하고 [맞아요]를 눌러 주세요'); const pk=$('pk-picked'); if(pk) pk.scrollIntoView({block:'center',behavior:'smooth'}); return; }
+  if(tmUnsure){ toast('시간(오전/오후)을 확인하고 [맞아요]를 눌러 주세요'); const pk=$('tp-label'); if(pk) pk.scrollIntoView({block:'center',behavior:'smooth'}); return; }
   if(!date){ toast('예식 날짜를 선택해 주세요'); const pk=$('pk-picked'); if(pk) pk.scrollIntoView({block:'center',behavior:'smooth'}); return; }
   const p=Object.assign({},old||{},{id:id||('inq-'+Date.now()),status:formStatus,clientName:name,phone:$('f-phone').value.trim(),address:$('f-addr').value.trim(),category:$('f-cat').value,date,time:$('f-time').value||'12:00',
     venue:$('f-venue').value.trim(),paymentMethod:$('f-pay').value.trim()||'미정',basePrice:c.baseP,portDisc:c.port,codeUsed:c.code,codeInDisc:c.inD,codeOutDisc:c.outD,
