@@ -16,7 +16,7 @@ const SECRET = '여기에-나만-아는-긴-비밀키로-바꾸세요';
 const BRAND = '루닉필름';
 const CHUNK = 40000;               // 셀 하나(5만자 제한)보다 작게 나눠서 저장
 const S_DATA = '데이터', S_PREV = '데이터_이전', S_LIST = '예약목록', S_CON = '계약서';
-const CON_HEAD = ['토큰', '생성', '고객명', '계약내용(JSON)', '상태', '서명시각', '서명자', '연락처', '(미사용)', '포트폴리오', '개인정보동의', '서명(PNG base64)', '(미사용)', 'PDF저장'];
+const CON_HEAD = ['토큰', '생성', '고객명', '계약내용(JSON)', '상태', '서명시각', '서명자', '연락처', '유입경로', '포트폴리오', '개인정보동의', '서명(PNG base64)', '(미사용)', 'PDF저장'];
 const VIEW_DAYS = 7;                   // 서명 후 고객이 사본 링크를 다시 열 수 있는 기간(일)
 
 /* ---------------- 진입점 ---------------- */
@@ -52,7 +52,7 @@ function doPost(e) {
 
 function doGet(e) {
   const c = e && e.parameter && e.parameter.c;
-  if (!c) return out_({ ok: true, msg: BRAND + ' 서버 동작 중', version: 'v16-manage' });   // 배포된 코드 버전 확인용
+  if (!c) return out_({ ok: true, msg: BRAND + ' 서버 동작 중', version: 'v17-source' });   // 배포된 코드 버전 확인용
   if (e.parameter.action === 'contract') return out_(Object.assign({ ok: true }, contractView_(String(c))));
   return out_({ ok: false, error: 'use-post' });
 }
@@ -176,7 +176,7 @@ function contractList_() {
   return { ok: true, list: v.map(r => {
     let sn = {};
     try { sn = JSON.parse(r[3]); } catch (e) {}
-    return { token: String(r[0]), createdAt: String(r[1]), name: String(r[2]), status: String(r[4]), signedAt: String(r[5]), signName: String(r[6]), phone: String(r[7]), portfolio: String(r[9]), pdf: String(r[13] || ''), date: String(sn.date || ''), time: String(sn.time || ''), venue: String(sn.venue || '') };
+    return { token: String(r[0]), createdAt: String(r[1]), name: String(r[2]), status: String(r[4]), signedAt: String(r[5]), signName: String(r[6]), phone: String(r[7]), source: String(r[8] || ''), portfolio: String(r[9]), pdf: String(r[13] || ''), date: String(sn.date || ''), time: String(sn.time || ''), venue: String(sn.venue || '') };
   }) };
 }
 
@@ -188,7 +188,7 @@ function contractGet_(b) {
   const v = s.getRange(r, 1, 1, CON_HEAD.length).getValues()[0];
   let snap = {};
   try { snap = JSON.parse(v[3]); } catch (e) {}
-  return { ok: true, snap: snap, status: String(v[4]), signedAt: String(v[5]), signName: String(v[6]), phone: String(v[7]), portfolio: String(v[9]), privacy: String(v[10]), signature: String(v[11]), pdf: String(v[13] || '') };
+  return { ok: true, snap: snap, status: String(v[4]), signedAt: String(v[5]), signName: String(v[6]), phone: String(v[7]), source: String(v[8] || ''), portfolio: String(v[9]), privacy: String(v[10]), signature: String(v[11]), pdf: String(v[13] || '') };
 }
 
 /* 앱 → 계약서 삭제 (행 전체 삭제: 연락처·서명 이미지·동의 기록이 시트에서 사라지고 링크도 닫혀요) */
@@ -233,6 +233,10 @@ function submitContract_(token, p) {
     if (!name) return { ok: false, error: '성함을 입력해 주세요' };
     if (phone.replace(/\D/g, '').length < 9) return { ok: false, error: '연락처를 확인해 주세요' };
     if (!port) return { ok: false, error: '포트폴리오 활용 동의 여부를 선택해 주세요' };
+    const SRC_OK = ['블로그', '인스타', '유튜브', '그 외'];
+    const sel = (Array.isArray(p.source) ? p.source : []).filter(function (x, k, a) { return SRC_OK.indexOf(x) >= 0 && a.indexOf(x) === k; });
+    const other = clean_(p.sourceOther, 30);
+    const src = sel.map(function (x) { return (x === '그 외' && other) ? '그 외: ' + other : x; }).join(', ');
     if (p.agree !== true || p.privacy !== true || p.confirmed !== true) return { ok: false, error: '필수 동의 항목에 체크해 주세요' };
     if (sig.indexOf('data:image/png;base64,') !== 0 || sig.length < 800 || sig.length > 45000) return { ok: false, error: '서명을 다시 해 주세요' };
     const s = conSheet_(), r = findRow_(s, token);
@@ -240,7 +244,7 @@ function submitContract_(token, p) {
     if (s.getRange(r, 5).getValue() === '서명완료') return { ok: false, error: 'done' };
     const signedAt = nowStr_();
     s.getRange(r, 5, 1, 10).setNumberFormat('@');
-    s.getRange(r, 5, 1, 9).setValues([['서명완료', signedAt, name, phone, '', port, '동의', sig, '']]);
+    s.getRange(r, 5, 1, 9).setValues([['서명완료', signedAt, name, phone, src, port, '동의', sig, '']]);
     s.getRange(r, 14).setNumberFormat('@').setValue('미저장');
     return { ok: true, signedAt: signedAt };
   } catch (err) {

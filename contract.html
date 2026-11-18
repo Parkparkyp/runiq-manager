@@ -223,6 +223,14 @@ function build(D){
   c5.appendChild(el('label',0,'연락처'));var ph=el('input',{type:'tel',id:'ph',autocomplete:'tel',placeholder:'010-0000-0000'});ph.value=D.phone||'';c5.appendChild(ph);
   app.appendChild(c5);
 
+  var c7=el('div',{class:'c'});c7.appendChild(el('h2',0,'예약을 알게 된 경로 (필수 · 중복 선택 가능)'));
+  var srcWrap=el('div',{style:'display:flex;flex-wrap:wrap;gap:8px;margin-top:6px'});var srcBoxes=[];
+  ['블로그','인스타','유튜브','그 외'].forEach(function(v){var l=el('label',{class:'ck',style:'margin:0;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:12px'});var cb=el('input',{type:'checkbox'});cb.value=v;l.appendChild(cb);l.appendChild(el('span',0,v));srcWrap.appendChild(l);srcBoxes.push(cb);});
+  c7.appendChild(srcWrap);
+  var srcOther=el('input',{type:'text',id:'srcOther',placeholder:'그 외라면 어디서 알게 되셨나요? (예: 지인 소개, 네이버 검색)',style:'display:none;margin-top:8px',maxlength:'30'});c7.appendChild(srcOther);
+  srcBoxes[3].addEventListener('change',function(){srcOther.style.display=srcBoxes[3].checked?'block':'none';});
+  app.appendChild(c7);
+
   var portBox=el('div');
   portBox.appendChild(el('div',{class:'note',style:'margin:8px 0 4px'},pd>0?('촬영 영상·사진을 작가의 포트폴리오·홍보에 활용하는 것에 동의하시면 '+won(pd)+'이 할인됩니다. (필수 선택)'):'포트폴리오 활용 동의 여부를 선택해 주세요. (필수 선택)'));
   var op=el('div',{class:'opt'});var pv=D.portfolio||'';
@@ -266,10 +274,10 @@ function build(D){
   sync();
 
   /* 전체 화면 서명판 */
-  var pad=null,pushed=false;
+  var pad=null,pushed=false,scrollY0=0;
   function onPop(){if(pad)closePad(true);}
   function closePad(viaPop){
-    if(!pad)return;document.body.removeChild(pad);pad=null;document.body.style.overflow='';
+    if(!pad)return;document.body.removeChild(pad);pad=null;var bs=document.body.style;bs.overflow='';bs.position='';bs.top='';bs.width='';window.scrollTo(0,scrollY0);
     window.removeEventListener('popstate',onPop);
     if(!viaPop&&pushed){try{history.back();}catch(e){}}pushed=false;
   }
@@ -279,7 +287,7 @@ function build(D){
     var bar=el('div',{class:'bar'});bar.appendChild(el('span',0,'서명해 주세요'));var cx=el('button',{type:'button'},'✕ 취소');bar.appendChild(cx);pad.appendChild(bar);
     var pb=el('div',{class:'pbox'});var cv=el('canvas');pb.appendChild(cv);pb.appendChild(el('div',{class:'base'}));var hint=el('div',{class:'hint'},'손가락으로 이 칸에 크게 서명해 주세요\n(폰을 가로로 돌리면 더 편해요)');hint.style.whiteSpace='pre-line';pb.appendChild(hint);pad.appendChild(pb);
     var ft=el('div',{class:'foot'});var clr=el('button',{class:'a',type:'button'},'지우기');var ok=el('button',{class:'b',type:'button'},'서명 완료');ft.appendChild(clr);ft.appendChild(ok);pad.appendChild(ft);
-    document.body.appendChild(pad);document.body.style.overflow='hidden';
+    scrollY0=window.pageYOffset||0;document.body.appendChild(pad);var bs0=document.body.style;bs0.overflow='hidden';bs0.position='fixed';bs0.top=(-scrollY0)+'px';bs0.width='100%';
     try{history.pushState({pad:1},'');pushed=true;window.addEventListener('popstate',onPop);}catch(e){pushed=false;}
     var dpr=Math.min(2,window.devicePixelRatio||1),rc=pb.getBoundingClientRect();
     cv.width=Math.max(200,Math.round(rc.width*dpr));cv.height=Math.max(120,Math.round(rc.height*dpr));
@@ -318,6 +326,8 @@ function build(D){
     if(!p.portfolio)return fail('포트폴리오 활용 동의 여부를 선택해 주세요.');
     for(var k=0;k<checks.length;k++){if(!checks[k].i.checked)return fail('「'+checks[k].t+'」 항목에 체크해 주세요.');}
     if(!p.name)return fail('성함을 입력해 주세요.');
+    p.source=srcBoxes.filter(function(b){return b.checked;}).map(function(b){return b.value;});p.sourceOther=srcOther.value.trim();
+    if(!p.source.length)return fail('「예약을 알게 된 경로」를 한 개 이상 선택해 주세요.');
     if(p.phone.replace(/\D/g,'').length<9)return fail('연락처를 확인해 주세요.');
     if(!sigData)return fail('서명을 해 주세요. (서명 칸을 눌러 주세요)');
     p.sign=sigData;
