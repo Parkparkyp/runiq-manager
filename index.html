@@ -241,6 +241,7 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
   </section>
   <section class="c" id="led-act">
     <div class="g2"><button class="btn am" onclick="ledOpenImp()">📥 카드내역 가져오기</button><button class="btn dk" onclick="ledStoreOpen()">🛒 스토어 정산 입력</button></div>
+    <button class="btn" style="width:100%;margin-top:8px" onclick="cpOpen()">🛒 쿠팡 구매목록 (전표 PDF)</button>
     <div class="g3" style="margin-top:8px"><button class="btn" onclick="ledOpen(null,'out')">+ 지출</button><button class="btn" onclick="ledOpen(null,'in')">+ 수입</button><button class="btn gn" onclick="ledCSV()">📄 엑셀(CSV)</button></div>
   </section>
   <section class="c" id="led-sum"></section>
@@ -942,7 +943,7 @@ const DEF_IV=[
  {name:'하객·친구',qs:['신랑(신부)과 어떤 사이인가요?','두 사람과의 기억에 남는 추억 한 가지를 들려주세요.','두 사람이 잘 어울리는 이유는 무엇인가요?','오늘 두 사람의 모습을 보니 어떠세요?','두 사람에게 축하의 한마디를 해주세요.']},
  {name:'두 분께 (공통)',qs:['서로의 어떤 점이 가장 닮았다고 생각하세요?','10년 뒤 우리의 모습은 어떨 것 같나요?','결혼생활에서 꼭 지키고 싶은 약속이 있다면?','오늘 이 영상을 훗날 다시 볼 두 분께 한마디를 해주세요.']}
 ];
-let S = {inquiries:[], templates:{...DEF}, cfg:{...DEF_CFG}, blocked:[], meta:{}, events:[], wait:[], ledger:[], rules:{}, presets:DEF_PRESETS.map(x=>({...x})), checklist:[...DEF_CHECK], interview:DEF_IV.map(g=>({name:g.name,qs:[...g.qs]}))};
+let S = {inquiries:[], templates:{...DEF}, cfg:{...DEF_CFG}, blocked:[], meta:{}, events:[], wait:[], ledger:[], cpItems:[], rules:{}, presets:DEF_PRESETS.map(x=>({...x})), checklist:[...DEF_CHECK], interview:DEF_IV.map(g=>({name:g.name,qs:[...g.qs]}))};
 let activeTab='cal', calY=new Date().getFullYear(), calM=new Date().getMonth(), selDate=todayISO();
 let calFilter='all', inqFilter='전체', portFilter='전체', yearFilter='전체', inqMode='created', monthOpen={};
 let formStatus='문의접수', formPort='', formEdit=null, pkY=calY, pkM=calM, pkDate=selDate, lastTpl='t-before', sampleIdx=0;
@@ -1362,7 +1363,7 @@ function adopt(p){
   S.presets=Array.isArray(p.presets)?p.presets:DEF_PRESETS.map(x=>({...x})); S.checklist=Array.isArray(p.checklist)?p.checklist:[...DEF_CHECK];
   S.interview=Array.isArray(p.interview)?p.interview:DEF_IV.map(g=>({name:g.name,qs:[...g.qs]}));
   if(!Array.isArray(S.cfg.alarms)) S.cfg.alarms=[120];
-  S.ledger=Array.isArray(p.ledger)?p.ledger:[]; S.rules=(p.rules&&typeof p.rules==='object'&&!Array.isArray(p.rules))?p.rules:{};
+  S.ledger=Array.isArray(p.ledger)?p.ledger:[]; S.cpItems=Array.isArray(p.cpItems)?p.cpItems:[]; S.rules=(p.rules&&typeof p.rules==='object'&&!Array.isArray(p.rules))?p.rules:{};
   S.meta=p.meta||{};
 }
 function load(){
@@ -2546,7 +2547,7 @@ async function clRestore(){
 }
 
 /* ---------- v22: 자동 동기화 (여러 기기, 예약 단위 합치기) ---------- */
-const SYNC_COLS={inquiries:'id',events:'id',wait:'id',blocked:'date',ledger:'id'};
+const SYNC_COLS={inquiries:'id',events:'id',wait:'id',blocked:'date',ledger:'id',cpItems:'id'};
 const SYNC_ONE=['templates','cfg','presets','checklist','interview','rules'];
 let SYG={}, clSyncing=false, clLastSync=0, clSyncState='';
 function sj(o){
@@ -2842,7 +2843,7 @@ function ask(msg,cb){ $('cf-msg').textContent=msg; cfCb=cb; openM('m-confirm'); 
 $('cf-ok').onclick=()=>{ const f=cfCb; cfCb=null; closeM('m-confirm'); if(typeof f==='function') f(); };
 window.addEventListener('popstate',()=>{
   if(skipPop>0){ skipPop--; return; }
-  const top=['m-confirm','m-con','m-iv','m-day','m-evt','m-past','m-wait','m-check','m-promo','m-prev','m-inq','m-led','m-limp','m-lstore'].find(id=>!$(id).classList.contains('hide'));
+  const top=['m-confirm','m-con','m-iv','m-day','m-evt','m-past','m-wait','m-check','m-promo','m-prev','m-inq','m-cp','m-led','m-limp','m-lstore'].find(id=>!$(id).classList.contains('hide'));
   if(top){ closeM(top,true); return; }
   if(activeTab!=='cal'){ tab('cal'); try{ history.pushState({b:1},''); }catch(e){} return; }
   const n=Date.now(); if(n-lastBack<2000) return;
@@ -2861,6 +2862,7 @@ if('serviceWorker' in navigator && location.protocol!=='file:'){
 }
 </script>
 <script src="ledger.js"></script>
+<script src="coupang.js"></script>
 </body>
 </html>
 
