@@ -117,6 +117,8 @@ function gate(cb,end,hint){
   var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){cb.disabled=false;hint.textContent='';io.disconnect();}});},{threshold:0});
   io.observe(end);
 }
+function sellerRows(sl){sl=sl||{};if(!(sl.name||sl.rep||sl.biz||sl.addr||sl.tel))return[];return[['판매자(상호)',[sl.name,sl.rep?'(대표 '+sl.rep+')':''].filter(Boolean).join(' ')],['사업자등록번호',sl.biz||'-'],['사업장 주소',sl.addr||'-'],['판매자 연락처',sl.tel||'-']];}
+function sellerCard(D){var rs=sellerRows(D.seller);if(!rs.length)return null;var c=el('div',{class:'c'});c.appendChild(el('h2',0,'판매자(사업자) 정보'));var tb=el('table');rs.forEach(function(r){var rr=el('tr');rr.appendChild(el('td',0,r[0]));var d=el('td');d.appendChild(el('b',0,r[1]));rr.appendChild(d);tb.appendChild(rr);});c.appendChild(tb);return c;}
 function amounts(D,port){
   var base=(Number(D.total)||0)+(Number(D.portApplied)||0),dep=Number(D.deposit)||0,pd=Number(D.portDiscount)||0;
   var tot=(port==='동의')?Math.max(0,base-pd):base;
@@ -133,7 +135,7 @@ function showDone(D,r,now,until){
 
   function docOf(){
     return{brand:X.brand,name:r.name,signedAt:r.signedAt,
-      rows:[['촬영 일시',D.date+' '+D.time],['장소',D.venue],['상품',D.category||'-'],['총 금액',won(A.tot)],['계약금',won(A.dep)],['잔금',won(A.bal)],['서명자',r.name],['연락처',r.phone],['포트폴리오 활용',r.portfolio==='동의'?'동의함':'동의하지 않음'],['촬영 일시·장소·상품 확인','확인함']],
+      rows:sellerRows(D.seller).concat([['촬영 일시',D.date+' '+D.time],['장소',D.venue],['상품',D.category||'-'],['총 금액',won(A.tot)],['계약금',won(A.dep)],['잔금',won(A.bal)],['서명자',r.name],['연락처',r.phone],['포트폴리오 활용',r.portfolio==='동의'?'동의함':'동의하지 않음'],['촬영 일시·장소·상품 확인','확인함']]),
       sections:secs.map(function(s){return{title:s.title,text:s.text,check:s.port?'':(s.label||'위 내용을 확인하고 동의합니다.')};}),
       privacy:D.privacy,signature:r.signature,
       foot:'이 문서는 전자서명으로 체결된 계약서 사본입니다. 서명 시각 '+r.signedAt+'.'};
@@ -188,6 +190,7 @@ function showDone(D,r,now,until){
   tr('촬영 일시',D.date+' '+D.time);tr('장소',D.venue);if(D.category)tr('상품',D.category);tr('총 금액',won(A.tot));tr('계약금',won(A.dep));tr('잔금',won(A.bal));
   tr('서명자',r.name);tr('연락처',r.phone);tr('포트폴리오 활용',r.portfolio==='동의'?'동의함':'동의하지 않음');tr('서명 시각',r.signedAt);
   c1.appendChild(tb);app.appendChild(c1);
+  var scd=sellerCard(D);if(scd)app.appendChild(scd);
   secs.forEach(function(s){var c2=el('div',{class:'c'});c2.appendChild(el('h2',0,s.title));if(s.text)c2.appendChild(fm(el('div',{class:'pb'}),s.text));app.appendChild(c2);});
   var c3=el('div',{class:'c'});c3.appendChild(el('h2',0,'개인정보 수집·이용 동의 (동의함)'));c3.appendChild(el('div',{class:'pb'},D.privacy));app.appendChild(c3);
   var c4=el('div',{class:'c'});c4.appendChild(el('h2',0,'서명'));c4.appendChild(el('img',{class:'sigimg',src:r.signature}));app.appendChild(c4);
@@ -201,6 +204,7 @@ function build(D){
   var dep=Number(D.deposit)||0,pd=Number(D.portDiscount)||0;
   var sigData='';
 
+  var scd0=sellerCard(D);if(scd0)app.appendChild(scd0);
   var c1=el('div',{class:'c'});c1.appendChild(el('h2',0,D.name+'님의 촬영 정보'));
   var tb=el('table');
   function tr(k,v,id){var r=el('tr');r.appendChild(el('td',0,k));var d=el('td');var b=el('b',id?{id:id}:0,v);d.appendChild(b);r.appendChild(d);tb.appendChild(r);}

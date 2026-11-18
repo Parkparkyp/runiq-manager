@@ -158,15 +158,16 @@
     return { base: base, dep: dep, pd: pd, tot: tot, bal: Math.max(0, tot - dep) };
   }
   function won(n) { return String(Math.round(Number(n) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + '원'; }
+  function sellerRows(sl) { sl = sl || {}; if (!(sl.name || sl.rep || sl.biz || sl.addr || sl.tel)) return []; return [['판매자(상호)', [sl.name, sl.rep ? '(대표 ' + sl.rep + ')' : ''].filter(Boolean).join(' ')], ['사업자등록번호', sl.biz || '-'], ['사업장 주소', sl.addr || '-'], ['판매자 연락처', sl.tel || '-']]; }
   function docOf(D, r, brand) {
     var A = amounts(D, r.portfolio), secs = parseSecs(D.body);
     return { brand: brand, name: r.name, signedAt: r.signedAt,
-      rows: [['촬영 일시', D.date + ' ' + D.time], ['장소', D.venue], ['상품', D.category || '-'], ['총 금액', won(A.tot)], ['계약금', won(A.dep)], ['잔금', won(A.bal)], ['서명자', r.name], ['연락처', r.phone], ['포트폴리오 활용', r.portfolio === '동의' ? '동의함' : '동의하지 않음'], ['촬영 일시·장소·상품 확인', '확인함']],
+      rows: sellerRows(D.seller).concat([['촬영 일시', D.date + ' ' + D.time], ['장소', D.venue], ['상품', D.category || '-'], ['총 금액', won(A.tot)], ['계약금', won(A.dep)], ['잔금', won(A.bal)], ['서명자', r.name], ['연락처', r.phone], ['포트폴리오 활용', r.portfolio === '동의' ? '동의함' : '동의하지 않음'], ['촬영 일시·장소·상품 확인', '확인함']]),
       sections: secs.map(function (s) { return { title: s.title, text: s.text, check: s.port ? '' : (s.label || '위 내용을 확인하고 동의합니다.') }; }),
       privacy: D.privacy, signature: r.signature,
       foot: '이 문서는 전자서명으로 체결된 계약서 사본입니다. 서명 시각 ' + r.signedAt + '.' };
   }
   function inApp() { return /KAKAOTALK|NAVER\(inapp|Instagram|FBAN|FBAV|; wv\)|DaumApps|Line\//i.test(navigator.userAgent || ''); }
 
-  w.RQ = { parseSecs: parseSecs, amounts: amounts, docOf: docOf, fmt: fmt, plain: plain, make: make, save: save, share: share, canShare: canShare, inApp: inApp, libs: libs };
+  w.RQ = { sellerRows: sellerRows, parseSecs: parseSecs, amounts: amounts, docOf: docOf, fmt: fmt, plain: plain, make: make, save: save, share: share, canShare: canShare, inApp: inApp, libs: libs };
 })(window);

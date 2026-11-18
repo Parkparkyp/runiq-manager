@@ -245,6 +245,10 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
     <textarea id="c-cbody" rows="14" class="inp"></textarea>
     <label>개인정보 수집·이용 동의 문구</label>
     <textarea id="c-cpriv" rows="7" class="inp"></textarea>
+    <label>🏢 판매자(사업자) 정보 — 고객 계약서 맨 위와 PDF에 표시돼요</label>
+    <div class="g2"><input id="c-s-name" class="inp" placeholder="상호"><input id="c-s-rep" class="inp" placeholder="대표자"></div>
+    <div class="g2" style="margin-top:6px"><input id="c-s-biz" class="inp" placeholder="사업자등록번호"><input id="c-s-tel" class="inp" placeholder="전화번호"></div>
+    <input id="c-s-addr" class="inp" style="margin-top:6px" placeholder="사업장 주소 (시·구까지 전체 주소를 적어 주세요)">
     <p id="con-base" style="margin-top:6px"></p>
     <p style="margin-top:6px"><b>작성 방법</b>: 항목은 한 줄 <code>=====</code> 로 나눠요. 각 항목의 <b>첫 줄이 제목</b>이고, 마지막 줄을 <code>☑ 동의합니다.</code> 처럼 쓰면 그 문구가 고객 체크칸 이름이 돼요. 항목 안에 <code>[[포트폴리오선택]]</code> 을 쓰면 그 자리에 동의/미동의 선택이 들어가요. 강조하고 싶은 글자는 <code>**이렇게**</code> 감싸면 <b>굵은 글씨+형광펜</b>으로 보여요. 【 】가 남아 있으면 링크를 만들 때 한 번 더 물어봐요.</p>
     <div class="g2" style="margin-top:8px"><button class="btn dk" onclick="saveConTpl()">계약서 문구 저장</button><button class="btn" onclick="ask('계약서·개인정보 문구를 기본 틀로 되돌릴까요? (직접 쓴 내용은 사라져요)',resetConTpl)">기본 틀로 되돌리기</button></div>
@@ -415,7 +419,7 @@ const SOURCES = ['인스타그램','블로그','네이버 검색','지인 소개
 const VARS = ['성함','상품','예식일자','예식시간','예식장소','결제방식','기본금액','할인내역','총금액','계약금','잔금','입금기한','계좌정보','짝꿍코드','포트폴리오','남은일수','납품기한','주소','계약서링크'];
 const MSGS = [['before','🟠 입금전','beforeDeposit'],['after','🟢 계약금 확정','afterDeposit'],['balance','💰 잔금 안내','balanceNotice'],['delivery','📦 납품 안내','deliveryNotice'],['review','⭐ 후기 요청','reviewRequest'],['contract','📝 계약서 요청','contractNotice'],['copy','✍️ 서명본 사본 안내','copyNotice'],['pdf','📥 PDF 저장 안내','pdfRemind'],['cancel','❎ 취소·환불','cancelNotice'],['resched','🔁 일정변경','rescheduleNotice']];
 
-const DEF_CFG = {defaultTotal:1100000, defaultDeposit:300000, portDiscount:60000, pairIn:30000, pairOut:30000, pairMax:1, prefix:'RS', dueDays:3, deliveryDays:30, backupDays:14, gapHours:3, alarms:[120], contractLink:''};
+const DEF_CFG = {seller:{name:'루닉',rep:'박희윤',biz:'637-12-03118',tel:'010-2838-1688',addr:'새비봉남로 39, 106동 1204호'}, defaultTotal:1100000, defaultDeposit:300000, portDiscount:60000, pairIn:30000, pairOut:30000, pairMax:1, prefix:'RS', dueDays:3, deliveryDays:30, backupDays:14, gapHours:3, alarms:[120], contractLink:''};
 /* ---------- 계약서 문구 도우미 (조항 합치기 · 강조) ---------- */
 function mergeTerms(body){
   const parts=String(body||'').split(/\n={3,}[ \t]*\n/), re=/^촬영 계약 및 이용 안내 \(\d\)$/, idx=[];
@@ -430,7 +434,7 @@ function mergeTerms(body){
 const EMPH=['{계약금}원을 예약금으로 결제합니다','예약금 결제가 확인된 시점부터 해당 예식 일정이 최종 확정됩니다','단순 변심이나 개인적인 사유만으로 삭제, 비공개 전환 또는 사용 중단을 요청할 수 없습니다',
   '촬영일 기준 7일 전까지 완납','결제일 기준 7일 이내 취소 시: 예약 계약금 100% 전액 환불','결제일 7일 경과 후 ~ 촬영일 기준 60일(두 달) 이전 취소 시: 예약 계약금의 50% 환불','촬영일 기준 59일 ~ 31일 전 취소 시: 예약 계약금 전액 환불 불가',
   '촬영일 기준 30일(한 달) 이내 ~ 당일 취소 시: 총 촬영 대금의 100% 위약금 발생 (환불 불가)',"촬영일 기준 30일 이내에 취소하실 경우, 예약금을 포함한 '총 촬영 대금 전체'가 위약금으로 발생합니다",
-  '촬영 결과를 100% 보장하지 않으며','고객은 촬영자의 사전 동의 없이 결과물을 판매, 재배포하거나 상업적으로 이용할 수 없습니다','실제 결제한 금액을 한도로 합니다'];
+  '촬영 결과를 100% 보장하지 않으며','고객은 촬영자의 사전 동의 없이 결과물을 판매, 재배포하거나 상업적으로 이용할 수 없습니다'];
 function addSignEffect(body){
   const parts=String(body||'').split(/\n={3,}[ \t]*\n/); let k=-1; parts.forEach((p,n)=>{ if(/^최종 동의\s*(\n|$)/.test(p.trim())) k=n; });
   if(k<0||parts[k].includes('동일한 효력')) return body;
@@ -1131,6 +1135,8 @@ function migrateTemplates(){
     const cn=S.templates.copyNotice||''; if(cn.includes('이메일로도 보내 드렸어요')) S.templates.copyNotice=DEF.copyNotice;
     const ct=S.templates.contractNotice||''; if(ct.includes('주소 등 필수 항목을 작성해 주시면 최종 확정됩니다.')) S.templates.contractNotice=ct.replace('주소 등 필수 항목을 작성해 주시면 최종 확정됩니다.','내용을 확인하고 서명해 주시면 계약서 작성이 완료됩니다.');
   }
+  if(!S.meta.sellerV1){ S.meta.sellerV1=1; if(S.cfg.seller&&S.cfg.seller.name==='루닉필름') S.cfg.seller.name='루닉'; }
+  if(!S.meta.conV6){ S.meta.conV6=1; S.templates.contractBody=String(S.templates.contractBody||'').split('**실제 결제한 금액을 한도로 합니다**').join('실제 결제한 금액을 한도로 합니다'); }
   if(!S.meta.conV5){ S.meta.conV5=1; S.templates.contractBody=addSignEffect(S.templates.contractBody||''); }
   const T=S.templates;
   ['defaultTotalPrice','defaultDepositAmount','dueDays'].forEach(k=>delete T[k]);
@@ -2193,7 +2199,7 @@ function conBtn(i){
 function contractSnap(i){
   return {name:i.clientName||'',date:kdate(i.date),time:ktime(i.time),venue:i.venue||'장소 미정',category:i.category||'',total:price(i),portApplied:Number(i.portDisc)||0,portDiscount:Number(S.cfg.portDiscount)||0,
     deposit:Number(i.depositAmount)||0,phone:i.phone||'',portfolio:i.portfolio||'',
-    body:buildMsg(i,'contract',S.templates.contractBody||''),privacy:buildMsg(i,'contract',S.templates.privacyBody||'')};
+    seller:{...(S.cfg.seller||{})},body:buildMsg(i,'contract',S.templates.contractBody||''),privacy:buildMsg(i,'contract',S.templates.privacyBody||'')};
 }
 function copyContractMsg(i){
   const go=async()=>{
@@ -2254,7 +2260,7 @@ async function viewContractTok(tok){
     if(!r.ok||r.status!=='서명완료'){ toast('❌ '+(r.error==='none'?'계약서를 찾을 수 없어요 (삭제되었을 수 있어요)':'아직 서명 전이에요')); return; }
     conTok=tok;
     const s=r.snap||{}, e=esc, left=conLeftDays(r.signedAt);
-    const rows=[['촬영 일시',`${s.date||''} ${s.time||''}`],['장소',s.venue||''],['서명자',r.signName],['연락처',r.phone],['포트폴리오 활용',r.portfolio],['개인정보 동의',r.privacy||'동의'],['서명 일시',r.signedAt],['고객 PDF 저장',pdfLabel(r.pdf)],['고객 링크',left>0?`${left}일 남음`:'만료됨']];
+    const sl=s.seller||{}, rows=[['판매자',[sl.name,sl.rep?'(대표 '+sl.rep+')':''].filter(Boolean).join(' ')||'-'],['사업자번호',sl.biz||'-'],['사업장 주소',sl.addr||'-'],['판매자 연락처',sl.tel||'-'],['촬영 일시',`${s.date||''} ${s.time||''}`],['장소',s.venue||''],['서명자',r.signName],['연락처',r.phone],['포트폴리오 활용',r.portfolio],['개인정보 동의',r.privacy||'동의'],['서명 일시',r.signedAt],['고객 PDF 저장',pdfLabel(r.pdf)],['고객 링크',left>0?`${left}일 남음`:'만료됨']];
     const img=/^data:image\/png;base64,[A-Za-z0-9+\/=]+$/.test(r.signature)?`<img src="${r.signature}" style="max-width:260px;border:1px solid #cbd5e1;border-radius:8px;background:#fff">`:'(서명 이미지 없음)';
     conHtml=`<h2 style="margin:0 0 4px">${e(S.brand||'루닉필름')} 촬영 계약서</h2><p style="margin:0 0 10px;color:#64748b">${e(s.name||r.signName)}님</p>
 <table style="width:100%;border-collapse:collapse;font-size:13px">${rows.map(([k,v])=>`<tr><td style="padding:5px 0;color:#64748b;width:32%;border-bottom:1px solid #e2e8f0">${e(k)}</td><td style="padding:5px 0;border-bottom:1px solid #e2e8f0"><b>${e(v)}</b></td></tr>`).join('')}</table>
@@ -2330,8 +2336,8 @@ function cmPurgeOld(){
     CM.list=CM.list.filter(c=>!olds.some(o=>o.token===c.token)); save(); refresh(); renderConMgr(); toast(`🧹 ${ok}건 삭제했어요`);
   });
 }
-function renderConTpl(){ if(!$('c-cbody')) return; { const b=contractPageBase(); $('con-base').innerHTML=b?`🌐 고객 계약서 페이지: <b>${esc(b)}</b><br>깃허브에 올린 뒤 이 주소가 열리면(불러오는 중… 화면) 준비된 거예요.`:'🌐 앱을 깃허브 페이지(https 주소)에서 열면 고객 계약서 주소가 여기에 표시돼요.'; } if(document.activeElement!==$('c-cbody')) $('c-cbody').value=S.templates.contractBody||''; if(document.activeElement!==$('c-cpriv')) $('c-cpriv').value=S.templates.privacyBody||''; }
-function saveConTpl(){ S.templates.contractBody=$('c-cbody').value; S.templates.privacyBody=$('c-cpriv').value; save(); toast('📝 계약서 문구가 저장되었습니다'); }
+function renderConTpl(){ if(!$('c-cbody')) return; { const b=contractPageBase(); $('con-base').innerHTML=b?`🌐 고객 계약서 페이지: <b>${esc(b)}</b><br>깃허브에 올린 뒤 이 주소가 열리면(불러오는 중… 화면) 준비된 거예요.`:'🌐 앱을 깃허브 페이지(https 주소)에서 열면 고객 계약서 주소가 여기에 표시돼요.'; } { const s=S.cfg.seller||{}; [['name','c-s-name'],['rep','c-s-rep'],['biz','c-s-biz'],['tel','c-s-tel'],['addr','c-s-addr']].forEach(([k,id])=>{ if(document.activeElement!==$(id)) $(id).value=s[k]||''; }); } if(document.activeElement!==$('c-cbody')) $('c-cbody').value=S.templates.contractBody||''; if(document.activeElement!==$('c-cpriv')) $('c-cpriv').value=S.templates.privacyBody||''; }
+function saveConTpl(){ S.cfg.seller={name:$('c-s-name').value.trim(),rep:$('c-s-rep').value.trim(),biz:$('c-s-biz').value.trim(),tel:$('c-s-tel').value.trim(),addr:$('c-s-addr').value.trim()}; S.templates.contractBody=$('c-cbody').value; S.templates.privacyBody=$('c-cpriv').value; save(); toast('📝 계약서 문구가 저장되었습니다'); }
 function resetConTpl(){ S.templates.contractBody=DEF.contractBody; S.templates.privacyBody=DEF.privacyBody; save(); renderConTpl(); toast('기본 틀로 되돌렸어요'); }
 setTimeout(()=>clContractAuto(true),2500);
 
