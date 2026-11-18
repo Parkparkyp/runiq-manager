@@ -75,3 +75,9 @@ index.html · manifest.json · sw.js · icons/ (이 파일들을 같은 폴더�
 - Code.gs: 고객 제출은 비밀키 없이 고객 전용 코드로만 허용, 나머지(백업/목록/보기)는 계속 비밀키 필요
 - sw.js: 구글 스크립트 응답과 contract.html 은 절대 캐시하지 않도록 수정 (내 폰에서 다른 고객 내용이 섞여 보이는 문제 방지)
 - 구글 쪽 재배포 필요 (코드 교체 → SECRET 재입력 → 새 버전 배포)
+
+## v15 변경
+- 계약서 화면이 내용을 불러올 때 POST(action:'view')를 사용 — "캐시 금지" 헤더 때문에 구글이 거부하는 경우 방지
+- 불러오기 실패 시 화면에 진단 코드(NET/PARSE/SERVER/RENDER) 표시
+- Code.gs 기본 주소 응답에 version 표시 (v15-post-view) — 배포된 코드 버전 확인용
+- 구글 쪽 재배포 필요 (새 코드 → SECRET 재입력 → 새 버전 배포)

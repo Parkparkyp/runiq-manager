@@ -24,6 +24,8 @@ function doPost(e) {
   try { b = JSON.parse(e.postData.contents); } catch (err) { return out_({ ok: false, error: 'json' }); }
   // 고객 계약서 제출 (비밀키 대신 고객 전용 토큰으로 보호 / 자체 잠금 사용)
   if (b && b.action === 'submit') return out_(submitContract(b.token, b.p));
+  // 고객 계약서 화면이 내용을 불러올 때 (읽기 전용, 고객 전용 토큰으로 보호)
+  if (b && b.action === 'view') return out_(Object.assign({ ok: true }, contractView_(String(b.token || ''))));
   const lock = LockService.getScriptLock();
   try {
     lock.waitLock(20000);
@@ -46,7 +48,7 @@ function doPost(e) {
 
 function doGet(e) {
   const c = e && e.parameter && e.parameter.c;
-  if (!c) return out_({ ok: true, msg: BRAND + ' 서버 동작 중' });
+  if (!c) return out_({ ok: true, msg: BRAND + ' 서버 동작 중', version: 'v15-post-view' });   // 배포된 코드 버전 확인용
   if (e.parameter.action === 'contract') return out_(Object.assign({ ok: true }, contractView_(String(c))));   // 깃허브 계약서 페이지용
   return page_(String(c));
 }

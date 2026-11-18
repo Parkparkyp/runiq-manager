@@ -51,16 +51,20 @@ function route(){
   else if(X.state==='done'){showDone(X.d.snap,X.d.rec,false,true);}
   else{build(X.d);}
 }
+function fatal(code,msg){
+  app.innerHTML='';head();var c2=el('div',{class:'c big'});c2.appendChild(el('b',0,'불러오지 못했어요'));c2.appendChild(el('span',{class:'note'},'인터넷 연결을 확인하고 다시 시도해 주세요. 계속되면 아래 진단 코드를 담당자에게 알려 주세요.'));
+  c2.appendChild(el('div',{class:'note',style:'margin-top:10px;font-family:monospace;word-break:break-all'},'진단: '+code+(msg?' · '+String(msg).slice(0,140):'')));
+  var rb=el('button',{class:'go',type:'button',style:'margin-top:14px'},'다시 시도');rb.addEventListener('click',load);c2.appendChild(rb);app.appendChild(c2);
+}
 function load(){
   app.innerHTML='';head();var c=el('div',{class:'c big'});c.appendChild(el('b',0,'계약서를 불러오는 중…'));c.appendChild(el('span',{class:'note'},'잠시만 기다려 주세요.'));app.appendChild(c);
   if(!API||!TOK){app.innerHTML='';big('유효하지 않은 링크예요','링크를 다시 확인하시거나 담당자에게 문의해 주세요.');return;}
-  fetch(API+'?action=contract&c='+encodeURIComponent(TOK),{cache:'no-store'}).then(function(r){return r.json();}).then(function(j){
-    if(!j||!j.ok){throw new Error('bad');}
-    X.state=j.state;X.d=j.d;app.innerHTML='';route();
-  }).catch(function(){
-    app.innerHTML='';head();var c2=el('div',{class:'c big'});c2.appendChild(el('b',0,'불러오지 못했어요'));c2.appendChild(el('span',{class:'note'},'인터넷 연결을 확인하고 다시 시도해 주세요.'));
-    var rb=el('button',{class:'go',type:'button',style:'margin-top:14px'},'다시 시도');rb.addEventListener('click',load);c2.appendChild(rb);app.appendChild(c2);
-  });
+  fetch(API,{method:'POST',body:JSON.stringify({action:'view',token:TOK})}).then(function(r){return r.text();}).then(function(txt){
+    var j;try{j=JSON.parse(txt);}catch(e){return fatal('PARSE',txt.slice(0,80).replace(/\s+/g,' '));}
+    if(!j||!j.ok)return fatal('SERVER',j&&j.error);
+    X.state=j.state;X.d=j.d;app.innerHTML='';
+    try{route();}catch(e){fatal('RENDER',e&&e.message);}
+  }).catch(function(e){fatal('NET',e&&e.message);});
 }
 load();
 
