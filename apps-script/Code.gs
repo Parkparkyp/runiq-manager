@@ -20,10 +20,13 @@ const CON_HEAD = ['토큰', '생성', '고객명', '계약내용(JSON)', '상태
 
 /* ---------------- 진입점 ---------------- */
 function doPost(e) {
+  let b = null;
+  try { b = JSON.parse(e.postData.contents); } catch (err) { return out_({ ok: false, error: 'json' }); }
+  // 고객 계약서 제출 (비밀키 대신 고객 전용 토큰으로 보호 / 자체 잠금 사용)
+  if (b && b.action === 'submit') return out_(submitContract(b.token, b.p));
   const lock = LockService.getScriptLock();
   try {
     lock.waitLock(20000);
-    const b = JSON.parse(e.postData.contents);
     if (!b || b.key !== SECRET) return out_({ ok: false, error: 'key' });
     switch (b.action) {
       case 'ping': return out_({ ok: true, ts: curTs_() });
@@ -44,6 +47,7 @@ function doPost(e) {
 function doGet(e) {
   const c = e && e.parameter && e.parameter.c;
   if (!c) return out_({ ok: true, msg: BRAND + ' 서버 동작 중' });
+  if (e.parameter.action === 'contract') return out_(Object.assign({ ok: true }, contractView_(String(c))));   // 깃허브 계약서 페이지용
   return page_(String(c));
 }
 
@@ -234,7 +238,8 @@ function sendCopies_(snap, rec) {
 }
 
 /* ---------------- 고객용 계약서 페이지 ---------------- */
-function page_(token) {
+/* 계약서 화면에 필요한 데이터 (form: 작성 전 / done: 서명 완료본 / invalid) */
+function contractView_(token) {
   let data = null, status = '', rec = null;
   if (tokOk_(token)) {
     const s = conSheet_(), r = findRow_(s, token);
@@ -247,7 +252,13 @@ function page_(token) {
     }
   }
   const state = !data ? 'invalid' : (status === '서명완료' ? 'done' : 'form');
-  const json = JSON.stringify({ state: state, brand: BRAND, d: state === 'form' ? data : (state === 'done' ? { snap: data, rec: rec } : null) }).replace(/</g, '\\u003c').split('\u2028').join('\\u2028').split('\u2029').join('\\u2029');
+  return { state: state, d: state === 'form' ? data : (state === 'done' ? { snap: data, rec: rec } : null) };
+}
+
+/* (예비) 구글이 직접 보여주는 계약서 페이지 - 계정/브라우저에 따라 안 열릴 수 있어 기본으로는 쓰지 않아요 */
+function page_(token) {
+  const v = contractView_(token);
+  const json = JSON.stringify({ state: v.state, brand: BRAND, d: v.d }).replace(/</g, '\\u003c').split('\u2028').join('\\u2028').split('\u2029').join('\\u2029');
   const html = PAGE_HTML_.split('__DATA__').join(json);
   return HtmlService.createHtmlOutput(html).setTitle(BRAND + ' 촬영 계약서').addMetaTag('viewport', 'width=device-width, initial-scale=1');
 }

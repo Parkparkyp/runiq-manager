@@ -240,6 +240,7 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
     <textarea id="c-cbody" rows="14" class="inp"></textarea>
     <label>개인정보 수집·이용 동의 문구</label>
     <textarea id="c-cpriv" rows="7" class="inp"></textarea>
+    <p id="con-base" style="margin-top:6px"></p>
     <p style="margin-top:6px"><b>작성 방법</b>: 항목은 한 줄 <code>=====</code> 로 나눠요. 각 항목의 <b>첫 줄이 제목</b>이고, 마지막 줄을 <code>☑ 동의합니다.</code> 처럼 쓰면 그 문구가 고객 체크칸 이름이 돼요. 항목 안에 <code>[[포트폴리오선택]]</code> 을 쓰면 그 자리에 동의/미동의 선택이 들어가요. 【 】가 남아 있으면 링크를 만들 때 한 번 더 물어봐요.</p>
     <div class="g2" style="margin-top:8px"><button class="btn dk" onclick="saveConTpl()">계약서 문구 저장</button><button class="btn" onclick="ask('계약서·개인정보 문구를 기본 틀로 되돌릴까요? (직접 쓴 내용은 사라져요)',resetConTpl)">기본 틀로 되돌리기</button></div>
     <button class="btn bl" style="width:100%;margin-top:8px" onclick="clContractSync(false)">🔄 서명 도착했는지 확인</button>
@@ -2100,8 +2101,13 @@ async function clRestore(){
 
 /* ---------- v8: 전자 계약서 ---------- */
 function genToken(){ const a=new Uint8Array(24); crypto.getRandomValues(a); const c='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'; return Array.from(a,x=>c[x%62]).join(''); }
+function contractPageBase(){ try{ const u=new URL('contract.html',location.href); if(u.protocol==='https:'||u.protocol==='http:') return u.origin+u.pathname; }catch(e){} return ''; }
 function contractUrl(i){
-  if(CL.url&&CL.key){ return i.contractToken?`${CL.url}?c=${i.contractToken}`:'(📝 계약서 요청 버튼을 누르면 링크가 만들어져요)'; }
+  if(CL.url&&CL.key){
+    if(!i.contractToken) return '(📝 계약서 요청 버튼을 누르면 링크가 만들어져요)';
+    const m=String(CL.url).match(/\/macros\/s\/([A-Za-z0-9_-]+)\/exec/), base=contractPageBase();
+    return (m&&base)?`${base}?c=${i.contractToken}&g=${m[1]}`:`${CL.url}?c=${i.contractToken}`;
+  }
   return S.cfg.contractLink||'(설정에서 클라우드 백업을 연결하거나 계약서 링크를 입력해 주세요)';
 }
 function conSnapOf(i){ return {date:i.date||'',time:i.time||'',venue:i.venue||'',total:price(i),deposit:Number(i.depositAmount)||0}; }
@@ -2188,7 +2194,7 @@ function printCon(){
   w.document.write(`<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>계약서</title><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{font-family:-apple-system,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;padding:20px;color:#0f172a;max-width:720px;margin:auto}</style></head><body>${conHtml}<script>setTimeout(function(){window.print()},400)<\/script></body></html>`);
   w.document.close();
 }
-function renderConTpl(){ if(!$('c-cbody')) return; if(document.activeElement!==$('c-cbody')) $('c-cbody').value=S.templates.contractBody||''; if(document.activeElement!==$('c-cpriv')) $('c-cpriv').value=S.templates.privacyBody||''; }
+function renderConTpl(){ if(!$('c-cbody')) return; { const b=contractPageBase(); $('con-base').innerHTML=b?`🌐 고객 계약서 페이지: <b>${esc(b)}</b><br>깃허브에 올린 뒤 이 주소가 열리면(불러오는 중… 화면) 준비된 거예요.`:'🌐 앱을 깃허브 페이지(https 주소)에서 열면 고객 계약서 주소가 여기에 표시돼요.'; } if(document.activeElement!==$('c-cbody')) $('c-cbody').value=S.templates.contractBody||''; if(document.activeElement!==$('c-cpriv')) $('c-cpriv').value=S.templates.privacyBody||''; }
 function saveConTpl(){ S.templates.contractBody=$('c-cbody').value; S.templates.privacyBody=$('c-cpriv').value; save(); toast('📝 계약서 문구가 저장되었습니다'); }
 function resetConTpl(){ S.templates.contractBody=DEF.contractBody; S.templates.privacyBody=DEF.privacyBody; save(); renderConTpl(); toast('기본 틀로 되돌렸어요'); }
 setTimeout(()=>clContractAuto(true),2500);
