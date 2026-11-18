@@ -218,6 +218,23 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
     <div class="g2" style="margin-top:10px"><button class="btn dk" onclick="saveTpl()">템플릿 저장</button><button class="btn" onclick="ask('멘트 템플릿을 기본값으로 초기화할까요?',resetTpl)">기본값 초기화</button></div>
   </section>
   <section class="c">
+    <h2>☁️ 구글 시트 클라우드 백업</h2><p id="cl-info">내 구글 시트에 자동으로 백업하고, 다른 기기에서 불러올 수 있어요.</p>
+    <label>웹 앱 주소 (Apps Script 배포 URL)</label><input id="cl-url" class="inp" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off">
+    <label>비밀키 (Code.gs 의 SECRET 과 같은 값)</label><input id="cl-key" class="inp" type="password" placeholder="나만 아는 긴 비밀키" autocomplete="off">
+    <label style="display:flex;gap:8px;align-items:center;margin-top:8px"><input type="checkbox" id="cl-auto" style="width:18px;height:18px"> 데이터가 바뀌면 자동 백업 (인터넷 연결 시)</label>
+    <div class="g2" style="margin-top:8px"><button class="btn" onclick="clSaveCfg(true)">🔌 저장 · 연결 테스트</button><button class="btn dk" onclick="clBackup(false,false)">☁️ 지금 백업</button></div>
+    <button class="btn bl" style="width:100%;margin-top:8px" onclick="clRestore()">☁️ 클라우드에서 불러오기</button>
+    <details style="margin-top:8px"><summary style="font-size:12px;font-weight:800;cursor:pointer">📖 처음 연결하는 방법</summary>
+      <ol style="font-size:12px;line-height:1.7;margin:6px 0 0;padding-left:18px;color:var(--mut)">
+        <li>구글 드라이브에서 새 구글 시트를 만들어요 (이름 예: 루닉스냅 데이터)</li>
+        <li>메뉴 <b>확장 프로그램 → Apps Script</b> 를 열어요</li>
+        <li>기본 코드를 지우고 <b>apps-script/Code.gs</b> 내용을 붙여넣어요</li>
+        <li>맨 위 <b>SECRET</b> 값을 나만 아는 긴 문자열로 바꾸고 저장해요</li>
+        <li><b>배포 → 새 배포 → 웹 앱</b> 선택, 실행: <b>나</b>, 액세스: <b>모든 사용자</b> → 배포 (권한 승인 필요)</li>
+        <li>나온 <b>웹 앱 URL</b> 과 SECRET 을 위 칸에 붙여넣고 <b>저장 · 연결 테스트</b></li>
+      </ol></details>
+  </section>
+  <section class="c">
     <h2>💾 백업 · 내보내기</h2><p id="bk-info">기기를 바꾸거나 브라우저 데이터를 지우기 전에 꼭 백업하세요.</p>
     <div class="g2" style="margin-top:8px"><button class="btn dk" onclick="exportJSON()">💾 백업 저장(.json)</button><button class="btn" onclick="$('imp').click()">📂 백업 불러오기</button></div>
     <input id="imp" type="file" accept=".json" class="hide" onchange="importJSON(event)">
@@ -286,7 +303,7 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
 
 <!-- MODAL: 확인 -->
 <div id="m-confirm" class="mod mid hide"><div style="max-width:340px">
-  <h2 style="margin:0 0 8px;font-size:14px">확인해 주세요</h2><p id="cf-msg" style="font-size:13px;color:#475569;margin-bottom:12px"></p>
+  <h2 style="margin:0 0 8px;font-size:14px">확인해 주세요</h2><p id="cf-msg" style="white-space:pre-line;font-size:13px;color:#475569;margin-bottom:12px"></p>
   <div class="g2"><button class="btn" onclick="closeM('m-confirm')">취소</button><button class="btn rd" id="cf-ok" style="background:#e11d48;color:#fff">확인</button></div>
 </div></div>
 
@@ -893,7 +910,7 @@ function load(){
   if(!S.meta.firstUse) S.meta.firstUse=Date.now();
   normalizeAll(); migrateTemplates(); save();
 }
-function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){ toast('⚠️ 저장 공간 오류: 백업을 받아두세요'); } updateBadge(); }
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){ toast('⚠️ 저장 공간 오류: 백업을 받아두세요'); } updateBadge(); if(typeof clQueue==='function'&&!clSkip) clQueue(); }
 function updateBadge(){
   const n=S.inquiries.filter(i=>i.status==='문의접수'||i.status==='입금전').length, b=$('badge');
   b.textContent=n; b.classList.toggle('hide',!n);
@@ -1694,7 +1711,7 @@ function renderSettingsExtra(){
   const C=S.cfg, T=S.templates;
   $('c-gap').value=C.gapHours; $('c-contract').value=C.contractLink||'';
   $('t-contract').value=T.contractNotice||''; $('t-cancel').value=T.cancelNotice||''; $('t-resched').value=T.rescheduleNotice||''; $('t-promo').value=T.promoTpl||'';
-  $('t-check').value=S.checklist.join('\n'); renderAlarmChips(); renderPresets(); renderIvSettings();
+  $('t-check').value=S.checklist.join('\n'); renderAlarmChips(); renderPresets(); renderIvSettings(); renderCloud();
   const ys=new Set([new Date().getFullYear()]); S.inquiries.forEach(i=>{ if(i.date) ys.add(+i.date.slice(0,4)); });
   const keepY=$('x-year').value, keepM=$('x-month').value;
   $('x-year').innerHTML=[...ys].sort((a,b)=>b-a).map(y=>`<option value="${y}">${y}년</option>`).join('');
@@ -1798,6 +1815,77 @@ function renderIvTab(){
   if(keep) return;
   $('ivt-body').innerHTML=`<b>${esc(i.clientName)}님</b><p style="margin:2px 0 8px">${kdate(i.date)} · 전체 ${ivDone(i)}/${ivTotal()} 완료</p><div class="scroll" style="margin-bottom:10px">${tabs}</div><div style="display:flex;flex-direction:column;gap:8px">${qs}</div>`+
     (g?`<label>📝 ${esc(g.name)} 답변 메모</label><textarea id="ivt-note" rows="4" class="inp" oninput="saveIvNote(this.value)" placeholder="핵심 답변, 영상에 쓸 포인트 등">${esc(i.iv.notes[g.name]||'')}</textarea><div class="g2" style="margin-top:10px"><button class="btn" onclick="copyIv(false)">📋 이 그룹 질문 복사</button><button class="btn" onclick="copyIv(true)">📋 전체 질문 복사</button></div>`:'');
+}
+
+/* ---------- v7: 구글 시트 클라우드 백업 ---------- */
+const CLKEY='runic_snap_cloud_v1';
+let CL={url:'',key:'',auto:false,lastTs:0,lastAt:0,status:'',blocked:false}, clSkip=false, clTimer=null, clBusy=false;
+try{ CL={...CL,...JSON.parse(localStorage.getItem(CLKEY)||'{}')}; }catch(e){}
+function clStore(){ try{ localStorage.setItem(CLKEY,JSON.stringify(CL)); }catch(e){} }
+function clAgo(ts){ if(!ts) return ''; const m=Math.floor((Date.now()-ts)/60000); return m<1?'방금':m<60?`${m}분 전`:m<1440?`${Math.floor(m/60)}시간 전`:`${Math.floor(m/1440)}일 전`; }
+function renderCloud(){
+  if(!$('cl-url')) return;
+  if(document.activeElement!==$('cl-url')) $('cl-url').value=CL.url;
+  if(document.activeElement!==$('cl-key')) $('cl-key').value=CL.key;
+  $('cl-auto').checked=!!CL.auto;
+  $('cl-info').textContent=CL.status||(CL.url?(CL.lastAt?`마지막 클라우드 백업: ${clAgo(CL.lastAt)}`:'연결됨 · 아직 백업한 적이 없어요'):'내 구글 시트에 자동으로 백업하고, 다른 기기에서 불러올 수 있어요.');
+}
+async function clPost(body){
+  const ac=new AbortController(), to=setTimeout(()=>ac.abort(),30000);
+  try{
+    const r=await fetch(CL.url,{method:'POST',body:JSON.stringify({key:CL.key,...body}),redirect:'follow',signal:ac.signal});
+    return await r.json();
+  } finally{ clearTimeout(to); }
+}
+function clReady(){ if(!CL.url||!CL.key){ toast('웹 앱 주소와 비밀키를 먼저 입력해 주세요'); return false; } return true; }
+function clErr(r){ return r.error==='key'?'비밀키가 달라요':r.error==='empty'?'클라우드에 저장된 백업이 없어요':'오류: '+(r.error||'알 수 없음'); }
+async function clSaveCfg(test){
+  CL.url=$('cl-url').value.trim(); CL.key=$('cl-key').value.trim(); CL.auto=$('cl-auto').checked; CL.blocked=false; CL.status=''; clStore();
+  if(!test) return renderCloud();
+  if(!clReady()) return;
+  if(!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec/.test(CL.url)){ toast('주소가 올바르지 않아요 (…/exec 로 끝나야 해요)'); return; }
+  toast('🔌 연결 확인 중…');
+  try{ const r=await clPost({action:'ping'}); if(r.ok){ toast('✅ 연결 성공!'); CL.status=''; } else toast('❌ '+clErr(r)); }
+  catch(e){ toast('❌ 연결 실패 — 주소, 배포 설정(액세스: 모든 사용자), 인터넷을 확인해 주세요'); }
+  renderCloud();
+}
+function clRows(){
+  return S.inquiries.filter(i=>i.status!=='취소').sort((a,b)=>(a.date||'9').localeCompare(b.date||'9')).map(i=>[i.date||'',i.time||'',i.clientName||'',i.phone||'',i.status||'',i.venue||'',price(i),Number(i.depositAmount)||0,balOf(i),i.address||'',i.delivered?'완료':'',i.notes||'']);
+}
+async function clBackup(force,silent){
+  if(clBusy) return; if(!silent&&!clReady()) return; if(!CL.url||!CL.key) return;
+  clBusy=true; if(!silent) toast('☁️ 백업 중…');
+  try{
+    const r=await clPost({action:'backup',data:JSON.stringify(S),rows:clRows(),baseTs:CL.lastTs,force:!!force});
+    if(r.ok){
+      CL.lastTs=r.ts; CL.lastAt=Date.now(); CL.status=''; CL.blocked=false; clStore();
+      clSkip=true; S.meta.lastBackup=Date.now(); save(); clSkip=false;
+      if(!silent) toast(`☁️ 백업 완료 (예약 ${r.count}건)`);
+    } else if(r.conflict){
+      CL.blocked=true; CL.status='⚠️ 다른 기기에서 더 최근에 백업했어요. 불러오기 또는 덮어쓰기를 선택하세요'; clStore();
+      if(!silent) ask('다른 기기에서 더 최근에 백업된 데이터가 있어요. 그래도 지금 데이터로 덮어쓸까요?\n(취소하고 [클라우드에서 불러오기]를 쓰는 게 안전할 수 있어요)',()=>{ clBusy=false; clBackup(true,false); });
+      else toast('⚠️ 클라우드에 더 최근 데이터가 있어 자동 백업을 멈췄어요');
+    } else { CL.status='⚠️ 백업 실패: '+clErr(r); clStore(); if(!silent) toast('❌ '+clErr(r)); }
+  }catch(e){ if(!silent) toast('❌ 백업 실패 — 인터넷 연결을 확인해 주세요'); }
+  clBusy=false; renderCloud(); if(activeTab==='cal'||activeTab==='inq') refresh();
+}
+function clQueue(){
+  if(!CL.auto||!CL.url||!CL.key||CL.blocked) return;
+  clearTimeout(clTimer); clTimer=setTimeout(()=>{ if(navigator.onLine) clBackup(false,true); },15000);
+}
+async function clRestore(){
+  if(!clReady()) return; toast('☁️ 불러오는 중…');
+  try{
+    const r=await clPost({action:'restore'});
+    if(!r.ok){ toast('❌ '+clErr(r)); return; }
+    const p=JSON.parse(r.data);
+    if(!p||!Array.isArray(p.inquiries)){ toast('클라우드 데이터가 올바르지 않아요'); return; }
+    const when=new Date(r.ts); const w=`${when.getMonth()+1}/${when.getDate()} ${pad(when.getHours())}:${pad(when.getMinutes())}`;
+    ask(`클라우드 백업(${w} · 예약 ${p.inquiries.length}건)으로 복원할까요?\n현재 이 기기의 데이터는 덮어씌워져요.`,()=>{
+      clSkip=true; adopt(p); S.meta.firstUse=S.meta.firstUse||Date.now(); S.meta.lastBackup=Date.now(); normalizeAll(); migrateTemplates(); save(); clSkip=false;
+      CL.lastTs=r.ts; CL.lastAt=Date.now(); CL.blocked=false; CL.status=''; clStore(); refresh(); renderCloud(); toast(`☁️ ${S.inquiries.length}건 복원 완료`);
+    });
+  }catch(e){ toast('❌ 불러오기 실패 — 인터넷 연결을 확인해 주세요'); }
 }
 
 /* ---------- modals + Android back button ---------- */
