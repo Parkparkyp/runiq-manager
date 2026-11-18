@@ -1,3 +1,3 @@
-{"name":"루닉스냅 예약 & 캘린더 매니저","short_name":"루닉스냅","id":"./","start_url":"./","scope":"./","display":"standalone","orientation":"portrait","background_color":"#0f172a","theme_color":"#0f172a",
+{"name":"루닉필름 예약 & 캘린더 매니저","short_name":"루닉필름","id":"./","start_url":"./","scope":"./","display":"standalone","orientation":"portrait","background_color":"#0f172a","theme_color":"#0f172a",
 "icons":[{"src":"icons/icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},{"src":"icons/icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}],
 "share_target":{"action":"./","method":"GET","params":{"title":"title","text":"text","url":"url"}}}
