@@ -52,8 +52,8 @@ label{display:block;font-size:12px;font-weight:800;margin:10px 0 4px;color:#3341
 .box div{display:flex;justify-content:space-between;gap:8px;padding:2px 0}.box b{text-align:right}
 .note{font-size:12px;color:#475569;background:#f8fafc;padding:8px;border-radius:10px;white-space:pre-wrap}
 .scroll{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}.scroll::-webkit-scrollbar{display:none}.scroll>*{flex-shrink:0}
-nav{position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:auto;z-index:40;background:#fffffff2;backdrop-filter:blur(8px);border-top:1px solid var(--ln);display:grid;grid-template-columns:repeat(4,1fr);padding:6px 8px calc(6px + var(--bot))}
-nav button{background:0;color:#94a3b8;font-size:11px;font-weight:700;padding:7px 0;border-radius:12px;position:relative}
+nav{position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:auto;z-index:40;background:#fffffff2;backdrop-filter:blur(8px);border-top:1px solid var(--ln);display:grid;grid-template-columns:repeat(6,1fr);padding:6px 4px calc(6px + var(--bot))}
+nav button{background:0;color:#94a3b8;font-size:10px;letter-spacing:-.5px;font-weight:700;padding:7px 0;border-radius:12px;position:relative}
 nav button.on2{background:#f1f5f9;color:var(--ink);font-weight:800}
 nav b{position:absolute;top:1px;right:22%;background:var(--b);color:var(--ink);font-size:10px;border-radius:99px;min-width:16px;padding:0 4px}
 .mod{position:fixed;inset:0;z-index:50;background:#020617b3;display:flex;align-items:flex-end;justify-content:center}
@@ -140,6 +140,16 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
   <div id="inq-list" style="display:flex;flex-direction:column;gap:10px"></div>
 </main>
 
+<!-- TAB: 체크리스트 -->
+<main id="v-ck" class="hide">
+  <section class="c"><h2>🎒 촬영 체크리스트</h2><p>예약을 고르고 준비 항목을 눌러 체크하세요. 항목은 설정에서 고칠 수 있어요.</p><div id="ck-pick" class="scroll" style="margin-top:8px"></div></section>
+  <section class="c" id="ck-body"></section>
+</main>
+<!-- TAB: 인터뷰 -->
+<main id="v-iv" class="hide">
+  <section class="c"><h2>🎤 인터뷰 질문</h2><p>예약을 고르면 혼주·신랑신부·하객 등 그룹별 질문과 답변 메모를 쓸 수 있어요. 질문은 설정에서 고칠 수 있어요.</p><div id="ivt-pick" class="scroll" style="margin-top:8px"></div></section>
+  <section class="c" id="ivt-body"></section>
+</main>
 <!-- TAB 3 : 현황 -->
 <main id="v-stat" class="hide">
   <section class="c">
@@ -221,6 +231,8 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
 <nav>
   <button data-n="cal" onclick="tab('cal')">📅<br>캘린더</button>
   <button data-n="inq" onclick="tab('inq')">💬<br>예약문의<b id="badge" class="hide"></b></button>
+  <button data-n="ck" onclick="tab('ck')">🎒<br>체크리스트</button>
+  <button data-n="iv" onclick="tab('iv')">🎤<br>인터뷰</button>
   <button data-n="stat" onclick="tab('stat')">📊<br>현황</button>
   <button data-n="set" onclick="tab('set')">⚙️<br>설정</button>
 </nav>
@@ -889,12 +901,14 @@ function updateBadge(){
 function refresh(){
   renderCal(); renderAgenda(); renderTodo();
   if(activeTab==='inq') renderInq();
+  if(activeTab==='ck') renderCkTab();
+  if(activeTab==='iv') renderIvTab();
   if(activeTab==='stat') renderStat();
   if(activeTab==='set') renderSettings();
 }
 function tab(n){
   activeTab=n; saveUI();
-  ['cal','inq','stat','set'].forEach(k=>$('v-'+k).classList.toggle('hide',k!==n));
+  ['cal','inq','ck','iv','stat','set'].forEach(k=>$('v-'+k).classList.toggle('hide',k!==n));
   document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on2',b.dataset.n===n));
   refresh(); window.scrollTo({top:0});
 }
@@ -1529,7 +1543,7 @@ function saveUI(){ try{ localStorage.setItem(UIKEY,JSON.stringify({tab:activeTab
 function loadUI(){
   try{
     const u=JSON.parse(localStorage.getItem(UIKEY)||'null'); if(!u) return;
-    uiTab=['cal','inq','stat','set'].includes(u.tab)?u.tab:'cal';
+    uiTab=['cal','inq','ck','iv','stat','set'].includes(u.tab)?u.tab:'cal';
     inqMode=u.inqMode||inqMode; yearFilter=u.yearFilter||yearFilter; inqFilter=u.inqFilter||inqFilter; portFilter=u.portFilter||portFilter;
     monthOpen=u.monthOpen||{}; statScope=u.statScope||statScope; chBasis=u.chBasis||chBasis; calFilter=u.calFilter||calFilter;
   }catch(e){}
@@ -1751,6 +1765,40 @@ function saveIvSettings(){
   S.interview=gs; save(); renderIvSettings(); refresh(); toast('🎤 인터뷰 질문이 저장되었습니다');
 }
 function resetIv(){ S.interview=DEF_IV.map(g=>({name:g.name,qs:[...g.qs]})); save(); renderIvSettings(); refresh(); toast('기본 질문으로 되돌렸어요'); }
+
+/* ---------- v6: 체크리스트 / 인터뷰 탭 ---------- */
+function pickList(){
+  const t=todayISO(), a=S.inquiries.filter(i=>i.status!=='취소'&&i.date).sort((x,y)=>x.date.localeCompare(y.date));
+  const up=a.filter(i=>daysFromToday(i.date)>=-7); return up.length?up:a.slice(-10);
+}
+function pickChips(list,sel,fn){
+  return list.length?list.map(i=>{ const [,m,d]=i.date.split('-'); return `<button type="button" class="btn sm ${i.id===sel?'on':''}" onclick="${fn}('${i.id}')">${+m}/${+d} ${esc(i.clientName)}</button>`; }).join(''):'<p>날짜가 있는 예약이 없어요</p>';
+}
+function ensureSel(list,cur){ return list.some(i=>i.id===cur)?cur:(list.find(i=>daysFromToday(i.date)>=0)||list[0]||{}).id||null; }
+function selCk(id){ ckId=id; renderCkTab(); }
+function selIvT(id){ ivId=id; ivGroup=0; renderIvTab(); }
+function renderCkTab(){
+  const list=pickList(); ckId=ensureSel(list,ckId);
+  $('ck-pick').innerHTML=pickChips(list,ckId,'selCk');
+  const i=S.inquiries.find(x=>x.id===ckId);
+  if(!i){ $('ck-body').innerHTML='<p style="text-align:center;padding:20px">예약을 먼저 등록해 주세요</p>'; return; }
+  $('ck-body').innerHTML=`<b>${esc(i.clientName)}님</b><p style="margin:2px 0 8px">${kdate(i.date)} ${ktime(i.time)} · ${esc(i.venue||'장소 미정')} · ${ckDone(i)}/${S.checklist.length} 완료</p><div style="display:flex;flex-direction:column;gap:8px">`+
+    (S.checklist.length?S.checklist.map((x,k)=>{ const on=(i.checks||[]).includes(x); return `<button type="button" class="ck ${on?'on':''}" onclick="toggleCheck(${k})">${on?'☑️':'⬜'} ${esc(x)}</button>`; }).join(''):'<p>설정 탭에서 체크리스트를 먼저 작성해 주세요</p>')+`</div>`;
+}
+function renderIvTab(){
+  const list=pickList(); ivId=ensureSel(list,ivId);
+  $('ivt-pick').innerHTML=pickChips(list,ivId,'selIvT');
+  const i=S.inquiries.find(x=>x.id===ivId);
+  if(!i){ $('ivt-body').innerHTML='<p style="text-align:center;padding:20px">예약을 먼저 등록해 주세요</p>'; return; }
+  ivEnsure(i); if(ivGroup>=S.interview.length) ivGroup=0;
+  const g=S.interview[ivGroup];
+  const tabs=S.interview.map((x,k)=>{ const dn=x.qs.filter(q=>i.iv.done[ivKey(x.name,q)]).length; return `<button type="button" class="btn sm ${k===ivGroup?'on':''}" onclick="ivGroup=${k};renderIvTab()">${esc(x.name)} ${dn}/${x.qs.length}</button>`; }).join('');
+  const qs=g?(g.qs.length?g.qs.map((q,k)=>{ const on=!!i.iv.done[ivKey(g.name,q)]; return `<button type="button" class="ck ${on?'on':''}" onclick="toggleIv(${k})">${on?'☑️':'⬜'} ${esc(q)}</button>`; }).join(''):'<p>이 그룹에 질문이 없어요</p>'):'<p>설정 탭에서 인터뷰 질문을 먼저 작성해 주세요</p>';
+  const keep=document.activeElement&&document.activeElement.id==='ivt-note';
+  if(keep) return;
+  $('ivt-body').innerHTML=`<b>${esc(i.clientName)}님</b><p style="margin:2px 0 8px">${kdate(i.date)} · 전체 ${ivDone(i)}/${ivTotal()} 완료</p><div class="scroll" style="margin-bottom:10px">${tabs}</div><div style="display:flex;flex-direction:column;gap:8px">${qs}</div>`+
+    (g?`<label>📝 ${esc(g.name)} 답변 메모</label><textarea id="ivt-note" rows="4" class="inp" oninput="saveIvNote(this.value)" placeholder="핵심 답변, 영상에 쓸 포인트 등">${esc(i.iv.notes[g.name]||'')}</textarea><div class="g2" style="margin-top:10px"><button class="btn" onclick="copyIv(false)">📋 이 그룹 질문 복사</button><button class="btn" onclick="copyIv(true)">📋 전체 질문 복사</button></div>`:'');
+}
 
 /* ---------- modals + Android back button ---------- */
 let skipPop=0, lastBack=0, cfCb=null;
