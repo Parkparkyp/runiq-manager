@@ -270,7 +270,11 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
     <div class="g2"><div><label>코드 1개당 사용 횟수 (0=무제한)</label><input id="c-pmax" class="inp" inputmode="numeric"></div><div><label>코드 앞 글자 (영문/숫자)</label><input id="c-prefix" class="inp" maxlength="4" style="text-transform:uppercase"></div></div>
     <button class="btn dk" style="width:100%;margin-top:12px" onclick="saveCfg()">금액·할인 설정 저장</button>
   </details>
+  <details class="c acc"><summary>🔔 촬영 전날 알림</summary><p>앱을 열 때 "내일 촬영"이 홈 상단에 크게 뜨고, 아래를 켜면 기기 알림도 한 번 보내요. 앱이 꺼져 있을 때는 울리지 않아요. (꺼진 상태 알림은 아래 .ics 알림의 '1일 전'을 쓰세요)</p><div class="row" style="margin-top:8px"><button id="noti-btn" class="btn" onclick="toggleNoti()"></button></div></details>
   <details class="c acc"><summary>📆 캘린더 알림</summary><p>.ics로 저장할 때 일정에 함께 들어가는 알림이에요. (구글캘린더 바로 추가 버튼은 구글캘린더 앱의 기본 알림 설정을 따라요)</p><div id="al-chips" class="wrap" style="margin-top:8px"></div></details>
+  <details class="c acc"><summary>🎬 상품 관리</summary><p>예약 폼에서 고르는 상품 목록이에요. 기본은 DVD · 서브스냅이고, 지워도 이미 등록된 예약은 그대로 남아요.</p>
+    <div class="g3" style="margin-top:8px;grid-template-columns:1fr auto"><input id="cat-new" class="inp" placeholder="새 상품 이름" onkeydown="if(event.key==='Enter'){event.preventDefault();addCat();}"><button class="btn dk" onclick="addCat()">추가</button></div>
+    <div id="cat-list" style="margin-top:8px"></div></details>
   <details class="c acc"><summary>📌 자주 쓰는 개인 일정</summary><p>캘린더에서 일정을 추가할 때 버튼으로 나와요. 시간을 비워두면 종일 일정이에요.</p>
     <div class="g3" style="margin-top:8px;grid-template-columns:1.4fr 1fr auto"><input id="pr-label" class="inp" placeholder="예: 🔍 사전답사"><input id="pr-time" type="time" class="inp"><button class="btn dk" onclick="addPreset()">추가</button></div>
     <div id="pr-list" style="margin-top:8px"></div></details>
@@ -407,6 +411,19 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
 <!-- MODAL: 문의 등록/수정 -->
 <div id="m-inq" class="mod hide"><div>
   <div class="row"><h2 id="inq-title" style="margin:0;font-size:16px">새 예약문의</h2><button class="btn sm" onclick="closeM('m-inq')">✕</button></div>
+  <div id="inq-modes" class="g2" style="margin:10px 0"><button type="button" id="md-inq" class="btn" onclick="inqMode2('inq')">📩 새 문의</button><button type="button" id="md-past" class="btn" onclick="inqMode2('past')">⏪ 지난 촬영</button></div>
+  <div id="past-box" class="hide">
+    <p style="margin:0 0 8px">이미 끝난 촬영을 기록해요. 촬영완료 · 잔금 수령으로 저장되고 매출·통계에 들어가요. 입금일은 촬영일로 잡혀요.</p>
+    <div class="box dpbox"><b>📅 촬영(예식)일</b><div id="ps-label" class="bigdt"></div>
+      <div class="dpsel"><select id="ps-y" class="inp" onchange="psChange()" aria-label="년"></select><select id="ps-m" class="inp" onchange="psChange()" aria-label="월"></select><select id="ps-d" class="inp" onchange="psChange()" aria-label="일"></select></div></div>
+    <div class="g2" style="margin-top:10px"><div><label>고객명 *</label><input id="ps-name" class="inp" placeholder="김지현 & 박준호"></div><div><label>연락처 (선택)</label><input id="ps-phone" class="inp" type="tel" placeholder="010-0000-0000"></div></div>
+    <div class="g2"><div><label>상품</label><select id="ps-cat" class="inp"></select></div><div><label>금액 (원) *</label><input id="ps-amt" class="inp" inputmode="numeric" placeholder="1,100,000" oninput="fmtMoney(this)"></div></div>
+    <label>📦 납품</label><div class="g2" id="ps-deliv"></div>
+    <label>📸 포트폴리오 동의</label><div class="g3" id="ps-port"></div>
+    <label>예식장소 (선택)</label><input id="ps-venue" class="inp">
+    <label>메모 (선택)</label><input id="ps-memo" class="inp">
+    <div class="g3" style="margin-top:12px"><button type="button" class="btn" onclick="closeM('m-inq')">닫기</button><button type="button" class="btn dk" style="grid-column:span 2" onclick="psSave()">지난 촬영 등록</button></div>
+  </div>
   <form id="form" onsubmit="saveInq(event)">
     <input type="hidden" id="f-id"><input type="hidden" id="f-date">
     <div class="c" style="background:#fffbeb;border-color:#fcd34d;margin-top:10px">
@@ -468,6 +485,10 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
 </div></div>
 
 <!-- MODAL: 개인 일정 -->
+<div id="m-day" class="mod mid hide"><div>
+  <div class="row"><h2 id="dm-title" style="margin:0;font-size:15px"></h2><button class="btn sm" onclick="closeM('m-day')">✕</button></div>
+  <div id="dm-btns" style="display:grid;gap:8px;margin-top:12px"></div>
+</div></div>
 <div id="m-evt" class="mod mid hide"><div>
   <div class="row"><h2 id="ev-title" style="margin:0;font-size:15px">일정 추가</h2><button class="btn sm" onclick="closeM('m-evt')">✕</button></div>
   <div id="ev-presets" class="scroll" style="margin:10px 0"></div>
@@ -546,7 +567,8 @@ const KEY = 'runic_snap_booking_manager_v1';
 const STATUSES = ['문의접수','입금전','계약금완료','촬영완료','취소'];
 const SK = {'문의접수':'q','입금전':'b','계약금완료':'a','촬영완료':'d','취소':'x'};
 const isConf = i => i.status==='계약금완료' || i.status==='촬영완료';
-const CATS = ['DVD','서브스냅','DVD + 서브스냅','본식 서브스냅','본식 DVD','야외 커플스냅','가족스냅','기타'];
+const CATS = ['DVD','서브스냅'];
+function cats(){ return (S.cfg&&Array.isArray(S.cfg.cats)&&S.cfg.cats.length)?S.cfg.cats:CATS; }
 const PAYS = ['카드','계좌이체','현금영수증','미정'];
 const TIMES = ['11:00','12:00','13:00','14:00','15:00','16:00','17:00'];
 const SOURCES = ['인스타그램','블로그','유튜브','네이버 검색','지인 소개','짝꿍코드','재문의','기타'];
@@ -1396,7 +1418,8 @@ function renderTodo(){
     if(isConf(i)&&i.date){
       const d=daysFromToday(i.date), bal=balOf(i);
       if(i.status==='계약금완료'&&bal>0&&!i.balancePaid&&d>=0&&d<=7) add(2,'al-y',`💰 ${i.clientName}님 잔금 ${won(bal)}원 · 예식 ${d===0?'오늘':'D-'+d}`,open(i.id));
-      if(i.status==='계약금완료'&&d>=0&&d<=3) add(1,'al-r',`📷 ${i.clientName}님 ${d===0?'오늘':'D-'+d} 촬영 · ${i.time||''}`,open(i.id));
+      if(i.status==='계약금완료'&&d===1) add(0,'al-r',`🔔 내일 촬영 · ${i.clientName}님 ${i.time?ktime(i.time):''} ${i.venue||''}`.replace(/\s+/g,' '),open(i.id));
+      else if(i.status==='계약금완료'&&d>=0&&d<=3) add(1,'al-r',`📷 ${i.clientName}님 ${d===0?'오늘':'D-'+d} 촬영 · ${i.time||''}`,open(i.id));
       if(i.status==='계약금완료'&&d<0) add(2,'al-b',`🎬 ${i.clientName}님 촬영 끝났나요? (${mdIso(i.date)})`,`<button class="btn sm" onclick="requestStatus('${i.id}','촬영완료')">촬영완료</button>`);
       if(!i.delivered&&d<=0){
         const dd=daysFromToday(deliverDue(i));
@@ -1415,13 +1438,23 @@ function renderTodo(){
   const wd={}; S.wait.forEach(w=>{ if(w.date>=t) (wd[w.date]=wd[w.date]||[]).push(w); });
   Object.keys(wd).sort().forEach(ds=>{ if(!isBlocked(ds)&&!S.inquiries.some(i=>i.date===ds&&i.status!=='취소')) add(1,'al-y',`⏳ ${mdIso(ds)} 날짜가 비었어요 · 대기자 ${wd[ds].map(w=>w.name).join(', ')}`,`<button class="btn sm" onclick="goDate('${ds}')">보기</button>`); });
   gapConflicts().slice(0,4).forEach(c=>add(2,'al-y',`⚠️ ${mdIso(c.date)} ${c.a.clientName} ${c.a.time} · ${c.b.clientName} ${c.b.time} (간격 ${c.h}시간)`,`<button class="btn sm" onclick="goDate('${c.date}')">보기</button>`));
-  items.sort((a,b)=>a.p-b.p);
+  items.sort((a,b)=>a.p-b.p); try{ notifyTomorrow(); }catch(e){}
   $('todo-card').innerHTML=`<h2>🔔 오늘 할 일</h2>`+(items.length
     ? items.slice(0,12).map(x=>`<div class="alert ${x.cls}"><span>${esc(x.text)}</span>${x.btn}</div>`).join('')+(items.length>12?`<p style="margin-top:6px">외 ${items.length-12}건</p>`:'')
     : `<p style="margin-top:4px">✅ 처리할 알림이 없습니다</p>`);
 }
 
 /* ---------- calendar ---------- */
+let lastTap={d:'',t:0};
+document.addEventListener('click',e=>{ const c=e.target.closest&&e.target.closest('#cal-grid .cell'); if(!c||!c.dataset.d) return; const n=Date.now();
+  if(lastTap.d===c.dataset.d&&n-lastTap.t<400){ lastTap={d:'',t:0}; openDay(c.dataset.d); } else lastTap={d:c.dataset.d,t:n}; },true);
+function openDay(ds){
+  $('dm-title').textContent=kdate(ds); const past=ds<todayISO();
+  $('dm-btns').innerHTML=(past?`<button class="btn dk" style="padding:14px" onclick="dayGo('past','${ds}')">⏪ 지난 촬영 등록</button>`:'')
+    +`<button class="btn ${past?'':'dk'}" style="padding:14px" onclick="dayGo('inq','${ds}')">📩 문의 추가</button><button class="btn" style="padding:14px" onclick="dayGo('evt','${ds}')">📌 일정 추가</button>`;
+  openM('m-day');
+}
+function dayGo(k,ds){ closeM('m-day'); setTimeout(()=>{ selDate=ds; if(k==='inq') openInq(null,ds); else if(k==='past') openPastForm(ds); else openEvt(null,ds); },80); }
 (function(){ // v29: 캘린더 좌우 스와이프
   let x0=0,y0=0,t0=0,on=false;
   const g=()=>document.getElementById('cal-grid');
@@ -1449,7 +1482,7 @@ function renderCal(){
     const ds=`${calY}-${pad(calM+1)}-${pad(d)}`, dow=new Date(calY,calM,d).getDay(), its=dayItems(ds), bl=isBlocked(ds);
     const evs=(calFilter==='all'||calFilter==='event')?eventsOn(ds):[], wn=S.wait.filter(w=>w.date===ds).length, cap=bl?1:2;
     const lines=[...its.map(e=>`<s style="${PILL[SK[e.status]]}">${esc(e.clientName.split('&')[0].trim())}</s>`),...evs.map(e=>`<s style="${PILL.e}">${esc(e.title)}</s>`)];
-    h+=`<button class="cell ${ds===selDate?'sel':''} ${ds===t?'today':''} ${bl?'blk':''}" onclick="pickDay('${ds}')"><i class="${dow===0?'sun':dow===6?'sat':''}">${d}</i>`
+    h+=`<button data-d="${ds}" class="cell ${ds===selDate?'sel':''} ${ds===t?'today':''} ${bl?'blk':''}" onclick="pickDay('${ds}')"><i class="${dow===0?'sun':dow===6?'sat':''}">${d}</i>`
       +(bl?`<s style="background:#94a3b8;color:#fff">🚫${esc((bl.label||'휴무').slice(0,3))}</s>`:'')
       +lines.slice(0,cap).join('')+(lines.length>cap?`<em>+${lines.length-cap}건</em>`:'')+(wn?`<em>⏳${wn}</em>`:'')+'</button>';
   }
@@ -1793,9 +1826,10 @@ function renderFormPrice(){
   $('f-calc').innerHTML=h;
 }
 function openInq(editId,prefillDate,focusParser){
+  inqMode2('inq'); $('inq-modes').classList.toggle('hide',!!editId);
   $('form').reset(); clearParser(); formWaitId=null;
   formEdit=editId?S.inquiries.find(x=>x.id===editId)||null:null;
-  $('f-cat').innerHTML=CATS.map(c=>`<option>${c}</option>`).join('');
+  $('f-cat').innerHTML=cats().map(c=>`<option>${esc(c)}</option>`).join('');
   $('f-src').innerHTML='<option value="">선택 안 함</option>'+SOURCES.map(c=>`<option>${c}</option>`).join('');
   $('f-paychips').innerHTML=PAYS.map(p=>`<button type="button" class="btn sm" data-v="${p}" onclick="setPay('${p}')">${p}</button>`).join('');
   const C=S.cfg;
@@ -1819,6 +1853,46 @@ function openInq(editId,prefillDate,focusParser){
   tmUnsure=false; dtUnsure=''; $('f-date').value=pkDate||''; dpSync();
   setPort(formPort); markTime(); openM('m-inq');
   if(focusParser) setTimeout(()=>$('parser').focus(),150);
+}
+/* ---------- v29: 지난 촬영 (문의 추가 안) ---------- */
+let psDeliv='완료', psPort='', psDate='';
+function inqMode2(m){
+  const past=m==='past'; $('past-box').classList.toggle('hide',!past); $('form').classList.toggle('hide',past);
+  $('md-inq').classList.toggle('dk',!past); $('md-past').classList.toggle('dk',past);
+  if(past){ $('inq-title').textContent='지난 촬영 등록'; psInit(); } else if(!formEdit) $('inq-title').textContent='새 예약문의 등록';
+}
+function psChips(){
+  $('ps-deliv').innerHTML=[['완료','✅ 납품 완료'],['미납','📦 아직 미납']].map(([v,l])=>`<button type="button" class="btn sm ${psDeliv===v?'dk':''}" onclick="psDeliv='${v}';psChips()">${l}</button>`).join('');
+  $('ps-port').innerHTML=[['동의','☑️ 동의'],['미동의','⬜ 미동의'],['','❔ 미확인']].map(([v,l])=>`<button type="button" class="btn sm ${psPort===v?'dk':''}" onclick="psPort='${v}';psChips()">${l}</button>`).join('');
+}
+function psInit(){
+  const ys=$('ps-y'); if(!ys.options.length){ const cy=new Date().getFullYear(); ys.add(new Option('년','')); for(let y=cy;y>=cy-8;y--) ys.add(new Option(y+'년',y)); $('ps-m').add(new Option('월','')); for(let m=1;m<=12;m++) $('ps-m').add(new Option(m+'월',m)); }
+  $('ps-cat').innerHTML=cats().map(c=>`<option>${esc(c)}</option>`).join('');
+  psDeliv='완료'; psPort=''; ['ps-name','ps-phone','ps-amt','ps-venue','ps-memo'].forEach(k=>$(k).value='');
+  const [y,m,d]=(psDate||'').split('-').map(Number); ys.value=y||''; $('ps-m').value=m||''; psDays(); $('ps-d').value=d||'';
+  psChange(); psChips();
+}
+function psDays(){ const y=+$('ps-y').value||new Date().getFullYear(), m=+$('ps-m').value||1, ds=$('ps-d'), cur=ds.value, n=new Date(y,m,0).getDate(); ds.innerHTML=''; ds.add(new Option('일','')); for(let d=1;d<=n;d++) ds.add(new Option(d+'일',d)); if(cur&&+cur<=n) ds.value=cur; }
+function psChange(){
+  psDays(); const y=$('ps-y').value, m=$('ps-m').value, d=$('ps-d').value; psDate=(y&&m&&d)?`${y}-${pad(+m)}-${pad(+d)}`:'';
+  const L=$('ps-label'); L.classList.toggle('bad',!psDate||psDate>=todayISO());
+  L.textContent=psDate?dtLabel(psDate)+(psDate>=todayISO()?'  · 지난 날짜가 아니에요':''):'날짜를 선택해 주세요';
+}
+function openPastForm(ds){ psDate=ds||''; openInq(null,ds||''); inqMode2('past'); }
+function psSave(){
+  const name=$('ps-name').value.trim(), amt=num($('ps-amt').value);
+  if(!psDate){ toast('촬영일을 선택해 주세요'); return; }
+  if(psDate>=todayISO()){ toast('지난 날짜만 등록할 수 있어요. 앞으로 예정이면 새 문의로 등록해 주세요'); return; }
+  if(!name){ toast('고객명을 입력해 주세요'); return; }
+  if(!amt){ toast('금액을 입력해 주세요'); return; }
+  const norm=x=>x.replace(/\s/g,'');
+  if(S.inquiries.some(i=>i.date===psDate&&norm(i.clientName)===norm(name))){ toast('같은 날짜·이름이 이미 있어요'); return; }
+  const [y,m,d]=psDate.split('-').map(Number), ts=new Date(y,m-1,d,12).getTime(), dl=psDeliv==='완료';
+  const ph=$('ps-phone').value.trim();
+  S.inquiries.push({id:'past-'+Date.now(),status:'촬영완료',clientName:name,phone:ph?normPhone(ph):'',address:'',category:$('ps-cat').value,date:psDate,time:'',venue:$('ps-venue').value.trim(),paymentMethod:'미정',
+    basePrice:amt,portDisc:0,depositAmount:amt,dueDate:'',balancePaid:true,balanceAt:ts,portfolio:psPort,source:'',notes:$('ps-memo').value.trim(),createdAt:ts,depositAt:ts,shotAt:ts,
+    delivered:dl,deliveredAt:dl?psDate:'',receipt:false,contract:true,noCode:true,codeUsed:'',codeInDisc:0,codeOutDisc:0,cost:{},checks:[]});
+  save(); closeM('m-inq'); refresh(); toast(`⏪ ${name}님 지난 촬영을 등록했어요`);
 }
 function renderPicker(){
   const pp=$('pk-picked'); if(pp){
@@ -1999,8 +2073,9 @@ function renderStat(){
     +box(['#fffbeb','#fde68a','#92400e'],'입금전(가예약)',sc('입금전').length+'건','예상 '+won(sum(sc('입금전')))+'원')
     +box(['#eff6ff','#bfdbfe','#1d4ed8'],'문의접수',sc('문의접수').length+'건','상담 진행 중')
     +box(['#f1f5f9','#e2e8f0','#475569'],'취소',allScope.filter(i=>i.status==='취소').length+'건','취소 제외 '+list.length+'건');
-  const cats={}; list.forEach(i=>cats[i.category]=(cats[i.category]||0)+1);
-  $('cats').innerHTML=`<b style="color:var(--mut);display:block">상품별 유효 예약 (취소 제외)</b>`+(Object.keys(cats).length?Object.entries(cats).map(([k,v])=>`<div><span>${esc(k)}</span><b>${v}건</b></div>`).join(''):'<div><span>데이터 없음</span></div>');
+  const cs2={}; list.forEach(i=>{ const k=i.category||'기타', o=cs2[k]||(cs2[k]={n:0,cn:0,rev:0,pro:0}); o.n++; if(isConf(i)){ o.cn++; o.rev+=price(i); o.pro+=profit(i); } });
+  const totRev=Object.values(cs2).reduce((x,o)=>x+o.rev,0);
+  $('cats').innerHTML=`<b style="color:var(--mut);display:block">상품별 수익 (취소 제외 · 확정 건 기준)</b>`+(Object.keys(cs2).length?Object.entries(cs2).sort((a,b)=>b[1].rev-a[1].rev).map(([k,o])=>`<div style="display:block;margin-top:8px"><div style="display:flex;justify-content:space-between"><b>${esc(k)}</b><span>예약 ${o.n}건 · 확정 ${o.cn}건</span></div><div style="display:flex;justify-content:space-between"><span>매출 <b>${won(o.rev)}원</b>${totRev?` (${Math.round(o.rev/totRev*100)}%)`:''}</span><span>${o.cn?`평균 ${won(Math.round(o.rev/o.cn))}원`:''}</span></div><div class="bar" style="margin-top:3px"><i style="width:${totRev?Math.round(o.rev/totRev*100):0}%;background:var(--a)"></i></div><div style="color:var(--mut);font-size:11px">순이익 ${won(o.pro)}원 (지출 입력분 반영)</div></div>`).join(''):'<div><span>데이터 없음</span></div>');
   // unpaid
   const up=S.inquiries.filter(i=>i.status==='계약금완료'&&!i.balancePaid&&balOf(i)>0).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
   const tot=up.reduce((x,i)=>x+balOf(i),0);
@@ -2229,7 +2304,7 @@ function parsePastLine(raw){
   return r;
 }
 function openPast(){
-  $('pq-text').value=''; $('pq-cat').innerHTML=CATS.map(c=>`<option>${c}</option>`).join(''); $('pq-date').value=''; $('pq-name').value=''; $('pq-amt').value='';
+  $('pq-text').value=''; $('pq-cat').innerHTML=cats().map(c=>`<option>${esc(c)}</option>`).join(''); $('pq-date').value=''; $('pq-name').value=''; $('pq-amt').value='';
   renderPast(); openM('m-past');
 }
 function pqAddLine(){
@@ -2259,7 +2334,28 @@ function pqCommit(){
 /* ---------- v4: 설정 보조 ---------- */
 const ALARM_OPTS=[[1440,'1일 전'],[180,'3시간 전'],[120,'2시간 전'],[60,'1시간 전']];
 function renderAlarmChips(){ $('al-chips').innerHTML=ALARM_OPTS.map(([m,l])=>`<button class="btn sm ${(S.cfg.alarms||[]).includes(m)?'on':''}" onclick="toggleAlarm(${m})">${l}</button>`).join('')+((S.cfg.alarms||[]).length?'':'<span style="font-size:11px;color:var(--mut);align-self:center">알림 없음</span>'); }
+function notiOn(){ return !!S.cfg.notiOn&&('Notification' in window)&&Notification.permission==='granted'; }
+function renderNoti(){ const b=$('noti-btn'); if(!b) return; b.textContent=notiOn()?'🔔 기기 알림 켜짐 (누르면 끄기)':'🔕 기기 알림 켜기'; }
+async function toggleNoti(){
+  if(notiOn()){ S.cfg.notiOn=false; save(); renderNoti(); return; }
+  if(!('Notification' in window)){ toast('이 브라우저는 알림을 지원하지 않아요'); return; }
+  let p=Notification.permission; if(p!=='granted') p=await Notification.requestPermission();
+  if(p!=='granted'){ toast('알림 권한이 꺼져 있어요. 브라우저 설정에서 허용해 주세요'); return; }
+  S.cfg.notiOn=true; save(); renderNoti(); toast('켰어요. 앱을 열 때 내일 촬영이 있으면 알려드려요'); notifyTomorrow();
+}
+function notifyTomorrow(){
+  if(!notiOn()) return; const t=todayISO();
+  S.inquiries.filter(i=>i.status==='계약금완료'&&i.date&&daysFromToday(i.date)===1).forEach(i=>{
+    const k='runiq_noti_'+i.id+'_'+t; try{ if(localStorage.getItem(k)) return; localStorage.setItem(k,'1'); }catch(e){}
+    const body=`${i.time?ktime(i.time)+' · ':''}${i.venue||'장소 미정'}`, title=`📷 내일 촬영 · ${i.clientName}`;
+    try{ if(navigator.serviceWorker&&navigator.serviceWorker.ready) navigator.serviceWorker.ready.then(r=>r.showNotification(title,{body,tag:k,icon:'icons/icon-192.png'})).catch(()=>new Notification(title,{body})); else new Notification(title,{body}); }catch(e){}
+  });
+}
 function toggleAlarm(m){ const a=S.cfg.alarms||(S.cfg.alarms=[]); const ix=a.indexOf(m); if(ix>=0) a.splice(ix,1); else a.push(m); a.sort((x,y)=>y-x); save(); renderAlarmChips(); toast('📆 알림 설정을 저장했어요'); }
+function renderCats(){ const l=cats(); $('cat-list').innerHTML=l.map((c,k)=>`<div class="lrow"><span><b>${esc(c)}</b></span><span class="row" style="gap:4px"><button class="btn sm" onclick="renCat(${k})">이름변경</button><button class="btn rd sm" onclick="delCat(${k})">삭제</button></span></div>`).join(''); }
+function addCat(){ const v=$('cat-new').value.trim(); if(!v){ toast('상품 이름을 입력해 주세요'); return; } const l=cats().slice(); if(l.includes(v)){ toast('이미 있는 상품이에요'); return; } l.push(v); S.cfg.cats=l; $('cat-new').value=''; save(); renderCats(); toast('상품을 추가했어요'); }
+function delCat(k){ const l=cats().slice(); if(l.length<=1){ toast('상품은 최소 1개가 필요해요'); return; } const n=l[k]; ask(`'${n}' 상품을 목록에서 삭제할까요? (기존 예약은 그대로 남아요)`,()=>{ l.splice(k,1); S.cfg.cats=l; save(); renderCats(); }); }
+function renCat(k){ const l=cats().slice(), v=prompt('새 이름',l[k]); if(v==null) return; const n=v.trim(); if(!n||(n!==l[k]&&l.includes(n))) return; l[k]=n; S.cfg.cats=l; save(); renderCats(); toast('이름을 바꿨어요 (기존 예약의 상품명은 그대로예요)'); }
 function renderPresets(){ $('pr-list').innerHTML=S.presets.length?S.presets.map((p,k)=>`<div class="lrow"><span><b>${esc(p.label)}</b>${p.time?' · '+esc(p.time):''}</span><button class="btn rd sm" onclick="delPreset(${k})">삭제</button></div>`).join(''):'<p>등록된 일정이 없어요</p>'; }
 function addPreset(){ const l=$('pr-label').value.trim(); if(!l){ toast('일정 이름을 입력해 주세요'); return; } S.presets.push({label:l,time:$('pr-time').value||''}); $('pr-label').value=''; $('pr-time').value=''; save(); renderPresets(); toast('📌 자주 쓰는 일정에 추가했어요'); }
 function delPreset(k){ S.presets.splice(k,1); save(); renderPresets(); }
@@ -2268,7 +2364,7 @@ function renderSettingsExtra(){
   const C=S.cfg, T=S.templates;
   $('c-gap').value=C.gapHours;
   $('t-contract').value=T.contractNotice||''; $('t-pdf').value=T.pdfRemind||''; $('t-cancel').value=T.cancelNotice||''; $('t-resched').value=T.rescheduleNotice||''; $('t-promo').value=T.promoTpl||'';
-  $('t-check').value=S.checklist.join('\n'); renderAlarmChips(); renderPresets(); renderIvSettings(); renderCloud(); renderConTpl(); renderConMgr();
+  $('t-check').value=S.checklist.join('\n'); renderAlarmChips(); renderNoti(); renderCats(); renderPresets(); renderIvSettings(); renderCloud(); renderConTpl(); renderConMgr();
   const ys=new Set([new Date().getFullYear()]); S.inquiries.forEach(i=>{ if(i.date) ys.add(+i.date.slice(0,4)); });
   const keepY=$('x-year').value, keepM=$('x-month').value;
   $('x-year').innerHTML=[...ys].sort((a,b)=>b-a).map(y=>`<option value="${y}">${y}년</option>`).join('');
@@ -2746,7 +2842,7 @@ function ask(msg,cb){ $('cf-msg').textContent=msg; cfCb=cb; openM('m-confirm'); 
 $('cf-ok').onclick=()=>{ const f=cfCb; cfCb=null; closeM('m-confirm'); if(typeof f==='function') f(); };
 window.addEventListener('popstate',()=>{
   if(skipPop>0){ skipPop--; return; }
-  const top=['m-confirm','m-con','m-iv','m-evt','m-past','m-wait','m-check','m-promo','m-prev','m-inq','m-led','m-limp','m-lstore'].find(id=>!$(id).classList.contains('hide'));
+  const top=['m-confirm','m-con','m-iv','m-day','m-evt','m-past','m-wait','m-check','m-promo','m-prev','m-inq','m-led','m-limp','m-lstore'].find(id=>!$(id).classList.contains('hide'));
   if(top){ closeM(top,true); return; }
   if(activeTab!=='cal'){ tab('cal'); try{ history.pushState({b:1},''); }catch(e){} return; }
   const n=Date.now(); if(n-lastBack<2000) return;
@@ -2767,3 +2863,4 @@ if('serviceWorker' in navigator && location.protocol!=='file:'){
 <script src="ledger.js"></script>
 </body>
 </html>
+
