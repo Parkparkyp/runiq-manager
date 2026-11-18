@@ -160,7 +160,7 @@ function ledImportGo(){
   });
   n=add.length; S.ledger=[...S.ledger,...add]; S.rules={...S.rules};
   save(); closeM('m-limp'); LI={rows:[],groups:[],dup:0,voided:0,est:0,only:false};
-  if(add.length){ const ds=add.map(x=>x.d).sort(); LP.y=+ds[ds.length-1].slice(0,4); LP.m=+ds[ds.length-1].slice(5,7)-1; }
+  if(add.length){ const ds=add.map(x=>x.d).sort(); LP.y=+ds[ds.length-1].slice(0,4); LP.m=+ds[ds.length-1].slice(5,7)-1; LP.scope=(ds[0].slice(0,7)===ds[ds.length-1].slice(0,7))?'month':'all'; LF.cls='all'; LF.q=''; LF.lim=150; }
   refresh(); toast(`📥 ${n}건 가져왔어요${skip?` (제외 ${skip}건)`:''}`);
 }
 function ledOpenImp(){ $('li-step1').classList.remove('hide'); $('li-step2').classList.add('hide'); $('li-text').value=''; openM('m-limp'); }
@@ -168,6 +168,15 @@ function ledOpenImp(){ $('li-step1').classList.remove('hide'); $('li-step2').cla
 /* ---------- 요약 ---------- */
 function ledBook(){
   let rev=0,cost=0,n=0;
+  if(chBasis==='cash'){
+    S.inquiries.forEach(i=>{
+      if(!isConf(i)) return; const cp=cashParts(i); let add=0;
+      if(ledInPeriod(cp.dd)) add+=cp.dep; if(cp.bd&&ledInPeriod(cp.bd)) add+=cp.bal;
+      if(add){ rev+=add; n++; }
+      if(ledInPeriod(i.date||cp.dd)) cost+=costOf(i);
+    });
+    return {rev,cost,n};
+  }
   S.inquiries.forEach(i=>{
     if(!isConf(i)) return;
     const d=chBasis==='contract'?new Date(i.depositAt||i.createdAt):(i.date?new Date(i.date+'T00:00:00'):new Date(i.depositAt||i.createdAt));
@@ -200,7 +209,8 @@ function renderLed(){
   const R=ledSummary(), net=R.rev-R.biz-R.bk.cost;
   $('led-title').textContent=ledPeriodTitle();
   ['month','year','all'].forEach(s=>{ const b=$('ls-'+s); if(b) b.className='btn sm '+(LP.scope===s?'on':''); });
-  $('led-basis').innerHTML=[['contract','계약월'],['event','예식월']].map(([v,l])=>`<button class="btn sm ${chBasis===v?'on':''}" onclick="chBasis='${v}';saveUI();renderLed()">${l}</button>`).join('');
+  $('led-basis').innerHTML=[['contract','계약월'],['event','예식월'],['cash','입금일']].map(([v,l])=>`<button class="btn sm ${chBasis===v?'on':''}" onclick="chBasis='${v}';saveUI();renderLed()">${l}</button>`).join('');
+  const inP=S.ledger.filter(x=>ledInPeriod(x.d)).length; $('led-basis-note').textContent=chBasis==='cash'?'입금일 기준: 계약금은 받은 날, 잔금은 받은 날에 수입으로 잡아요 (실제 현금 흐름). 세금 신고 기준과 다를 수 있어요.':chBasis==='event'?'예식월 기준: 예식일이 속한 달에 전체 금액을 잡아요.':'계약월 기준: 계약금 입금 달에 전체 금액을 잡아요.'; $('led-cnt').textContent=`${ledPeriodTitle()} ${inP}건 · 전체 ${S.ledger.length}건 저장됨`+(LP.scope!=='all'&&inP<S.ledger.length?' (월·연·전체 버튼으로 기간을 바꿔 보세요)':'');
   $('led-sum').innerHTML=`
     <div class="box"><div><span>예약 매출 (${R.bk.n}건)</span><b>${won(R.bk.rev)}원</b></div>
     <div><span>가계부 수입 (스토어 등)</span><b>${won(R.inc)}원</b></div>

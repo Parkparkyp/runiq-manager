@@ -52,7 +52,7 @@ label{display:block;font-size:12px;font-weight:800;margin:10px 0 4px;color:#3341
 .box div{display:flex;justify-content:space-between;gap:8px;padding:2px 0}.box b{text-align:right}
 .note{font-size:12px;color:#475569;background:#f8fafc;padding:8px;border-radius:10px;white-space:pre-wrap}
 .scroll{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}.scroll::-webkit-scrollbar{display:none}.scroll>*{flex-shrink:0}
-nav{position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:auto;z-index:40;background:#fffffff2;backdrop-filter:blur(8px);border-top:1px solid var(--ln);display:grid;grid-template-columns:repeat(6,1fr);padding:6px 4px calc(6px + var(--bot))}
+nav{position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:auto;z-index:40;background:#fffffff2;backdrop-filter:blur(8px);border-top:1px solid var(--ln);display:grid;grid-template-columns:repeat(5,1fr);padding:6px 4px calc(6px + var(--bot))}
 nav button{background:0;color:#94a3b8;font-size:10px;letter-spacing:-.5px;font-weight:700;padding:7px 0;border-radius:12px;position:relative}
 nav button.on2{background:#f1f5f9;color:var(--ink);font-weight:800}
 nav b{position:absolute;top:1px;right:22%;background:var(--b);color:var(--ink);font-size:10px;border-radius:99px;min-width:16px;padding:0 4px}
@@ -67,6 +67,7 @@ nav b{position:absolute;top:1px;right:22%;background:var(--b);color:var(--ink);f
 
 .g5{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}.g5 .btn{padding:7px 0;font-size:10.5px}
 .box div>span:first-child{white-space:nowrap;flex-shrink:0}
+.box .cal,.box .wk{display:grid;padding:0;justify-content:stretch}
 .wrap{display:flex;flex-wrap:wrap;gap:6px}
 .t-d{background:#f5f3ff;color:#6d28d9;border-color:#c4b5fd}.on-d{background:#7c3aed;color:#fff}
 .mh{width:100%;display:flex;justify-content:space-between;align-items:center;gap:8px;background:#fff;border:1px solid var(--ln);border-radius:14px;padding:11px 12px;text-align:left;color:var(--ink)}
@@ -110,6 +111,8 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
   #v-inq>section{grid-column:1}
   #v-inq:not(.hide){grid-template-rows:auto auto 1fr}
   #inq-list{grid-column:2;grid-row:1/span 3}
+  #v-mng:not(.hide){display:grid;grid-template-columns:360px minmax(0,1fr);grid-template-rows:auto 1fr;align-items:start;column-gap:20px}
+  #mng-top{grid-column:1}#mng-list{grid-column:2;grid-row:1/span 2}
   #v-ck:not(.hide),#v-iv:not(.hide){max-width:1000px}
   #v-stat:not(.hide){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
   #v-stat>section:nth-child(-n+2){grid-column:1/-1}
@@ -180,6 +183,15 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
   <div id="inq-list" style="display:flex;flex-direction:column;gap:10px"></div>
 </main>
 
+<!-- TAB: 예약관리 -->
+<main id="v-mng" class="hide">
+  <section class="c" id="mng-top">
+    <div id="mng-sum" class="g3"></div>
+    <div id="mng-pipe" class="scroll" style="margin-top:8px"></div>
+    <input id="mq" class="inp" style="margin-top:8px" placeholder="🔍 성함, 연락처, 장소, 상품 검색" oninput="renderMng()">
+  </section>
+  <div id="mng-list" style="display:flex;flex-direction:column;gap:10px"></div>
+</main>
 <!-- TAB: 체크리스트 -->
 <main id="v-ck" class="hide">
   <section class="c"><h2>🎒 촬영 체크리스트</h2><p>예약을 고르고 준비 항목을 눌러 체크하세요. 항목은 설정에서 고칠 수 있어요.</p><div id="ck-pick" class="scroll" style="margin-top:8px"></div></section>
@@ -217,6 +229,8 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
     <div class="row"><div class="row" style="gap:6px"><button class="btn" onclick="ledMove(-1)">◀</button><b id="led-title" style="font-size:15px"></b><button class="btn" onclick="ledMove(1)">▶</button></div>
       <div class="row" style="gap:4px"><button id="ls-month" class="btn sm" onclick="ledScope('month')">월</button><button id="ls-year" class="btn sm" onclick="ledScope('year')">연</button><button id="ls-all" class="btn sm" onclick="ledScope('all')">전체</button></div></div>
     <div class="row" style="justify-content:flex-start;gap:4px;margin-top:8px"><span style="font-size:11px;font-weight:800;color:var(--mut)">예약 매출 기준</span><span id="led-basis" class="row" style="gap:4px"></span></div>
+    <p id="led-basis-note" style="margin-top:6px"></p>
+    <p id="led-cnt" style="margin-top:6px"></p>
   </section>
   <section class="c" id="led-act">
     <div class="g2"><button class="btn am" onclick="ledOpenImp()">📥 카드내역 가져오기</button><button class="btn dk" onclick="ledStoreOpen()">🛒 스토어 정산 입력</button></div>
@@ -253,9 +267,9 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
   <details class="c acc"><summary>📌 자주 쓰는 개인 일정</summary><p>캘린더에서 일정을 추가할 때 버튼으로 나와요. 시간을 비워두면 종일 일정이에요.</p>
     <div class="g3" style="margin-top:8px;grid-template-columns:1.4fr 1fr auto"><input id="pr-label" class="inp" placeholder="예: 🔍 사전답사"><input id="pr-time" type="time" class="inp"><button class="btn dk" onclick="addPreset()">추가</button></div>
     <div id="pr-list" style="margin-top:8px"></div></details>
-  <details class="c acc"><summary>🎒 촬영 당일 체크리스트</summary><p>한 줄에 하나씩 적어 주세요. 계약금완료 예약마다 체크할 수 있어요.</p>
+  <details class="c acc hide"><summary>🎒 촬영 당일 체크리스트</summary><p>한 줄에 하나씩 적어 주세요. 계약금완료 예약마다 체크할 수 있어요.</p>
     <textarea id="t-check" rows="7" class="inp" style="margin-top:8px"></textarea><button class="btn dk" style="width:100%;margin-top:8px" onclick="saveChecklist()">체크리스트 저장</button></details>
-  <details class="c acc"><summary>🎤 인터뷰 질문</summary><p>그룹별로 질문을 한 줄에 하나씩 적어 주세요. 예약마다 질문을 체크하고 답변 메모를 남길 수 있어요. 그룹 이름도 바꿀 수 있어요.</p>
+  <details class="c acc hide"><summary>🎤 인터뷰 질문</summary><p>그룹별로 질문을 한 줄에 하나씩 적어 주세요. 예약마다 질문을 체크하고 답변 메모를 남길 수 있어요. 그룹 이름도 바꿀 수 있어요.</p>
     <div id="iv-groups" style="margin-top:8px"></div>
     <div class="g2" style="margin-top:8px"><button class="btn" onclick="addIvGroup()">+ 그룹 추가</button><button class="btn dk" onclick="saveIvSettings()">인터뷰 질문 저장</button></div>
     <button class="btn" style="width:100%;margin-top:8px" onclick="ask('인터뷰 질문을 기본값으로 되돌릴까요? (직접 쓴 질문은 사라져요)',resetIv)">기본 질문으로 되돌리기</button></details>
@@ -327,8 +341,7 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
 <nav>
   <button data-n="cal" onclick="tab('cal')">📅<br>캘린더</button>
   <button data-n="inq" onclick="tab('inq')">💬<br>예약문의<b id="badge" class="hide"></b></button>
-  <button data-n="ck" onclick="tab('ck')">🎒<br>체크리스트</button>
-  <button data-n="iv" onclick="tab('iv')">🎤<br>인터뷰</button>
+  <button data-n="mng" onclick="tab('mng')">📂<br>예약관리</button>
   <button data-n="stat" onclick="tab('stat')">📊<br>현황</button>
   <button data-n="led" onclick="tab('led')">💰<br>가계부</button>
 </nav>
@@ -397,26 +410,35 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
     </div>
     <label>진행 상태</label><div id="f-status" class="g5"></div>
     <div class="g2"><div><label>고객명 *</label><input id="f-name" class="inp" required placeholder="김지현 & 박준호"></div><div><label>연락처</label><input id="f-phone" class="inp" type="tel" placeholder="010-0000-0000"></div></div>
-    <label>🏠 주소 (계약서)</label><input id="f-addr" class="inp" placeholder="예: 서울 ○○구 ○○로 12, 101동 1203호">
+    <input id="f-addr" type="hidden">
     <div class="g2"><div><label>예약상품</label><select id="f-cat" class="inp"></select></div><div><label>예식장소</label><input id="f-venue" class="inp" placeholder="예: 남원새생명교회"></div></div>
     <label>💳 결제방식</label><div class="g4" id="f-paychips" style="margin-bottom:6px"></div><input id="f-pay" class="inp" placeholder="직접 입력">
     <label>📸 포트폴리오 사용 동의</label><div id="f-port" class="g3"></div>
     <div class="box" style="margin-top:12px">
       <div style="align-items:center"><b>📅 날짜 선택</b><span class="row" style="gap:4px"><button type="button" class="btn sm" onclick="movePicker(-1)">◀</button><b id="pk-label"></b><button type="button" class="btn sm" onclick="movePicker(1)">▶</button></span></div>
+      <div class="row" style="gap:6px;margin:8px 0 6px"><input id="f-dtxt" class="inp" style="padding:8px" placeholder="직접 입력: 12/5 · 1205 · 2027-3-14 · 3월 첫째주 토요일" autocomplete="off" onkeydown="if(event.key==='Enter'){event.preventDefault();dtApply();}" onblur="dtApply(true)"><button type="button" class="btn sm dk" style="flex-shrink:0" onclick="dtApply()">적용</button></div>
+      <div id="pk-quick" class="scroll" style="margin-bottom:6px"></div>
+      <div id="pk-picked" style="margin-bottom:6px;font-weight:800;font-size:13px"></div>
       <div class="wk"><span class="sun">일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span class="sat">토</span></div>
       <div id="pk-grid" class="cal"></div><div id="pk-note" style="margin-top:8px;font-weight:700;font-size:11px"></div>
     </div>
     <label>⏰ 예식 시간</label><div class="g4" id="f-timechips" style="margin-bottom:6px"></div><input id="f-time" type="time" class="inp" value="12:00" oninput="markTime()">
     <div class="g2"><div><label>📣 문의 경로</label><select id="f-src" class="inp"></select></div><div><label>🤝 짝꿍코드 입력</label><input id="f-code" class="inp" placeholder="예: RS-K7M2" autocapitalize="characters" style="text-transform:uppercase" oninput="renderFormPrice()"></div></div>
     <div id="code-msg" style="font-size:11px;font-weight:700;margin-top:4px"></div>
+    <div data-fx="pay">
     <div class="g2"><div><label>기본 상품 금액(원)</label><input id="f-total" class="inp" inputmode="numeric" oninput="fmtMoney(this);renderFormPrice()"></div><div><label>계약금(원)</label><input id="f-dep" class="inp" inputmode="numeric" oninput="fmtMoney(this);renderFormPrice()"></div></div>
     <div id="f-calc" class="box" style="margin-top:8px"></div>
+    </div>
+    <div data-fx="due"><label>계약금 입금 기한</label><input id="f-due" type="date" class="inp"></div>
+    <div data-fx="late">
     <details style="margin-top:8px;border:1px solid var(--ln);border-radius:12px;padding:8px 10px"><summary style="margin:0">💸 지출 입력 (선택 · 순이익 계산용)</summary>
       <div class="g2" style="margin-top:8px"><div><label>인건비</label><input id="f-c1" class="inp" inputmode="numeric" oninput="fmtMoney(this);renderFormPrice()"></div><div><label>교통·식비</label><input id="f-c2" class="inp" inputmode="numeric" oninput="fmtMoney(this);renderFormPrice()"></div></div>
       <div class="g2"><div><label>편집 외주</label><input id="f-c3" class="inp" inputmode="numeric" oninput="fmtMoney(this);renderFormPrice()"></div><div><label>장비·기타</label><input id="f-c4" class="inp" inputmode="numeric" oninput="fmtMoney(this);renderFormPrice()"></div></div>
     </details>
-    <div class="g2"><div><label>계약금 입금 기한</label><input id="f-due" type="date" class="inp"></div><div><label>잔금 상태</label><select id="f-bal" class="inp"><option value="0">미수 (미입금)</option><option value="1">잔금 완료</option></select></div></div>
+    <div class="g2"><div><label>잔금 상태</label><select id="f-bal" class="inp"><option value="0">미수 (미입금)</option><option value="1">잔금 완료</option></select></div><div><label>잔금 입금일</label><input id="f-baldate" type="date" class="inp"></div></div>
+    <div class="g2"><div><label>계약금 입금일</label><input id="f-depdate" type="date" class="inp"></div><div></div></div>
     <div class="g3"><div><label>🧾 영수증</label><select id="f-rcpt" class="inp"><option value="0">미발행</option><option value="1">발행 완료</option></select></div><div><label>📦 납품</label><select id="f-deliv" class="inp"><option value="0">납품 전</option><option value="1">납품 완료</option></select></div><div><label>📝 계약서</label><select id="f-contract" class="inp"><option value="0">미수신</option><option value="1">수신 완료</option></select></div></div>
+    </div>
     <label>메모</label><textarea id="f-notes" rows="2" class="inp" placeholder="대기실 도착시간, 요청사항 등"></textarea>
     <div class="g3" style="margin-top:12px"><button type="button" class="btn" onclick="closeM('m-inq')">취소</button><button class="btn dk" style="grid-column:span 2;padding:12px">저장 및 캘린더 반영</button></div>
   </form>
@@ -1092,7 +1114,7 @@ function parseKakaoText(raw){
   if(ph.replace(/\D/g,'').length<9){ const m=t.match(PHONE_RE); ph=m?normPhone(m[0]):''; }
   if(ph) r.phone=ph;
   // 날짜 / 시간
-  let di=lab.date?parseDateSmart(lab.date,true):null; if(!di) di=parseDateSmart(unNP,false); if(di) r.date=di;
+  let di=lab.date?parseDateSmart(lab.date,true):null; if(!di&&lab.date) di=dtParse(lab.date); if(!di) di=parseDateSmart(unNP,false); if(di) r.date=di;
   let ti=lab.time?parseTimeSmart(lab.time,true):null; if(!ti) ti=parseTimeSmart(unNP,false); if(ti) r.time=ti;
   // 장소
   if(lab.venue) r.venue=cleanVenue(lab.venue);
@@ -1124,6 +1146,54 @@ function setCat(v){
 
 
 
+
+/* ---------- v27: 날짜 직접 입력 · 말로 쓴 날짜 해석 ---------- */
+function dtShape(y,m,d,inferred,wdGiven){
+  const dt=new Date(y,m-1,d); if(!(m>=1&&m<=12)||dt.getFullYear()!==y||dt.getMonth()!==m-1||dt.getDate()!==d) return null;
+  const now=new Date(), today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  return {iso:`${y}-${pad(m)}-${pad(d)}`,inferred:!!inferred,wdMismatch:false,past:dt<today,weekday:DOW[dt.getDay()],weekdayGiven:!!wdGiven};
+}
+function dtNextYear(m,d){ const now=new Date(), today=new Date(now.getFullYear(),now.getMonth(),now.getDate()); for(let k=0;k<3;k++){ const y=now.getFullYear()+k, dt=new Date(y,m-1,d); if(dt.getMonth()===m-1&&dt.getDate()===d&&dt>=today) return y; } return now.getFullYear(); }
+function dtNth(y,m,wd,n){
+  const last=new Date(y,m,0).getDate();
+  if(n>0){ const first=new Date(y,m-1,1), day=1+((wd-first.getDay()+7)%7)+(n-1)*7; return day>last?null:day; }
+  const ld=new Date(y,m-1,last); return last-((ld.getDay()-wd+7)%7);
+}
+function dtParse(raw){
+  const t=String(raw||'').replace(/\s+/g,' ').trim(); if(!t) return null; let mm;
+  const now=new Date(), today=new Date(now.getFullYear(),now.getMonth(),now.getDate()), WD='일월화수목금토';
+  if(/^\d{8}$/.test(t)) return dtShape(+t.slice(0,4),+t.slice(4,6),+t.slice(6,8),false,false);
+  if(/^\d{6}$/.test(t)) return dtShape(2000+(+t.slice(0,2)),+t.slice(2,4),+t.slice(4,6),false,false);
+  if(/^\d{4}$/.test(t)){ const m=+t.slice(0,2), d=+t.slice(2); const r=dtShape(dtNextYear(m,d),m,d,true,false); return r; }
+  if((mm=t.match(/(다다음|이번|다음|담)\s*주\s*([일월화수목금토])(?:요일)?/))){
+    const wd=WD.indexOf(mm[2]), off={'이번':0,'다음':7,'담':7,'다다음':14}[mm[1]];
+    const x=new Date(today); x.setDate(today.getDate()-((today.getDay()+6)%7)+off+((wd+6)%7));
+    return dtShape(x.getFullYear(),x.getMonth()+1,x.getDate(),false,true);
+  }
+  if((mm=t.match(/(?:다음\s*달|내달)\s*(\d{1,2})\s*일?/))){ const d0=new Date(now.getFullYear(),now.getMonth()+1,1); return dtShape(d0.getFullYear(),d0.getMonth()+1,+mm[1],false,false); }
+  if((mm=t.match(/(?:(\d{2,4})\s*년\s*)?(\d{1,2})\s*월\s*(첫|둘|셋|넷|다섯|마지막)\s*째?\s*주\s*([일월화수목금토])(?:요일)?/))){
+    const m=+mm[2], n={'첫':1,'둘':2,'셋':3,'넷':4,'다섯':5,'마지막':-1}[mm[3]], wd=WD.indexOf(mm[4]);
+    const tryY=y=>{ const d=dtNth(y,m,wd,n); return d?dtShape(y,m,d,!mm[1],true):null; };
+    if(mm[1]){ const y=+mm[1]<100?2000+(+mm[1]):+mm[1]; return tryY(y); }
+    for(let k=0;k<3;k++){ const r=tryY(now.getFullYear()+k); if(r&&!r.past) return r; }
+    return null;
+  }
+  return null;
+}
+function dtParseAny(txt){ return dtParse(txt)||parseDateSmart(txt,true); }
+function dtLabel(iso){ if(!iso) return ''; const [y,m,d]=iso.split('-').map(Number); return `${y}년 ${m}월 ${d}일 (${DOW[new Date(y,m-1,d).getDay()]})`; }
+function dtSet(iso){ pkDate=iso; $('f-date').value=iso; const [y,m]=iso.split('-').map(Number); pkY=y; pkM=m-1; if($('f-dtxt')) $('f-dtxt').value=''; renderPicker(); }
+function dtApply(silent){
+  const el=$('f-dtxt'), t=el.value.trim(); if(!t) return;
+  const r=dtParseAny(t);
+  if(r){ dtSet(r.iso); if(r.inferred&&!silent) toast(`연도가 없어 ${r.iso.slice(0,4)}년으로 정했어요. 맞는지 확인하세요`); }
+  else if(!silent) toast('날짜를 이해하지 못했어요. 예: 12/5 · 1205 · 2027-3-14 · 3월 첫째주 토요일');
+}
+function renderQuick(){
+  const el=$('pk-quick'); if(!el) return; const now=new Date(), today=new Date(now.getFullYear(),now.getMonth(),now.getDate()), out=[];
+  [6,0].forEach(wd=>{ let c=0; for(let k=0;k<70&&c<4;k++){ const d=new Date(today); d.setDate(today.getDate()+k); if(d.getDay()===wd){ const ds=iso(d); out.push(`<button type="button" class="btn sm ${ds===pkDate?'on':''}" onclick="dtSet('${ds}')">${DOW[wd]} ${d.getMonth()+1}/${d.getDate()}</button>`); c++; } } });
+  el.innerHTML=out.join('');
+}
 function parseKakao(raw){
   const badge=$('pbadge');
   if(!raw||!raw.trim()){ badge.classList.add('hide'); return; }
@@ -1278,12 +1348,14 @@ function adopt(p){
 function load(){
   try{
     const raw=localStorage.getItem(KEY);
-    if(raw) adopt(JSON.parse(raw)); else S.inquiries=samples();
-  }catch(e){ console.error(e); S.inquiries=samples(); }
+    if(raw) adopt(JSON.parse(raw)); else S.inquiries=[];
+  }catch(e){ console.error(e); S.inquiries=[]; }
   if(!S.meta.firstUse) S.meta.firstUse=Date.now();
-  normalizeAll(); migrateTemplates(); syncBaseline(); save();
+  normalizeAll(); migrateTemplates(); migBal(); syncBaseline(); save();
 }
-function save(){ try{ syncStamp(); }catch(e){ console.error(e); } try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){ toast('⚠️ 저장 공간 오류: 백업을 받아두세요'); } updateBadge(); if(typeof clQueue==='function'&&!clSkip) clQueue(); }
+function stampBal(){ const now=Date.now(); S.inquiries.forEach(i=>{ if(i.balancePaid){ if(!i.balanceAt) i.balanceAt=now; } else if(i.balanceAt) i.balanceAt=null; }); }
+function migBal(){ S.inquiries.forEach(i=>{ if(i.balancePaid&&!i.balanceAt){ i.balanceAt=i.date?new Date(i.date+'T12:00:00').getTime():(i.shotAt||i.depositAt||i.createdAt||Date.now()); } }); }
+function save(){ try{ stampBal(); }catch(e){ console.error(e); } try{ syncStamp(); }catch(e){ console.error(e); } try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){ toast('⚠️ 저장 공간 오류: 백업을 받아두세요'); } updateBadge(); if(typeof clQueue==='function'&&!clSkip) clQueue(); }
 function updateBadge(){
   const n=S.inquiries.filter(i=>i.status==='문의접수'||i.status==='입금전').length, b=$('badge');
   b.textContent=n; b.classList.toggle('hide',!n);
@@ -1294,12 +1366,13 @@ function refresh(){
   if(activeTab==='ck') renderCkTab();
   if(activeTab==='iv') renderIvTab();
   if(activeTab==='stat') renderStat();
+  if(activeTab==='mng') renderMng();
   if(activeTab==='led'&&typeof renderLed==='function') renderLed();
   if(activeTab==='set') renderSettings();
 }
 function tab(n){
   activeTab=n; saveUI();
-  ['cal','inq','ck','iv','stat','led','set'].forEach(k=>$('v-'+k).classList.toggle('hide',k!==n));
+  ['cal','inq','mng','ck','iv','stat','led','set'].forEach(k=>$('v-'+k).classList.toggle('hide',k!==n));
   document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on2',b.dataset.n===n)); $('gear').classList.toggle('on',n==='set');
   refresh(); window.scrollTo({top:0}); if(typeof clContractAuto==='function') clContractAuto();
 }
@@ -1339,7 +1412,6 @@ function renderTodo(){
     if(i.contractSignedAt&&(i.status==='입금전'||i.status==='문의접수')) add(2,'al-y',`💳 ${i.clientName}님 서명 완료 — 계약금 입금 확인이 필요해요`,`<button class="btn sm" onclick="openInq('${i.id}')">열기</button>`);
     const ch=conChanges(i); if(ch.length) add(1,'al-r',`⚠️ ${i.clientName}님 서명 후 ${ch.join('·')}이(가) 바뀌었어요 — 고객 재확인 필요`,`<button class="btn sm" onclick="openInq('${i.id}')">열기</button><button class="btn sm" onclick="ackSign('${i.id}')">확인함</button>`);
     if(i.status==='계약금완료'&&!i.contract&&i.date&&daysFromToday(i.date)>=0) add(2,'al-y',`📝 ${i.clientName}님 계약서 아직 못 받았어요`,`<button class="btn sm" onclick="toggleContract('${i.id}')">받음</button>`);
-    if(i.status==='계약금완료'&&i.date&&daysFromToday(i.date)===1) add(1,'al-r',`🎒 내일 촬영 ${i.clientName}님 · 체크리스트 ${ckDone(i)}/${S.checklist.length}`,`<button class="btn sm" onclick="openCheck('${i.id}')">체크</button>`);
   });
   S.events.forEach(e=>{ const d=daysFromToday(e.date); if(d===0||d===1) add(3,'al-b',`📌 ${d===0?'오늘':'내일'} ${e.time||'종일'} ${e.title}`,`<button class="btn sm" onclick="openEvt('${e.id}')">열기</button>`); });
   const wd={}; S.wait.forEach(w=>{ if(w.date>=t) (wd[w.date]=wd[w.date]||[]).push(w); });
@@ -1453,7 +1525,7 @@ function cardHTML(i){
   ${i.notes?`<div class="note">📝 ${esc(i.notes)}</div>`:''}
   ${mb.length?`<div class="wrap">${mb.map(([t,l,c])=>`<button class="btn ${c}" onclick="copyMsg('${i.id}','${t}')">${l} 복사</button>`).join('')}</div>`:''}
   ${conf?`<div class="wrap">${tp>dep?`<button class="btn sm ${i.balancePaid?'':'am'}" onclick="toggleBal('${i.id}')">${i.balancePaid?'↩︎ 잔금 미수로':'💰 잔금 완료 처리'}</button>`:''}<button class="btn sm ${i.delivered?'gn':''}" onclick="toggleDeliv('${i.id}')">${i.delivered?'📦 납품 완료 ✓':'📦 납품 완료 처리'}</button><button class="btn sm ${i.receipt?'gn':''}" onclick="toggleRcpt('${i.id}')">${i.receipt?'🧾 영수증 발행 ✓':'🧾 영수증 발행 처리'}</button><button class="btn sm ${i.contract?'gn':''}" onclick="toggleContract('${i.id}')">${i.contract?'📝 계약서 수신 ✓':'📝 계약서 받음 처리'}</button></div>`:''}
-  ${pre?`<div class="wrap"><button class="btn sm yl" onclick="openCheck('${i.id}')">🎒 체크리스트 ${ckDone(i)}/${S.checklist.length}</button><button class="btn sm bl" onclick="copySite('${i.id}')">📍 현장정보 복사</button><button class="btn sm gn" onclick="openIv('${i.id}')">🎤 인터뷰 ${ivDone(i)}/${ivTotal()}</button></div>`:''}
+  ${pre?`<div class="wrap"><button class="btn sm bl" onclick="copySite('${i.id}')">📍 현장정보 복사</button></div>`:''}
   ${(()=>{ const cb=conBtn(i); return cb?`<div class="wrap">${cb}</div>`:''; })()}
   <div class="wrap" style="border-top:1px solid #f1f5f9;padding-top:8px">
     <button class="btn sm" onclick="openPreview('${i.id}','${pv}')">👁️ 미리보기</button>
@@ -1467,16 +1539,18 @@ function toggleMonth(k,def){ const id=inqMode+':'+k; monthOpen[id]=!(id in month
 function renderInq(){
   saveUI();
   const q=($('q').value||'').trim().toLowerCase(), filtersOn=!!q||inqFilter!=='전체'||portFilter!=='전체';
-  const allBy={}; S.inquiries.forEach(i=>{ const k=monthKey(i); (allBy[k]=allBy[k]||[]).push(i); });
+  if(!['전체','문의접수','입금전','취소'].includes(inqFilter)) inqFilter='전체';
+  const base=S.inquiries.filter(i=>INQ_ST.includes(i.status)||(inqFilter==='취소'&&i.status==='취소'));
+  const allBy={}; base.forEach(i=>{ const k=monthKey(i); (allBy[k]=allBy[k]||[]).push(i); });
   const years=[...new Set(Object.keys(allBy).map(k=>k.slice(0,4)).filter(y=>/^\d{4}$/.test(y)))].sort().reverse();
   if(yearFilter!=='전체'&&!years.includes(yearFilter)) yearFilter='전체';
   $('mode-chips').innerHTML=[['created','📥 접수월'],['event','💍 예식월']].map(([v,l])=>`<button class="btn sm ${inqMode===v?'on':''}" onclick="inqMode='${v}';renderInq()">${l}</button>`).join('');
   $('year-chips').innerHTML=['전체',...years].map(y=>`<button class="btn sm ${yearFilter===y?'on':''}" onclick="yearFilter='${y}';renderInq()">${y==='전체'?'전체 연도':y+'년'}</button>`).join('');
-  $('pipe').innerHTML=['전체',...STATUSES].map(s=>{
-    const n=s==='전체'?S.inquiries.length:S.inquiries.filter(i=>i.status===s).length;
+  $('pipe').innerHTML=['전체','문의접수','입금전','취소'].map(s=>{
+    const n=s==='전체'?S.inquiries.filter(i=>INQ_ST.includes(i.status)).length:S.inquiries.filter(i=>i.status===s).length;
     return `<button class="btn sm ${inqFilter===s?'on':''}" onclick="inqFilter='${s}';renderInq()">${s} ${n}</button>`;
   }).join('');
-  const pf=k=>k==='전체'?S.inquiries.length:S.inquiries.filter(i=>k==='미확인'?!i.portfolio:i.portfolio===k).length;
+  const pf=k=>k==='전체'?base.length:base.filter(i=>k==='미확인'?!i.portfolio:i.portfolio===k).length;
   $('port-filter').innerHTML='<span style="font-size:11px;font-weight:800;color:var(--mut);align-self:center">📸</span>'+['전체','동의','미동의','미확인'].map(k=>`<button class="btn sm ${portFilter===k?'on':''}" onclick="portFilter='${k}';renderInq()">${k} ${pf(k)}</button>`).join('');
   const hay=i=>[i.clientName,i.phone,i.venue,i.category,i.paymentMethod,i.date,i.notes,i.address,i.source,i.pairCode,i.codeUsed,i.portfolio?'포트폴리오'+i.portfolio:''].join(' ').toLowerCase();
   const match=i=>(inqFilter==='전체'||i.status===inqFilter)&&(portFilter==='전체'||(portFilter==='미확인'?!i.portfolio:i.portfolio===portFilter))&&(!q||hay(i).includes(q));
@@ -1489,16 +1563,46 @@ function renderInq(){
     if(filtersOn&&!shown.length) return;
     shownGroups++;
     shown.sort(inqMode==='created'?(a,b)=>(b.createdAt||0)-(a.createdAt||0):(a,b)=>(a.date||'').localeCompare(b.date||'')||(a.time||'').localeCompare(b.time||''));
-    const conf=all.filter(isConf), shot=all.filter(i=>i.status==='촬영완료'), cancel=all.filter(i=>i.status==='취소');
-    const rev=conf.reduce((s,i)=>s+price(i),0);
+    const wait=all.filter(i=>i.status==='입금전'), cancel=all.filter(i=>i.status==='취소');
+    const rev=all.filter(i=>i.status!=='취소').reduce((s,i)=>s+price(i),0);
     const def=filtersOn?true:(inqMode==='created'?idx<2:(k>=curYM||k==='미정'));
     const id=inqMode+':'+k, isOpen=filtersOn?true:(id in monthOpen?monthOpen[id]:def);
     const title=k==='미정'?'날짜 미정':`${k.slice(0,4)}년 ${+k.slice(5)}월`;
-    html+=`<div style="display:flex;flex-direction:column;gap:10px"><button class="mh" onclick="toggleMonth('${k}',${def})"><div><b>${title}</b><span>${inqMode==='created'?'접수':'예식'} ${all.length} · 계약 ${conf.length} · 촬영완료 ${shot.length}${cancel.length?` · 취소 ${cancel.length}`:''}${filtersOn?` · 표시 ${shown.length}`:''}</span></div><em>${won(rev)}원 ${isOpen?'▾':'▸'}</em></button>${isOpen?shown.map(cardHTML).join(''):''}</div>`;
+    html+=`<div style="display:flex;flex-direction:column;gap:10px"><button class="mh" onclick="toggleMonth('${k}',${def})"><div><b>${title}</b><span>${inqMode==='created'?'접수':'예식'} ${all.length} · 입금 대기 ${wait.length}${cancel.length?` · 취소 ${cancel.length}`:''}${filtersOn?` · 표시 ${shown.length}`:''}</span></div><em>${won(rev)}원 ${isOpen?'▾':'▸'}</em></button>${isOpen?shown.map(cardHTML).join(''):''}</div>`;
   });
-  $('inq-list').innerHTML=shownGroups?html:`<div class="c" style="text-align:center;padding:30px"><b>표시할 예약문의가 없습니다</b><p style="margin:6px 0 12px">[+ 문의 추가]로 등록해 보세요</p><button class="btn dk" onclick="openInq()">+ 첫 문의 등록</button></div>`;
+  $('inq-list').innerHTML=shownGroups?html:`<div class="c" style="text-align:center;padding:30px"><b>표시할 예약문의가 없습니다</b><p style="margin:6px 0 12px">계약금이 입금된 예약은 [예약관리] 탭에 있어요 · [+ 문의 추가]로 등록해 보세요</p><button class="btn dk" onclick="openInq()">+ 첫 문의 등록</button></div>`;
 }
 
+
+/* ---------- v28: 예약관리 탭 ---------- */
+const INQ_ST=['문의접수','입금전'], MNG_ST=['계약금완료','촬영완료'];
+let mngFilter='전체', mngDoneOpen=false;
+function mngNeed(i){ return (!i.balancePaid&&balOf(i)>0)||!i.delivered||!i.receipt; }
+function renderMng(){
+  const q=($('mq').value||'').trim().toLowerCase(), today=todayISO(), ym=today.slice(0,7);
+  const all=S.inquiries.filter(i=>MNG_ST.includes(i.status));
+  const unpaid=all.filter(i=>!i.balancePaid&&balOf(i)>0), nodel=all.filter(i=>!i.delivered), norc=all.filter(i=>!i.receipt);
+  const F={'전체':()=>true,'잔금 미수':i=>!i.balancePaid&&balOf(i)>0,'납품 전':i=>!i.delivered,'영수증 미발행':i=>!i.receipt,'이번 달 촬영':i=>(i.date||'').startsWith(ym),'촬영완료':i=>i.status==='촬영완료'};
+  if(!F[mngFilter]) mngFilter='전체';
+  const cnt={'전체':all.length,'잔금 미수':unpaid.length,'납품 전':nodel.length,'영수증 미발행':norc.length,'이번 달 촬영':all.filter(F['이번 달 촬영']).length,'촬영완료':all.filter(F['촬영완료']).length};
+  const box=(l,v,sub,warn)=>`<div class="box" style="text-align:center;${warn?'border-color:#fcd34d;background:#fffbeb':''}"><div style="display:block"><span style="color:var(--mut)">${l}</span></div><b style="display:block;text-align:center;font-size:14px">${v}</b><div style="display:block;color:var(--mut);font-size:10px">${sub}</div></div>`;
+  $('mng-sum').innerHTML=box('잔금 미수',won(unpaid.reduce((a,i)=>a+balOf(i),0))+'원',unpaid.length+'건',unpaid.length>0)+box('납품 전',nodel.length+'건','촬영 후 납품 필요',nodel.length>0)+box('영수증 미발행',norc.length+'건','발행 필요',norc.length>0);
+  $('mng-pipe').innerHTML=Object.keys(F).map(k=>`<button class="btn sm ${mngFilter===k?'on':''}" onclick="mngFilter='${k}';renderMng()">${k} ${cnt[k]}</button>`).join('');
+  const hay=i=>[i.clientName,i.phone,i.venue,i.category,i.date,i.notes,i.source,i.pairCode].join(' ').toLowerCase();
+  const list=all.filter(i=>F[mngFilter](i)&&(!q||hay(i).includes(q)));
+  const up=list.filter(i=>!i.date||i.date>=today).sort((a,b)=>(a.date||'9').localeCompare(b.date||'9')||(a.time||'').localeCompare(b.time||''));
+  const past=list.filter(i=>i.date&&i.date<today).sort((a,b)=>b.date.localeCompare(a.date));
+  const need=past.filter(mngNeed), done=past.filter(i=>!mngNeed(i));
+  const hd=(t,n,sub)=>`<div class="mh" style="cursor:default"><div><b>${t}</b><span>${sub||''}</span></div><em>${n}건</em></div>`;
+  let h='';
+  if(up.length) h+=`<div style="display:flex;flex-direction:column;gap:10px">${hd('📅 다가오는 촬영',up.length,'촬영일이 가까운 순')}${up.map(cardHTML).join('')}</div>`;
+  if(need.length) h+=`<div style="display:flex;flex-direction:column;gap:10px">${hd('⚠️ 정리 필요한 지난 촬영',need.length,'잔금 · 납품 · 영수증 중 남은 것이 있어요')}${need.map(cardHTML).join('')}</div>`;
+  if(done.length) h+=`<div style="display:flex;flex-direction:column;gap:10px"><button class="mh" onclick="mngDoneOpen=!mngDoneOpen;renderMng()"><div><b>✅ 완료된 지난 촬영</b><span>잔금 · 납품 · 영수증 모두 끝</span></div><em>${done.length}건 ${mngDoneOpen||q||mngFilter!=='전체'?'▾':'▸'}</em></button>${(mngDoneOpen||q||mngFilter!=='전체')?done.map(cardHTML).join(''):''}</div>`;
+  $('mng-list').innerHTML=h||`<div class="c" style="text-align:center;padding:30px"><b>${all.length?'조건에 맞는 예약이 없어요':'아직 확정된 예약이 없어요'}</b><p style="margin-top:6px">예약문의에서 계약금 입금을 확인하면 여기로 옮겨져요</p></div>`;
+}
+
+function tsISO(ts){ return iso(new Date(ts)); }
+function cashParts(i){ const t=price(i), dep=Math.min(Number(i.depositAmount)||0,t); return {dep,bal:t-dep,dd:tsISO(i.depositAt||i.createdAt),bd:(i.balancePaid&&i.balanceAt)?tsISO(i.balanceAt):null}; }
 /* ---------- status / toggles ---------- */
 function stampStatus(i){
   const now=Date.now();
@@ -1517,11 +1621,12 @@ function requestStatus(id,s){
 }
 function setStatus(id,s){
   const i=S.inquiries.find(x=>x.id===id); if(!i) return;
-  i.status=s; const newCode=stampStatus(i); save(); refresh();
+  const from=i.status; i.status=s; const newCode=stampStatus(i); save(); refresh();
   toast(newCode?`'${s}' 변경 · 🤝 짝꿍코드 ${i.pairCode} 발급`:`'${s}' 상태로 변경되었습니다`);
+  if(activeTab==='inq'&&MNG_ST.includes(s)&&!MNG_ST.includes(from)) setTimeout(()=>toast('📂 예약관리 탭으로 옮겨졌어요'),2900);
   if(s==='취소'&&S.wait.some(w=>w.date===i.date)) setTimeout(()=>toast('⏳ 이 날짜에 대기자가 있어요 (오늘 할 일에서 확인)'),2900);
 }
-function toggleBal(id){ const i=S.inquiries.find(x=>x.id===id); if(!i) return; i.balancePaid=!i.balancePaid; save(); refresh(); toast(i.balancePaid?'💰 잔금 완료 처리':'잔금 미수로 되돌림'); }
+function toggleBal(id){ const i=S.inquiries.find(x=>x.id===id); if(!i) return; i.balancePaid=!i.balancePaid; i.balanceAt=i.balancePaid?Date.now():null; save(); refresh(); toast(i.balancePaid?'💰 잔금 완료 처리':'잔금 미수로 되돌림'); }
 function toggleRcpt(id){ const i=S.inquiries.find(x=>x.id===id); if(!i) return; i.receipt=!i.receipt; save(); refresh(); toast(i.receipt?'🧾 영수증 발행 완료 처리':'영수증 미발행으로 되돌림'); }
 function toggleDeliv(id){
   const i=S.inquiries.find(x=>x.id===id); if(!i) return;
@@ -1610,9 +1715,11 @@ function setPort(v){
   renderFormPrice();
 }
 function markTime(){ const v=$('f-time').value; document.querySelectorAll('#f-timechips .btn').forEach(b=>b.classList.toggle('on',b.dataset.v===v)); renderPicker(); }
+function applyFormFx(){ const s=formStatus, show={pay:s!=='문의접수',due:s==='입금전',late:(s==='계약금완료'||s==='촬영완료'||s==='취소')}; document.querySelectorAll('[data-fx]').forEach(el=>el.classList.toggle('hide',!show[el.dataset.fx])); }
 function setFormStatus(s){
   formStatus=s;
   $('f-status').innerHTML=STATUSES.map(x=>`<button type="button" class="btn sm ${x===s?'on-'+SK[x]:''}" onclick="setFormStatus('${x}')">${x}</button>`).join('');
+  applyFormFx();
 }
 function formCalc(){
   const ed=formEdit, baseP=num($('f-total').value), code=normCode($('f-code').value), chk=checkCodeFor(code,ed?ed.id:null);
@@ -1658,29 +1765,32 @@ function openInq(editId,prefillDate,focusParser){
     $('f-rcpt').value=i.receipt?'1':'0'; $('f-deliv').value=i.delivered?'1':'0'; $('f-contract').value=i.contract?'1':'0'; $('f-src').value=i.source||''; $('f-code').value=i.codeUsed||'';
     ['labor','travel','edit','etc'].forEach((k,n)=>{ $('f-c'+(n+1)).value=c[k]?won(c[k]):''; });
     $('f-time').value=i.time||'12:00'; setFormStatus(i.status||'문의접수'); pkDate=i.date||selDate; formPort=i.portfolio||'';
+    $('f-depdate').value=i.depositAt?iso(new Date(i.depositAt)):''; $('f-baldate').value=i.balanceAt?iso(new Date(i.balanceAt)):'';
   } else {
     $('inq-title').textContent='새 예약문의 등록'; $('f-id').value='';
     setFormStatus('문의접수'); setCat('DVD'); setPay('카드'); formPort='';
     $('f-total').value=C.defaultTotal?won(C.defaultTotal):''; $('f-dep').value=C.defaultDeposit?won(C.defaultDeposit):'';
-    $('f-time').value='12:00'; pkDate=prefillDate||selDate||todayISO();
+    $('f-time').value='12:00'; pkDate=prefillDate||'';
     const d=new Date(); d.setDate(d.getDate()+(Number(C.dueDays)||3)); $('f-due').value=iso(d);
   }
-  const [y,m]=pkDate.split('-').map(Number); pkY=y; pkM=m-1; $('f-date').value=pkDate;
+  const [y,m]=(pkDate||todayISO()).split('-').map(Number); pkY=y; pkM=m-1; $('f-date').value=pkDate||'';
   setPort(formPort); markTime(); openM('m-inq');
   if(focusParser) setTimeout(()=>$('parser').focus(),150);
 }
 function movePicker(d){ pkM+=d; if(pkM<0){pkM=11;pkY--} if(pkM>11){pkM=0;pkY++} renderPicker(); }
 function renderPicker(){
-  $('pk-label').textContent=`${pkY}년 ${pkM+1}월`;
+  $('pk-label').textContent=`${pkY}년 ${pkM+1}월`; renderQuick();
+  const pp=$('pk-picked'); if(pp){ pp.style.color=pkDate?'var(--ink)':'#be123c'; pp.textContent=pkDate?`📌 선택한 날짜: ${dtLabel(pkDate)}`:'⚠️ 날짜를 선택해 주세요 (아래 달력을 누르거나 직접 입력)'; }
   const eid=$('f-id').value, first=new Date(pkY,pkM,1).getDay(), last=new Date(pkY,pkM+1,0).getDate(); let h='';
   for(let i=0;i<first;i++) h+='<div></div>';
   for(let d=1;d<=last;d++){
     const ds=`${pkY}-${pad(pkM+1)}-${pad(d)}`, ex=S.inquiries.filter(i=>i.date===ds&&i.status!=='취소'&&i.id!==eid), sel=ds===pkDate, bl=isBlocked(ds);
     const dots=bl?'<i class="dot" style="background:#94a3b8"></i>':ex.some(isConf)?'<i class="dot" style="background:var(--a)"></i>':ex.some(i=>i.status==='입금전')?'<i class="dot" style="background:var(--b)"></i>':ex.length?'<i class="dot" style="background:var(--q)"></i>':'';
-    h+=`<button type="button" class="pk ${sel?'on':''}" onclick="pkDate='${ds}';$('f-date').value='${ds}';renderPicker()">${d}<br>${dots||'&nbsp;'}</button>`;
+    h+=`<button type="button" class="pk ${sel?'on':''}" onclick="dtSet('${ds}')">${d}<br>${dots||'&nbsp;'}</button>`;
   }
   $('pk-grid').innerHTML=h;
-  const ex=S.inquiries.filter(i=>i.date===pkDate&&i.status!=='취소'&&i.id!==eid), n=$('pk-note'), bl=isBlocked(pkDate);
+  const n=$('pk-note'); if(!pkDate){ n.style.color='#be123c'; n.textContent='날짜가 아직 선택되지 않았어요'; return; }
+  const ex=S.inquiries.filter(i=>i.date===pkDate&&i.status!=='취소'&&i.id!==eid), bl=isBlocked(pkDate);
   const gh=Number(S.cfg.gapHours)||0, tm=timeMin($('f-time').value); let gapWarn='';
   if(gh&&tm!=null) ex.forEach(e=>{ const em=timeMin(e.time); if(em!=null){ const df=Math.abs(em-tm)/60; if(df<gh) gapWarn+=`<br>⏱️ ${esc(e.clientName)}님(${esc(e.time)})과 간격 ${Math.round(df*10)/10}시간 · 설정(${gh}시간)보다 짧아요`; } });
   const wn=S.wait.filter(w=>w.date===pkDate).length;
@@ -1695,12 +1805,16 @@ function saveInq(e){
   const c=formCalc();
   if(c.code&&!c.chk.ok){ toast('짝꿍코드: '+c.chk.msg.replace('❌ ','')); $('f-code').focus(); return; }
   const date=$('f-date').value||pkDate, old=id?S.inquiries.find(x=>x.id===id):null;
+  if(!date){ toast('예식 날짜를 선택해 주세요'); const pk=$('pk-picked'); if(pk) pk.scrollIntoView({block:'center',behavior:'smooth'}); return; }
   const p=Object.assign({},old||{},{id:id||('inq-'+Date.now()),status:formStatus,clientName:name,phone:$('f-phone').value.trim(),address:$('f-addr').value.trim(),category:$('f-cat').value,date,time:$('f-time').value||'12:00',
     venue:$('f-venue').value.trim(),paymentMethod:$('f-pay').value.trim()||'미정',basePrice:c.baseP,portDisc:c.port,codeUsed:c.code,codeInDisc:c.inD,codeOutDisc:c.outD,
     depositAmount:c.dep,dueDate:$('f-due').value||'',balancePaid:$('f-bal').value==='1',receipt:$('f-rcpt').value==='1',delivered:$('f-deliv').value==='1',contract:$('f-contract').value==='1',
     cost:{labor:num($('f-c1').value),travel:num($('f-c2').value),edit:num($('f-c3').value),etc:num($('f-c4').value)},
     source:$('f-src').value||(c.code?'짝꿍코드':''),notes:$('f-notes').value.trim(),portfolio:formPort});
   delete p.totalPrice;
+  const ddv=$('f-depdate').value, bdv=$('f-baldate').value;
+  if(ddv&&(p.status==='계약금완료'||p.status==='촬영완료')) p.depositAt=new Date(ddv+'T12:00:00').getTime();
+  if(p.balancePaid){ if(bdv) p.balanceAt=new Date(bdv+'T12:00:00').getTime(); } else p.balanceAt=null;
   if(!old) p.createdAt=Date.now();
   if(!Array.isArray(p.checks)) p.checks=[];
   p.deliveredAt=p.delivered?(p.deliveredAt||todayISO()):'';
@@ -1800,12 +1914,19 @@ function renderStat(){
     const c=new Date(i.createdAt); if(c.getFullYear()===statY) inq[c.getMonth()]++;
     if(isConf(i)){
       const d=new Date(i.depositAt||i.createdAt); if(d.getFullYear()===statY) con[d.getMonth()]++;
-      const rd=chBasis==='contract'?d:(i.date?new Date(i.date+'T00:00:00'):d); if(rd.getFullYear()===statY){ rev[rd.getMonth()]+=price(i); pro[rd.getMonth()]+=profit(i); }
+      if(chBasis==='cash'){
+        const cp=cashParts(i), dm=new Date(cp.dd+'T00:00:00');
+        if(dm.getFullYear()===statY){ rev[dm.getMonth()]+=cp.dep; pro[dm.getMonth()]+=cp.dep; }
+        if(cp.bd){ const bm=new Date(cp.bd+'T00:00:00'); if(bm.getFullYear()===statY){ rev[bm.getMonth()]+=cp.bal; pro[bm.getMonth()]+=cp.bal; } }
+        if(i.date){ const em=new Date(i.date+'T00:00:00'); if(em.getFullYear()===statY) pro[em.getMonth()]-=costOf(i); }
+      } else {
+        const rd=chBasis==='contract'?d:(i.date?new Date(i.date+'T00:00:00'):d); if(rd.getFullYear()===statY){ rev[rd.getMonth()]+=price(i); pro[rd.getMonth()]+=profit(i); }
+      }
     }
   });
   const L=['1','2','3','4','5','6','7','8','9','10','11','12'].map(x=>x+'월'), sI=inq.reduce((a,b)=>a+b,0), sC=con.reduce((a,b)=>a+b,0), sR=rev.reduce((a,b)=>a+b,0);
   $('ch-sub').textContent=`${statY}년 · 문의 ${sI}건 · 계약 ${sC}건 · 전환율 ${sI?Math.round(sC/sI*100):0}% · 매출 ${won(sR)}원`;
-  $('ch-basis').innerHTML=[['contract','계약월'],['event','예식월']].map(([v,l])=>`<button class="btn sm ${chBasis===v?'on':''}" onclick="chBasis='${v}';renderStat()">${l}</button>`).join('');
+  $('ch-basis').innerHTML=[['contract','계약월'],['event','예식월'],['cash','입금일']].map(([v,l])=>`<button class="btn sm ${chBasis===v?'on':''}" onclick="chBasis='${v}';renderStat()">${l}</button>`).join('');
   const tbl=(cols,rows)=>`<details><summary>표로 보기</summary><table class="tb"><tr><th>월</th>${cols.map(c=>`<th>${c}</th>`).join('')}</tr>${rows.map((r,m)=>`<tr><td>${m+1}월</td>${r.map(v=>`<td>${v}</td>`).join('')}</tr>`).join('')}</table></details>`;
   $('ch-a').innerHTML=`<div class="lg"><span><i style="background:#2563eb"></i>문의량 (접수월)</span><span><i style="background:#059669"></i>계약량 (계약금 입금월)</span></div>`
     +groupedBars(L,[{name:'문의량',color:'#2563eb',vals:inq},{name:'계약량',color:'#059669',vals:con}],v=>String(v),'월별 문의량과 계약량')
@@ -1957,7 +2078,7 @@ function saveUI(){ try{ localStorage.setItem(UIKEY,JSON.stringify({tab:activeTab
 function loadUI(){
   try{
     const u=JSON.parse(localStorage.getItem(UIKEY)||'null'); if(!u) return;
-    uiTab=['cal','inq','ck','iv','stat','set'].includes(u.tab)?u.tab:'cal';
+    uiTab=['cal','inq','mng','stat','led','set'].includes(u.tab)?u.tab:'cal';
     inqMode=u.inqMode||inqMode; yearFilter=u.yearFilter||yearFilter; inqFilter=u.inqFilter||inqFilter; portFilter=u.portFilter||portFilter;
     monthOpen=u.monthOpen||{}; statScope=u.statScope||statScope; chBasis=u.chBasis||chBasis; calFilter=u.calFilter||calFilter;
   }catch(e){}
@@ -2090,7 +2211,7 @@ function pqCommit(){
   ok.forEach((r,k)=>{
     const [y,m,d]=r.iso.split('-').map(Number), ts=new Date(y,m-1,d,12).getTime();
     S.inquiries.push({id:'past-'+Date.now()+'-'+k,status:'촬영완료',clientName:r.name,phone:r.phone,address:'',category:r.category,date:r.iso,time:'',venue:r.venue,paymentMethod:'미정',
-      basePrice:r.amount,portDisc:0,depositAmount:r.amount,dueDate:'',balancePaid:true,portfolio:'',source:'',notes:'',createdAt:ts,depositAt:ts,shotAt:ts,
+      basePrice:r.amount,portDisc:0,depositAmount:r.amount,dueDate:'',balancePaid:true,balanceAt:ts,portfolio:'',source:'',notes:'',createdAt:ts,depositAt:ts,shotAt:ts,
       delivered:true,deliveredAt:r.iso,receipt:false,contract:true,noCode:true,codeUsed:'',codeInDisc:0,codeOutDisc:0,cost:{},checks:[]});
   });
   save(); closeM('m-past'); refresh(); toast(`⏪ ${ok.length}건 등록 완료 (촬영완료 · 잔금 · 납품 완료 처리)`);
