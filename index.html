@@ -431,6 +431,14 @@ const EMPH=['{계약금}원을 예약금으로 결제합니다','예약금 결�
   '촬영일 기준 7일 전까지 완납','결제일 기준 7일 이내 취소 시: 예약 계약금 100% 전액 환불','결제일 7일 경과 후 ~ 촬영일 기준 60일(두 달) 이전 취소 시: 예약 계약금의 50% 환불','촬영일 기준 59일 ~ 31일 전 취소 시: 예약 계약금 전액 환불 불가',
   '촬영일 기준 30일(한 달) 이내 ~ 당일 취소 시: 총 촬영 대금의 100% 위약금 발생 (환불 불가)',"촬영일 기준 30일 이내에 취소하실 경우, 예약금을 포함한 '총 촬영 대금 전체'가 위약금으로 발생합니다",
   '촬영 결과를 100% 보장하지 않으며','고객은 촬영자의 사전 동의 없이 결과물을 판매, 재배포하거나 상업적으로 이용할 수 없습니다','실제 결제한 금액을 한도로 합니다'];
+function addSignEffect(body){
+  const parts=String(body||'').split(/\n={3,}[ \t]*\n/); let k=-1; parts.forEach((p,n)=>{ if(/^최종 동의\s*(\n|$)/.test(p.trim())) k=n; });
+  if(k<0||parts[k].includes('동일한 효력')) return body;
+  const lines=parts[k].trim().split('\n'), last=lines.length-1;
+  const ins='**본 계약서에 하는 전자서명은 서면 계약서에 직접 서명 또는 날인한 것과 동일한 효력을 가지며, 본인은 이에 동의합니다.**';
+  if(/^☑ /.test(lines[last])){ lines.splice(last,0,ins); lines[lines.length-1]=lines[lines.length-1].replace('☑ 위 내용을 모두 확인하였으며 동의합니다.','☑ 위 내용을 모두 확인하였으며 전자서명이 서면 서명과 동일한 효력을 가짐에 동의합니다.'); } else lines.push(ins);
+  parts[k]=lines.join('\n'); return parts.map(x=>x.trim()).join('\n=====\n');
+}
 function addEmph(body){ let b=String(body||''); EMPH.forEach(p=>{ if(b.includes(p)&&!b.includes('**'+p)) b=b.split(p).join('**'+p+'**'); }); return b; }
 const fmtEm=s=>esc(s).replace(/\*\*([^*\n]+?)\*\*/g,'<b class="em">$1</b>');
 
@@ -681,7 +689,8 @@ RUNIQ(루닉)은 예약이 확정되면 해당 날짜와 시간에 타 고객의
 =====
 최종 동의
 본인은 위 내용을 모두 읽고 충분히 이해하였으며, 저작권, 초상권 사용, 포트폴리오 활용, 결과물 제공 및 기타 안내사항에 동의합니다.
-☑ 위 내용을 모두 확인하였으며 동의합니다.`,
+**본 계약서에 하는 전자서명은 서면 계약서에 직접 서명 또는 날인한 것과 동일한 효력을 가지며, 본인은 이에 동의합니다.**
+☑ 위 내용을 모두 확인하였으며 전자서명이 서면 서명과 동일한 효력을 가짐에 동의합니다.`,
   privacyBody:`1. 수집 및 이용하는 개인정보 항목: 신랑·신부 성함, 연락처, 예식 일시, 예식 장소, 전자서명
 2. 수집 및 이용 목적: 웨딩 본식 DVD 예약 확인·상담 진행, 촬영 관련 안내, 계약 이행 및 결과물 전달
 3. 보유 및 이용기간: 서비스 제공 완료 후 1년간 보관하며, 관계 법령에 따라 보존이 필요한 경우 해당 기간 동안 보관 후 파기합니다.
@@ -1122,6 +1131,7 @@ function migrateTemplates(){
     const cn=S.templates.copyNotice||''; if(cn.includes('이메일로도 보내 드렸어요')) S.templates.copyNotice=DEF.copyNotice;
     const ct=S.templates.contractNotice||''; if(ct.includes('주소 등 필수 항목을 작성해 주시면 최종 확정됩니다.')) S.templates.contractNotice=ct.replace('주소 등 필수 항목을 작성해 주시면 최종 확정됩니다.','내용을 확인하고 서명해 주시면 계약서 작성이 완료됩니다.');
   }
+  if(!S.meta.conV5){ S.meta.conV5=1; S.templates.contractBody=addSignEffect(S.templates.contractBody||''); }
   const T=S.templates;
   ['defaultTotalPrice','defaultDepositAmount','dueDays'].forEach(k=>delete T[k]);
   if(!/포트폴리오 사용 동의/.test(T.inquiryRequest)) T.inquiryRequest=insAfter(T.inquiryRequest,/^.*연락처:.*$/m,'7. 포트폴리오 사용 동의(동의/미동의):');
@@ -2151,7 +2161,7 @@ function contractUrl(i){
   if(CL.url&&CL.key){
     if(!i.contractToken) return '(📝 계약서 요청 버튼을 누르면 링크가 만들어져요)';
     const m=String(CL.url).match(/\/macros\/s\/([A-Za-z0-9_-]+)\/exec/), base=contractPageBase();
-    return (m&&base)?`${base}?c=${i.contractToken}&g=${m[1]}`:`${CL.url}?c=${i.contractToken}`;
+    return (m&&base)?`${base}?c=${i.contractToken}&g=${m[1]}&v=16`:`${CL.url}?c=${i.contractToken}`;
   }
   return S.cfg.contractLink||'(설정에서 클라우드 백업을 연결하거나 계약서 링크를 입력해 주세요)';
 }
@@ -2271,7 +2281,7 @@ async function dlContract(tok){
 let CM={list:null,at:0};
 function urlByTok(tok){
   const m=String(CL.url||'').match(/\/macros\/s\/([A-Za-z0-9_-]+)\/exec/), base=contractPageBase();
-  return (m&&base)?`${base}?c=${tok}&g=${m[1]}`:`${CL.url}?c=${tok}`;
+  return (m&&base)?`${base}?c=${tok}&g=${m[1]}&v=16`:`${CL.url}?c=${tok}`;
 }
 async function cmLoad(){ if(!clReady()) return; await clContractSync(false); if(CM.list&&!$('cm-list').innerHTML) renderConMgr(); }
 function renderConMgr(){

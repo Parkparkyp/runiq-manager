@@ -1,4 +1,8 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>촬영 계약서</title>
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>촬영 계약서</title>
 <style>
 :root{--ink:#0f172a;--mut:#64748b;--ln:#e2e8f0;--am:#fbbf24;--bg:#f1f5f9}
 *{box-sizing:border-box}
@@ -14,41 +18,67 @@ td{padding:6px 0;border-bottom:1px solid var(--ln);vertical-align:top}
 td:first-child{color:var(--mut);width:34%;white-space:nowrap}
 tr:last-child td{border-bottom:0}
 td b{font-weight:800}
-.box{max-height:280px;overflow:auto;white-space:pre-wrap;font-size:13.5px;line-height:1.7;background:#f8fafc;border:1px solid var(--ln);border-radius:12px;padding:12px}
+.box{white-space:pre-wrap;word-break:keep-all;overflow-wrap:anywhere;font-size:13.5px;line-height:1.75;background:#f8fafc;border:1px solid var(--ln);border-radius:12px;padding:12px}
+.em{font-weight:800;background:#fde68a;color:var(--ink);border-radius:3px;padding:0 2px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
 label{display:block;font-size:12px;font-weight:800;color:var(--mut);margin:12px 0 4px}
 input[type=text],input[type=tel]{width:100%;padding:12px;border:1.5px solid var(--ln);border-radius:12px;font-size:16px;font-family:inherit}
 input[type=text]:focus,input[type=tel]:focus{outline:0;border-color:var(--ink)}
 .ck{display:flex;gap:10px;align-items:flex-start;margin-top:10px;font-size:14px;font-weight:700;color:var(--ink)}
 .ck input{width:22px;height:22px;flex:none;margin-top:1px}
+.ck input:disabled{opacity:.35}
+.rd{font-size:12px;color:#b45309;font-weight:700;margin-top:4px}
 .opt{display:flex;gap:8px;margin-top:6px}
-.opt label{flex:1;margin:0;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;border:1.5px solid var(--ln);border-radius:12px;font-size:14px;color:var(--ink);cursor:pointer}
+.opt label{flex:1;margin:0;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;border:1.5px solid var(--ln);border-radius:12px;font-size:14px;color:var(--ink);cursor:pointer;text-align:center}
 .opt input{margin:0}
 .opt label.on{border-color:var(--ink);background:var(--ink);color:#fff}
-canvas{display:block;width:100%;height:auto;background:#fff;border:1.5px dashed #94a3b8;border-radius:12px;touch-action:none}
-.row{display:flex;justify-content:space-between;align-items:center;margin-top:6px;font-size:12px;color:var(--mut)}
 button{font:inherit;cursor:pointer}
-.clr{background:#fff;border:1px solid var(--ln);border-radius:10px;padding:6px 12px;font-weight:700;font-size:12px}
+.clr{background:#fff;border:1px solid var(--ln);border-radius:10px;padding:8px 14px;font-weight:700;font-size:13px}
 .go{width:100%;margin-top:14px;padding:16px;border:0;border-radius:14px;background:var(--ink);color:#fcd34d;font-size:16px;font-weight:800}
-.go:disabled{opacity:.5}
+.go:disabled{opacity:.55}
+.go.sec{background:#fff;color:var(--ink);border:1.5px solid var(--ink);margin-top:8px}
 .err{color:#be123c;font-weight:800;font-size:13px;margin-top:10px;white-space:pre-wrap}
 .note{font-size:12px;color:var(--mut);margin-top:6px}
 .big{text-align:center;padding:36px 10px}
 .big b{display:block;font-size:20px;margin-bottom:8px}
-.pb{white-space:pre-wrap;font-size:13px;line-height:1.7}
+.pb{white-space:pre-wrap;word-break:keep-all;overflow-wrap:anywhere;font-size:13.5px;line-height:1.75}
+.sigbtn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;width:100%;min-height:120px;border:2px dashed #94a3b8;border-radius:14px;background:#f8fafc;color:var(--ink);font-weight:800;font-size:16px}
+.sigbtn small{font-weight:600;color:var(--mut);font-size:12px}
+.sigimg{display:block;max-width:100%;width:280px;border:1px solid var(--ln);border-radius:10px;background:#fff}
+.warn{background:#fffbeb;border:2px solid #f59e0b;border-radius:16px;padding:14px;margin-bottom:12px}
+.warn.ok{background:#f0fdf4;border-color:#22c55e}
+.warn b.t{display:block;font-size:16px;margin-bottom:4px}
+.pad{position:fixed;left:0;top:0;right:0;bottom:0;z-index:50;background:var(--ink);display:flex;flex-direction:column;overscroll-behavior:none;touch-action:none;-webkit-user-select:none;user-select:none}
+.pad .bar{display:flex;justify-content:space-between;align-items:center;color:#fff;padding:12px 16px;font-weight:800}
+.pad .bar button{background:transparent;border:1px solid #475569;color:#fff;border-radius:10px;padding:8px 14px;font-weight:700}
+.pad .pbox{flex:1;margin:0 12px;background:#fff;border-radius:16px;position:relative;overflow:hidden;min-height:140px}
+.pad canvas{position:absolute;left:0;top:0;width:100%;height:100%;touch-action:none}
+.pad .hint{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;color:#94a3b8;font-weight:700;pointer-events:none}
+.pad .base{position:absolute;left:24px;right:24px;bottom:34%;border-bottom:1.5px solid #cbd5e1;pointer-events:none}
+.pad .foot{display:flex;gap:10px;padding:12px 12px calc(14px + env(safe-area-inset-bottom))}
+.pad .foot button{flex:1;padding:16px;border-radius:14px;border:0;font-weight:800;font-size:16px}
+.pad .foot .a{background:#334155;color:#fff}
+.pad .foot .b{background:#fbbf24;color:var(--ink)}
 @media print{.noprint{display:none!important}body{background:#fff}.c{border:0;padding:6px 0}header{border-radius:0}}
-</style></head><body><div class="wrap" id="app"></div>
+</style>
+<script src="rqpdf.js"></script>
+</head><body><div class="wrap" id="app"></div>
 <script>
 var X={brand:'루닉필름'};
 var app=document.getElementById('app');
 function el(t,a,x){var e=document.createElement(t);if(a)for(var k in a){if(k==='class')e.className=a[k];else e.setAttribute(k,a[k]);}if(x!=null)e.textContent=x;return e;}
+function fm(p,t){if(window.RQ&&RQ.fmt)RQ.fmt(p,t,'em');else p.textContent=String(t).replace(/\*\*/g,'');return p;}
 function won(n){return String(Math.round(Number(n)||0)).replace(/\B(?=(\d{3})+(?!\d))/g,',')+'원';}
 function head(){var h=el('header');h.appendChild(el('small',0,X.brand));h.appendChild(el('h1',0,'촬영 계약서'));app.appendChild(h);}
-function big(t,s){head();var c=el('div',{class:'c big'});c.appendChild(el('b',0,t));c.appendChild(el('span',{class:'note'},s));app.appendChild(c);}
+function big(t,s){app.innerHTML='';head();var c=el('div',{class:'c big'});c.appendChild(el('b',0,t));c.appendChild(el('span',{class:'note'},s));app.appendChild(c);}
+function two(n){return n<10?'0'+n:''+n;}
+function nowStr(){var d=new Date();return d.getFullYear()+'-'+two(d.getMonth()+1)+'-'+two(d.getDate())+' '+two(d.getHours())+':'+two(d.getMinutes());}
+
 var qs=new URLSearchParams(location.search),TOK=qs.get('c')||'',GID=qs.get('g')||'';
 var API=/^[A-Za-z0-9_-]{20,200}$/.test(GID)?'https://script.google.com/macros/s/'+GID+'/exec':'';
 function route(){
   if(X.state==='invalid'){big('유효하지 않은 링크예요','링크를 다시 확인하시거나 담당자에게 문의해 주세요.');}
-  else if(X.state==='done'){showDone(X.d.snap,X.d.rec,false,true);}
+  else if(X.state==='expired'){big('사본 열람 기간이 지났어요','서명 후 7일 동안만 다시 볼 수 있어요. 계약서 사본이 필요하시면 담당자에게 문의해 주세요.');}
+  else if(X.state==='done'){showDone(X.d.snap,X.d.rec,false,X.d.until);}
   else{build(X.d);}
 }
 function fatal(code,msg){
@@ -56,10 +86,11 @@ function fatal(code,msg){
   c2.appendChild(el('div',{class:'note',style:'margin-top:10px;font-family:monospace;word-break:break-all'},'진단: '+code+(msg?' · '+String(msg).slice(0,140):'')));
   var rb=el('button',{class:'go',type:'button',style:'margin-top:14px'},'다시 시도');rb.addEventListener('click',load);c2.appendChild(rb);app.appendChild(c2);
 }
+function post(o){return fetch(API,{method:'POST',body:JSON.stringify(o)});}
 function load(){
   app.innerHTML='';head();var c=el('div',{class:'c big'});c.appendChild(el('b',0,'계약서를 불러오는 중…'));c.appendChild(el('span',{class:'note'},'잠시만 기다려 주세요.'));app.appendChild(c);
-  if(!API||!TOK){app.innerHTML='';big('유효하지 않은 링크예요','링크를 다시 확인하시거나 담당자에게 문의해 주세요.');return;}
-  fetch(API,{method:'POST',body:JSON.stringify({action:'view',token:TOK})}).then(function(r){return r.text();}).then(function(txt){
+  if(!API||!TOK){big('유효하지 않은 링크예요','링크를 다시 확인하시거나 담당자에게 문의해 주세요.');return;}
+  post({action:'view',token:TOK}).then(function(r){return r.text();}).then(function(txt){
     var j;try{j=JSON.parse(txt);}catch(e){return fatal('PARSE',txt.slice(0,80).replace(/\s+/g,' '));}
     if(!j||!j.ok)return fatal('SERVER',j&&j.error);
     X.state=j.state;X.d=j.d;app.innerHTML='';
@@ -68,6 +99,7 @@ function load(){
 }
 load();
 
+/* 항목은 한 줄 ===== 로 나뉘고, 첫 줄=제목, 마지막 ☑ 줄=체크 문구, [[포트폴리오선택]]=동의/미동의 선택 자리 */
 function parseSecs(b){
   b=String(b||'');var parts=b.split(/\n={3,}[ \t]*\n/);
   if(parts.length<2)return[{title:'계약 내용',text:b.trim(),label:'',port:false}];
@@ -78,59 +110,143 @@ function parseSecs(b){
     return{title:title,text:text,label:label,port:port};
   });
 }
-
-function showDone(D,r,now,mailOk){
-  app.innerHTML='';head();
-  var c=el('div',{class:'c big noprint'});c.appendChild(el('b',0,now?'제출이 완료되었어요':'서명이 완료된 계약서'));
-  c.appendChild(el('span',{class:'note'},now?(mailOk?'입력하신 이메일로 사본을 보내드렸어요. 아래에서 바로 저장하셔도 돼요.':'이메일 발송이 되지 않았어요. 아래 [인쇄 / PDF 저장]으로 사본을 꼭 저장해 주세요.'):'이 링크를 다시 열면 언제든 사본을 확인할 수 있어요.'));
-  var pr=el('button',{class:'go',type:'button',style:'margin-top:14px'},'🖨️ 인쇄 / PDF 저장');pr.addEventListener('click',function(){window.print();});c.appendChild(pr);app.appendChild(c);
-  var c1=el('div',{class:'c'});c1.appendChild(el('h2',0,D.name+'님 계약서 사본'));
-  var tb=el('table');function tr(k,v){var rr=el('tr');rr.appendChild(el('td',0,k));var d=el('td');d.appendChild(el('b',0,v));rr.appendChild(d);tb.appendChild(rr);}
-  tr('촬영 일시',D.date+' '+D.time);tr('장소',D.venue);tr('서명자',r.name);tr('연락처',r.phone);tr('주소',r.address);tr('이메일',r.email);tr('포트폴리오 활용',r.portfolio);tr('서명 시각',r.signedAt);
-  c1.appendChild(tb);app.appendChild(c1);
-  parseSecs(D.body).forEach(function(s){var c2=el('div',{class:'c'});c2.appendChild(el('h2',0,s.title));if(s.text)c2.appendChild(el('div',{class:'pb'},s.text));app.appendChild(c2);});
-  var c3=el('div',{class:'c'});c3.appendChild(el('h2',0,'개인정보 수집·이용 동의 (동의함)'));c3.appendChild(el('div',{class:'pb'},D.privacy));app.appendChild(c3);
-  var c4=el('div',{class:'c'});c4.appendChild(el('h2',0,'서명'));var im=el('img',{src:r.signature,style:'max-width:260px;border:1px solid #cbd5e1;border-radius:8px'});c4.appendChild(im);app.appendChild(c4);
-  window.scrollTo(0,0);
+/* 끝까지 읽어야 동의 체크가 켜져요 (안쪽 스크롤 없이 페이지를 그냥 내리면 돼요) */
+function gate(cb,end,hint){
+  if(!('IntersectionObserver' in window)){return;}
+  cb.disabled=true;hint.textContent='👇 끝까지 내려서 읽으면 체크할 수 있어요';
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){cb.disabled=false;hint.textContent='';io.disconnect();}});},{threshold:0});
+  io.observe(end);
 }
+function amounts(D,port){
+  var base=(Number(D.total)||0)+(Number(D.portApplied)||0),dep=Number(D.deposit)||0,pd=Number(D.portDiscount)||0;
+  var tot=(port==='동의')?Math.max(0,base-pd):base;
+  return{base:base,dep:dep,pd:pd,tot:tot,bal:Math.max(0,tot-dep)};
+}
+
+/* ───────── 서명 완료본 + PDF 저장 ───────── */
+function showDone(D,r,now,until){
+  app.innerHTML='';head();
+  var A=amounts(D,r.portfolio);
+  var secs=parseSecs(D.body);
+  var fname='루닉필름_계약서_'+String(r.name||'').replace(/[\\\/:*?"<>|\s]+/g,'')+'.pdf';
+  var pdf={blob:null,state:'idle',saved:false,pct:''};
+
+  function docOf(){
+    return{brand:X.brand,name:r.name,signedAt:r.signedAt,
+      rows:[['촬영 일시',D.date+' '+D.time],['장소',D.venue],['상품',D.category||'-'],['총 금액',won(A.tot)],['계약금',won(A.dep)],['잔금',won(A.bal)],['서명자',r.name],['연락처',r.phone],['포트폴리오 활용',r.portfolio==='동의'?'동의함':'동의하지 않음'],['촬영 일시·장소·상품 확인','확인함']],
+      sections:secs.map(function(s){return{title:s.title,text:s.text,check:s.port?'':(s.label||'위 내용을 확인하고 동의합니다.')};}),
+      privacy:D.privacy,signature:r.signature,
+      foot:'이 문서는 전자서명으로 체결된 계약서 사본입니다. 서명 시각 '+r.signedAt+'.'};
+  }
+
+  var warn=el('div',{class:'warn noprint'});app.appendChild(warn);
+  var ttl=el('b',{class:'t'});var sub=el('div',{style:'font-size:13.5px;line-height:1.6'});var tip=el('div',{class:'note',style:'margin-top:8px'});
+  var btn=el('button',{class:'go',type:'button'});var shb=el('button',{class:'go sec',type:'button',style:'display:none'},'📤 공유 / 카톡으로 보내기');
+  warn.appendChild(ttl);warn.appendChild(sub);warn.appendChild(btn);warn.appendChild(shb);warn.appendChild(tip);
+  var untilTxt=until?until+'까지':'서명 후 7일 동안';
+
+  function paint(){
+    warn.className='warn noprint'+(pdf.saved?' ok':'');
+    if(pdf.saved){
+      ttl.textContent='✅ PDF 저장을 눌렀어요';
+      sub.textContent='파일이 안 보이면 폰의 「다운로드」 폴더나 파일 앱에서 확인해 주세요. 다시 받으려면 버튼을 한 번 더 눌러 주세요.';
+    }else{
+      ttl.textContent=(now?'제출 완료! ':'')+'⚠️ 계약서 PDF를 꼭 저장해 주세요';
+      sub.textContent='이 링크는 '+untilTxt+' 열려요. 그 뒤에는 계약서를 다시 볼 수 없으니 지금 PDF로 보관해 주세요.';
+    }
+    btn.disabled=(pdf.state==='making');
+    btn.textContent=pdf.state==='making'?('PDF 만드는 중… '+pdf.pct):(pdf.state==='fail'?'PDF 다시 만들기':(pdf.saved?'📄 PDF 다시 저장하기':'📄 PDF 저장하기'));
+    shb.style.display=(pdf.state==='ready'&&window.RQ&&RQ.canShare(pdf.blob,fname))?'block':'none';
+  }
+  function mark(mode){if(!API)return;try{post({action:'pdfSaved',token:TOK||D.token,mode:mode}).catch(function(){});}catch(e){}}
+  function prep(){
+    pdf.state='making';pdf.pct='';paint();
+    if(!window.RQ){pdf.state='fail';paint();return;}
+    RQ.make(docOf(),{onProgress:function(n,t){pdf.pct=t?Math.min(99,Math.round(n/t*100))+'%':'';paint();}}).then(function(b){
+      pdf.blob=b;pdf.state='ready';paint();
+      if(now&&!pdf.auto){pdf.auto=true;try{RQ.save(b,fname);mark('auto');}catch(e){}}
+    }).catch(function(e){pdf.state='fail';pdf.err=e&&e.message;paint();});
+  }
+  btn.addEventListener('click',function(){
+    if(pdf.state==='fail'){prep();return;}
+    if(pdf.state!=='ready')return;
+    try{RQ.save(pdf.blob,fname);pdf.saved=true;mark('btn');paint();}catch(e){tip.textContent='저장이 막혔어요. 다른 브라우저(크롬·사파리)로 이 링크를 열어 다시 시도해 주세요.';}
+  });
+  shb.addEventListener('click',function(){
+    if(pdf.state!=='ready')return;
+    RQ.share(pdf.blob,fname,'루닉필름 촬영 계약서').then(function(){pdf.saved=true;mark('btn');paint();}).catch(function(){});
+  });
+  if(window.RQ&&RQ.inApp())tip.textContent='💡 카카오톡·앱 안에서는 저장이 막힐 수 있어요. 안 받아지면 우측 메뉴(⋮ 또는 …)의 「다른 브라우저로 열기」 후 이 링크에서 저장해 주세요.';
+  window.addEventListener('beforeunload',function(e){if(!pdf.saved&&pdf.state!=='idle'){e.preventDefault();e.returnValue='';return '';}});
+  paint();
+
+  var c=el('div',{class:'c noprint',style:'text-align:center'});c.appendChild(el('b',{style:'font-size:17px'},now?'제출이 완료되었어요 🎉':'서명이 완료된 계약서'));
+  c.appendChild(el('div',{class:'note'},now?'서명해 주셔서 감사합니다. 아래는 서명하신 계약서 사본이에요.':'아래는 서명하신 계약서 사본이에요. (연락처는 일부 가려서 보여요)'));app.appendChild(c);
+
+  var c1=el('div',{class:'c'});c1.appendChild(el('h2',0,r.name+'님 계약서 사본'));
+  var tb=el('table');function tr(k,v){var rr=el('tr');rr.appendChild(el('td',0,k));var d=el('td');d.appendChild(el('b',0,v));rr.appendChild(d);tb.appendChild(rr);}
+  tr('촬영 일시',D.date+' '+D.time);tr('장소',D.venue);if(D.category)tr('상품',D.category);tr('총 금액',won(A.tot));tr('계약금',won(A.dep));tr('잔금',won(A.bal));
+  tr('서명자',r.name);tr('연락처',r.phone);tr('포트폴리오 활용',r.portfolio==='동의'?'동의함':'동의하지 않음');tr('서명 시각',r.signedAt);
+  c1.appendChild(tb);app.appendChild(c1);
+  secs.forEach(function(s){var c2=el('div',{class:'c'});c2.appendChild(el('h2',0,s.title));if(s.text)c2.appendChild(fm(el('div',{class:'pb'}),s.text));app.appendChild(c2);});
+  var c3=el('div',{class:'c'});c3.appendChild(el('h2',0,'개인정보 수집·이용 동의 (동의함)'));c3.appendChild(el('div',{class:'pb'},D.privacy));app.appendChild(c3);
+  var c4=el('div',{class:'c'});c4.appendChild(el('h2',0,'서명'));c4.appendChild(el('img',{class:'sigimg',src:r.signature}));app.appendChild(c4);
+  window.scrollTo(0,0);
+  setTimeout(prep,250);
+}
+
+/* ───────── 서명 입력 화면 ───────── */
 function build(D){
   head();
-  var base=(Number(D.total)||0)+(Number(D.portApplied)||0), dep=Number(D.deposit)||0, pd=Number(D.portDiscount)||0;
+  var dep=Number(D.deposit)||0,pd=Number(D.portDiscount)||0;
+  var sigData='';
+
   var c1=el('div',{class:'c'});c1.appendChild(el('h2',0,D.name+'님의 촬영 정보'));
   var tb=el('table');
   function tr(k,v,id){var r=el('tr');r.appendChild(el('td',0,k));var d=el('td');var b=el('b',id?{id:id}:0,v);d.appendChild(b);r.appendChild(d);tb.appendChild(r);}
   tr('촬영 일시',D.date+' '+D.time);tr('장소',D.venue);if(D.category)tr('상품',D.category);
   tr('총 금액','','tot');tr('계약금',won(dep));tr('잔금','','bal');
-  c1.appendChild(tb);var pnote=el('div',{class:'note',id:'pnote'});c1.appendChild(pnote);app.appendChild(c1);
+  c1.appendChild(tb);var pnote=el('div',{class:'note',id:'pnote'});c1.appendChild(pnote);
+  var cf=el('label',{class:'ck'});var cfc=el('input',{type:'checkbox',id:'confirm'});cf.appendChild(cfc);cf.appendChild(el('span',0,'위 촬영 일시·장소·상품이 모두 맞습니다. (필수)'));c1.appendChild(cf);
+  c1.appendChild(el('div',{class:'note'},'다르게 적힌 부분이 있으면 체크하지 말고 담당자에게 카톡으로 알려 주세요.'));
+  app.appendChild(c1);
 
-  var c3=el('div',{class:'c'});c3.appendChild(el('h2',0,'개인정보 수집·이용 동의'));c3.appendChild(el('div',{class:'box',style:'max-height:200px'},D.privacy));
-  var pg=el('label',{class:'ck'});var pgc=el('input',{type:'checkbox',id:'privacy'});pg.appendChild(pgc);pg.appendChild(el('span',0,'개인정보 수집·이용에 동의합니다. (필수)'));c3.appendChild(pg);app.appendChild(c3);
+  var c3=el('div',{class:'c'});c3.appendChild(el('h2',0,'개인정보 수집·이용 동의'));c3.appendChild(el('div',{class:'box'},D.privacy));var pend=el('div',{style:'height:2px'});c3.appendChild(pend);
+  var pg=el('label',{class:'ck'});var pgc=el('input',{type:'checkbox',id:'privacy'});pg.appendChild(pgc);pg.appendChild(el('span',0,'개인정보 수집·이용에 동의합니다. (필수)'));c3.appendChild(pg);var phint=el('div',{class:'rd'});c3.appendChild(phint);gate(pgc,pend,phint);app.appendChild(c3);
 
   var c5=el('div',{class:'c'});c5.appendChild(el('h2',0,'신청자 정보'));
   c5.appendChild(el('label',0,'성함'));c5.appendChild(el('input',{type:'text',id:'nm',autocomplete:'name',placeholder:'성함 (서명자)'}));
   c5.appendChild(el('label',0,'연락처'));var ph=el('input',{type:'tel',id:'ph',autocomplete:'tel',placeholder:'010-0000-0000'});ph.value=D.phone||'';c5.appendChild(ph);
-  c5.appendChild(el('label',0,'주소'));var ad=el('input',{type:'text',id:'ad',autocomplete:'street-address',placeholder:'계약 및 안내용 주소'});ad.value=D.address||'';c5.appendChild(ad);
-  c5.appendChild(el('label',0,'이메일 (서명한 계약서 사본을 보내드려요)'));var em=el('input',{type:'email',id:'em',autocomplete:'email',placeholder:'example@gmail.com'});em.style.cssText='width:100%;padding:12px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:16px;font-family:inherit';c5.appendChild(em);
   app.appendChild(c5);
 
   var portBox=el('div');
   portBox.appendChild(el('div',{class:'note',style:'margin:8px 0 4px'},pd>0?('촬영 영상·사진을 작가의 포트폴리오·홍보에 활용하는 것에 동의하시면 '+won(pd)+'이 할인됩니다. (필수 선택)'):'포트폴리오 활용 동의 여부를 선택해 주세요. (필수 선택)'));
   var op=el('div',{class:'opt'});var pv=D.portfolio||'';
-  [['동의','동의함 (포트폴리오 활용 할인 상품)'],['미동의','동의하지 않음 (비공개 촬영 일반가)']].forEach(function(a){var v=a[0];var l=el('label');var r=el('input',{type:'radio',name:'port',value:v});if(pv===v){r.checked=true;l.className='on';}r.addEventListener('change',function(){sync();});l.appendChild(r);l.appendChild(document.createTextNode(a[1]));op.appendChild(l);});
+  [['동의','동의함 (포트폴리오 활용 할인 상품)'],['미동의','동의하지 않음 (비공개 촬영 일반가)']].forEach(function(a){var v=a[0];var l=el('label');var r=el('input',{type:'radio',name:'port',value:v});if(pv===v){r.checked=true;}r.addEventListener('change',sync);l.appendChild(r);l.appendChild(document.createTextNode(a[1]));op.appendChild(l);});
   portBox.appendChild(op);
   var secs=parseSecs(D.body),checks=[],hasPort=false;
   secs.forEach(function(s){
     var c=el('div',{class:'c'});c.appendChild(el('h2',0,s.title));
-    if(s.text)c.appendChild(el('div',{class:'box'},s.text));
+    if(s.text)c.appendChild(fm(el('div',{class:'box'}),s.text));
     if(s.port){hasPort=true;c.appendChild(portBox);}
-    else{var l=el('label',{class:'ck'});var cb=el('input',{type:'checkbox'});l.appendChild(cb);l.appendChild(el('span',0,s.label||(secs.length===1?'위 계약 내용을 모두 읽었으며 이에 동의합니다. (필수)':'위 내용을 확인하고 동의합니다. (필수)')));c.appendChild(l);checks.push({t:s.title,i:cb});}
+    else{var send=el('div',{style:'height:2px'});c.appendChild(send);var l=el('label',{class:'ck'});var cb=el('input',{type:'checkbox'});l.appendChild(cb);l.appendChild(el('span',0,s.label||(secs.length===1?'위 계약 내용을 모두 읽었으며 이에 동의합니다. (필수)':'위 내용을 확인하고 동의합니다. (필수)')));c.appendChild(l);var sh=el('div',{class:'rd'});c.appendChild(sh);gate(cb,send,sh);checks.push({t:s.title,i:cb});}
     app.appendChild(c);
   });
   if(!hasPort){var cp=el('div',{class:'c'});cp.appendChild(el('h2',0,'촬영물 포트폴리오 활용'));cp.appendChild(portBox);app.appendChild(cp);}
 
   var c6=el('div',{class:'c'});c6.appendChild(el('h2',0,'서명'));
-  var cv=el('canvas',{width:640,height:240});c6.appendChild(cv);
-  var rw=el('div',{class:'row'});rw.appendChild(el('span',0,'위 칸에 손가락으로 서명해 주세요'));var cl=el('button',{class:'clr',type:'button'},'지우기');rw.appendChild(cl);c6.appendChild(rw);app.appendChild(c6);
+  var sigWrap=el('div');c6.appendChild(sigWrap);app.appendChild(c6);
+  function paintSig(){
+    sigWrap.innerHTML='';
+    if(!sigData){
+      var sb=el('button',{class:'sigbtn',type:'button'});sb.appendChild(el('span',0,'✍️ 여기를 눌러 서명하세요'));sb.appendChild(el('small',0,'큰 서명 화면이 열려요'));
+      sb.addEventListener('click',openPad);sigWrap.appendChild(sb);
+    }else{
+      sigWrap.appendChild(el('img',{class:'sigimg',src:sigData}));
+      var rb=el('button',{class:'clr',type:'button',style:'margin-top:8px'},'✍️ 다시 서명');rb.addEventListener('click',openPad);sigWrap.appendChild(rb);
+    }
+  }
+  paintSig();
 
   var err=el('div',{class:'err',id:'err'});app.appendChild(err);
   var go=el('button',{class:'go',type:'button'},'계약서 제출하기');app.appendChild(go);
@@ -138,47 +254,76 @@ function build(D){
 
   function sync(){
     var chk=document.querySelector('input[name=port]:checked');var v=chk?chk.value:'';
-    var tot=(v==='동의')?Math.max(0,base-pd):base;
-    document.getElementById('tot').textContent=won(tot);document.getElementById('bal').textContent=won(Math.max(0,tot-dep));
+    var A=amounts(D,v);
+    document.getElementById('tot').textContent=won(A.tot);document.getElementById('bal').textContent=won(A.bal);
     pnote.textContent=(v==='동의'&&pd>0)?'포트폴리오 동의 할인 '+won(pd)+'이 적용된 금액입니다.':'';
     var ls=document.querySelectorAll('.opt label');for(var i=0;i<ls.length;i++){ls[i].className=ls[i].firstChild.checked?'on':'';}
   }
   sync();
 
-  var ctx=cv.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);
-  ctx.lineWidth=4;ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle='#0f172a';
-  var drawing=false,inked=0;
-  function pos(e){var r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)*cv.width/r.width,y:(e.clientY-r.top)*cv.height/r.height};}
-  cv.addEventListener('pointerdown',function(e){e.preventDefault();drawing=true;try{cv.setPointerCapture(e.pointerId);}catch(x){}var p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p.x+0.1,p.y+0.1);ctx.stroke();inked+=1;});
-  cv.addEventListener('pointermove',function(e){if(!drawing)return;e.preventDefault();var p=pos(e);ctx.lineTo(p.x,p.y);ctx.stroke();inked+=1;});
-  function up(){drawing=false;}
-  cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);cv.addEventListener('pointerleave',up);
-  cl.addEventListener('click',function(){ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);inked=0;});
-
-  function exportSig(){
-    var u=cv.toDataURL('image/png');
-    if(u.length>42000){var s=document.createElement('canvas');s.width=320;s.height=120;var g=s.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,320,120);g.drawImage(cv,0,0,320,120);u=s.toDataURL('image/png');}
-    return u;
+  /* 전체 화면 서명판 */
+  var pad=null,pushed=false;
+  function onPop(){if(pad)closePad(true);}
+  function closePad(viaPop){
+    if(!pad)return;document.body.removeChild(pad);pad=null;document.body.style.overflow='';
+    window.removeEventListener('popstate',onPop);
+    if(!viaPop&&pushed){try{history.back();}catch(e){}}pushed=false;
   }
+  function openPad(){
+    if(pad)return;
+    pad=el('div',{class:'pad'});
+    var bar=el('div',{class:'bar'});bar.appendChild(el('span',0,'서명해 주세요'));var cx=el('button',{type:'button'},'✕ 취소');bar.appendChild(cx);pad.appendChild(bar);
+    var pb=el('div',{class:'pbox'});var cv=el('canvas');pb.appendChild(cv);pb.appendChild(el('div',{class:'base'}));var hint=el('div',{class:'hint'},'손가락으로 이 칸에 크게 서명해 주세요\n(폰을 가로로 돌리면 더 편해요)');hint.style.whiteSpace='pre-line';pb.appendChild(hint);pad.appendChild(pb);
+    var ft=el('div',{class:'foot'});var clr=el('button',{class:'a',type:'button'},'지우기');var ok=el('button',{class:'b',type:'button'},'서명 완료');ft.appendChild(clr);ft.appendChild(ok);pad.appendChild(ft);
+    document.body.appendChild(pad);document.body.style.overflow='hidden';
+    try{history.pushState({pad:1},'');pushed=true;window.addEventListener('popstate',onPop);}catch(e){pushed=false;}
+    var dpr=Math.min(2,window.devicePixelRatio||1),rc=pb.getBoundingClientRect();
+    cv.width=Math.max(200,Math.round(rc.width*dpr));cv.height=Math.max(120,Math.round(rc.height*dpr));
+    var ctx=cv.getContext('2d');function blank(){ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);ctx.lineWidth=Math.max(3,rc.width/120)*dpr;ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle='#0f172a';}
+    blank();
+    var drawing=false,inked=0,lx=0,ly=0,bx0=1e9,by0=1e9,bx1=-1,by1=-1;
+    function grow(p){if(p.x<bx0)bx0=p.x;if(p.x>bx1)bx1=p.x;if(p.y<by0)by0=p.y;if(p.y>by1)by1=p.y;}
+    function pos(e){var r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)*cv.width/r.width,y:(e.clientY-r.top)*cv.height/r.height};}
+    cv.addEventListener('pointerdown',function(e){e.preventDefault();drawing=true;try{cv.setPointerCapture(e.pointerId);}catch(x){}var p=pos(e);lx=p.x;ly=p.y;grow(p);ctx.beginPath();ctx.moveTo(lx,ly);ctx.lineTo(lx+0.1,ly+0.1);ctx.stroke();inked+=1;hint.style.display='none';});
+    cv.addEventListener('pointermove',function(e){if(!drawing)return;e.preventDefault();var p=pos(e);grow(p);ctx.beginPath();ctx.moveTo(lx,ly);ctx.lineTo(p.x,p.y);ctx.stroke();lx=p.x;ly=p.y;inked+=1;});
+    function up(){drawing=false;}
+    cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+    pad.addEventListener('touchmove',function(e){e.preventDefault();},{passive:false});
+    clr.addEventListener('click',function(){blank();inked=0;bx0=1e9;by0=1e9;bx1=-1;by1=-1;hint.style.display='';});
+    cx.addEventListener('click',function(){closePad(false);});
+    ok.addEventListener('click',function(){
+      if(inked<12){hint.style.display='';hint.style.color='#be123c';hint.textContent='서명이 비어 있어요. 칸 안에 서명해 주세요.';return;}
+      /* 서명이 있는 부분만 잘라서 저장 (화면 방향·크기와 상관없이 가로로 긴 깔끔한 서명 이미지가 돼요) */
+      var pd=Math.round(26*dpr),sx=Math.max(0,Math.floor(bx0-pd)),sy=Math.max(0,Math.floor(by0-pd)),ex=Math.min(cv.width,Math.ceil(bx1+pd)),ey=Math.min(cv.height,Math.ceil(by1+pd));
+      var sw=Math.max(40,ex-sx),sh=Math.max(30,ey-sy);
+      function exp(w){var h=Math.max(30,Math.round(w*sh/sw));var s=document.createElement('canvas');s.width=w;s.height=h;var g=s.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,w,h);g.imageSmoothingQuality='high';g.drawImage(cv,sx,sy,sw,sh,0,0,w,h);return s.toDataURL('image/png');}
+      var W0=Math.min(640,sw),u=exp(W0);if(u.length>42000)u=exp(Math.round(W0*0.65));if(u.length>42000)u=exp(Math.round(W0*0.4));
+      if(u.length<900){hint.style.display='';hint.style.color='#be123c';hint.textContent='서명이 너무 작아요. 칸을 넓게 써서 크게 서명해 주세요.';return;}
+      sigData=u;closePad(false);paintSig();
+    });
+  }
+
   function fail(m){err.textContent=m;go.disabled=false;go.textContent='계약서 제출하기';err.scrollIntoView({behavior:'smooth',block:'center'});}
   go.addEventListener('click',function(){
     err.textContent='';
     var chk=document.querySelector('input[name=port]:checked');
-    var p={name:document.getElementById('nm').value.trim(),phone:document.getElementById('ph').value.trim(),address:document.getElementById('ad').value.trim(),email:document.getElementById('em').value.trim(),
-      portfolio:chk?chk.value:'',agree:true,privacy:document.getElementById('privacy').checked};
+    var p={name:document.getElementById('nm').value.trim(),phone:document.getElementById('ph').value.trim(),
+      portfolio:chk?chk.value:'',agree:true,privacy:document.getElementById('privacy').checked,confirmed:document.getElementById('confirm').checked};
+    if(!p.confirmed)return fail('「촬영 일시·장소·상품이 맞습니다」에 체크해 주세요.');
     if(!p.privacy)return fail('「개인정보 수집·이용 동의」에 체크해 주세요.');
     if(!p.portfolio)return fail('포트폴리오 활용 동의 여부를 선택해 주세요.');
     for(var k=0;k<checks.length;k++){if(!checks[k].i.checked)return fail('「'+checks[k].t+'」 항목에 체크해 주세요.');}
     if(!p.name)return fail('성함을 입력해 주세요.');
     if(p.phone.replace(/\D/g,'').length<9)return fail('연락처를 확인해 주세요.');
-    if(p.address.length<5)return fail('주소를 입력해 주세요.');
-    if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(p.email))return fail('이메일 주소를 확인해 주세요.');
-    if(inked<15)return fail('서명을 해 주세요.');
-    p.sign=exportSig();
+    if(!sigData)return fail('서명을 해 주세요. (서명 칸을 눌러 주세요)');
+    p.sign=sigData;
     go.disabled=true;go.textContent='제출 중…';
-    fetch(API,{method:'POST',body:JSON.stringify({action:'submit',token:D.token,p:p})}).then(function(r){return r.json();}).then(function(r){
-      if(r&&r.ok){showDone(D,{name:p.name,phone:p.phone,address:p.address,email:p.email,portfolio:p.portfolio,signedAt:'방금',signature:p.sign},true,!!r.mail);}
-      else if(r&&r.error==='done'){app.innerHTML='';big('이미 제출해 주셨어요','이 링크를 다시 열면 사본을 확인할 수 있어요.');}
+    post({action:'submit',token:D.token,p:p}).then(function(r){return r.json();}).then(function(r){
+      if(r&&r.ok){
+        var u=new Date(Date.now()+7*86400000);
+        showDone(D,{name:p.name,phone:p.phone,portfolio:p.portfolio,signedAt:r.signedAt||nowStr(),signature:p.sign},true,(u.getMonth()+1)+'월 '+u.getDate()+'일 '+two(u.getHours())+':'+two(u.getMinutes()));
+      }
+      else if(r&&r.error==='done'){big('이미 제출해 주셨어요','이 링크를 다시 열면 서명 후 7일 동안 사본을 확인할 수 있어요.');}
       else fail((r&&r.error)||'제출에 실패했어요. 잠시 후 다시 시도해 주세요.');
     }).catch(function(){fail('네트워크 오류가 발생했어요. 인터넷 연결을 확인하고 다시 눌러 주세요.');});
   });
