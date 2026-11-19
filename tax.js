@@ -24,10 +24,11 @@ function taxYear(y){
   return {y,n,rev,inc,sales,bizAmt,cost,exp,profit,bizProof,rate,exempt,over,vat,base,it,lt,total:vat+it+lt};
 }
 function taxRender(){
-  const host=$('led-sum'); if(!host) return; const old=$('led-tax'); if(old) old.remove();
+  const host=$('led-sum'); if(!host) return; const old=$('led-tax'); if(old) old.remove(); const od=$('led-taxd'); if(od) od.remove();
   const y=LP.y, T=taxYear(y), W=n=>won(Math.round(n))+'원';
   const row=(l,v,st)=>`<div style="${st||''}"><span>${l}</span><b>${v}</b></div>`;
-  host.insertAdjacentHTML('beforeend',`<details id="led-tax" style="margin-top:10px"><summary>🧾 세금 예상액 · ${y}년 누적 <b style="color:#b45309">${W(T.total)}</b> (참고용)</summary>
+  const nx=taxList()[0], nxh=nx?`<div id="led-taxd" class="alert al-y" style="margin:10px 0 0"><span>📅 다음 신고 · ${nx.t} · ${nx.date.slice(5).replace('-','/')}</span><b>${nx.left===0?'D-DAY':'D-'+nx.left}</b></div>`:'';
+  host.insertAdjacentHTML('beforeend',nxh+`<details id="led-tax" style="margin-top:10px"><summary>🧾 세금 예상액 · ${y}년 누적 <b style="color:#b45309">${W(T.total)}</b> (참고용)</summary>
     <div class="box" style="margin-top:8px;display:block">
       ${row('수입 (입금 기준)',W(T.sales))}${row('사업 경비',`−${W(T.exp)}`,'color:#be123c')}${row('사업소득금액(추정)',W(T.profit),'border-top:1px solid var(--ln);margin-top:3px;padding-top:5px')}
       <div style="border-top:1px solid var(--ln);margin:8px 0 4px"></div>
