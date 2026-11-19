@@ -114,7 +114,6 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
   #inq-list{grid-column:2;grid-row:1/span 3}
   #v-mng:not(.hide){display:grid;grid-template-columns:360px minmax(0,1fr);grid-template-rows:auto 1fr;align-items:start;column-gap:20px}
   #mng-top{grid-column:1}#mng-list{grid-column:2;grid-row:1/span 2}
-  #v-ck:not(.hide),#v-iv:not(.hide){max-width:1000px}
   #v-stat:not(.hide){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
   #v-stat>section:nth-child(-n+2){grid-column:1/-1}
   #v-set:not(.hide){display:block;columns:2 440px;column-gap:18px}
@@ -202,16 +201,6 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
   </section>
   <div id="mng-list" style="display:flex;flex-direction:column;gap:10px"></div>
 </main>
-<!-- TAB: 체크리스트 -->
-<main id="v-ck" class="hide">
-  <section class="c"><h2>🎒 촬영 체크리스트</h2><p>예약을 고르고 준비 항목을 눌러 체크하세요. 항목은 설정에서 고칠 수 있어요.</p><div id="ck-pick" class="scroll" style="margin-top:8px"></div></section>
-  <section class="c" id="ck-body"></section>
-</main>
-<!-- TAB: 인터뷰 -->
-<main id="v-iv" class="hide">
-  <section class="c"><h2>🎤 인터뷰 질문</h2><p>예약을 고르면 혼주·신랑신부·하객 등 그룹별 질문과 답변 메모를 쓸 수 있어요. 질문은 설정에서 고칠 수 있어요.</p><div id="ivt-pick" class="scroll" style="margin-top:8px"></div></section>
-  <section class="c" id="ivt-body"></section>
-</main>
 <!-- TAB 3 : 현황 -->
 <main id="v-stat" class="hide">
   <section class="c">
@@ -241,6 +230,7 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
     <div class="row" style="justify-content:flex-start;gap:4px;margin-top:8px"><span style="font-size:11px;font-weight:800;color:var(--mut)">예약 매출 기준</span><span id="led-basis" class="row" style="gap:4px"></span></div>
     <p id="led-basis-note" style="margin-top:6px"></p>
     <p id="led-cnt" style="margin-top:6px"></p>
+    <p id="led-cov" style="margin-top:6px;font-size:12px"></p>
   </section>
   <section class="c" id="led-act">
     <div class="g2"><button class="btn am" onclick="ledOpenImp()">📥 카드내역 가져오기</button><button class="btn dk" onclick="ledStoreOpen()">🛒 스토어 정산 입력</button></div>
@@ -265,6 +255,8 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
   <div style="font-weight:800;font-size:16px;margin:2px 2px 8px">⚙️ 설정 <span style="font-size:11px;color:var(--mut);font-weight:600">— 항목을 누르면 펼쳐져요</span></div>
   <details class="c acc"><summary>💰 금액 · 운영 설정</summary><p>새 예약부터 적용돼요. 이미 등록된 예약의 금액은 바뀌지 않아요.</p>
     <div class="g2"><div><label>기본 상품 금액</label><input id="c-total" class="inp" inputmode="numeric" oninput="fmtMoney(this)"></div><div><label>기본 계약금</label><input id="c-dep" class="inp" inputmode="numeric" oninput="fmtMoney(this)"></div></div>
+    <div class="g2"><div><label>🧾 부가가치율 (%)</label><input id="c-vatr" class="inp" inputmode="decimal" placeholder="40"></div><div><label>🧾 소득공제 합계(원)</label><input id="c-ded" class="inp" inputmode="numeric" oninput="fmtMoney(this)"></div></div>
+    <p style="margin:2px 0 6px;font-size:11px">세금 예상액 계산용이에요. 부가가치율은 사업자등록증 업종 기준(소매 15 · 제조 20 · 숙박 25 · 건설/운수/정보통신 30 · 기타 서비스 40)이고, 소득공제는 본인 기본공제 150만원이 기본이에요. 정확한 값은 세무서에서 확인하세요.</p>
     <div class="g2"><div><label>💰 전액 결제 할인</label><input id="c-full" class="inp" inputmode="numeric" oninput="fmtMoney(this)"></div><div><label>📸 포트폴리오 동의 할인</label><input id="c-port" class="inp" inputmode="numeric" oninput="fmtMoney(this)"></div><div><label>계약금 입금 기한 (일)</label><input id="c-due" class="inp" inputmode="numeric"></div></div>
     <div class="g2"><div><label>납품 기한 (예식 후 N일)</label><input id="c-deliv" class="inp" inputmode="numeric"></div><div><label>백업 알림 주기 (일)</label><input id="c-backup" class="inp" inputmode="numeric"></div></div>
     <div><label>같은 날 예약 최소 간격 (시간, 0=끔)</label><input id="c-gap" class="inp" inputmode="decimal"></div>
@@ -282,12 +274,10 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
   <details class="c acc"><summary>📌 자주 쓰는 개인 일정</summary><p>캘린더에서 일정을 추가할 때 버튼으로 나와요. 시간을 비워두면 종일 일정이에요.</p>
     <div class="g3" style="margin-top:8px;grid-template-columns:1.4fr 1fr auto"><input id="pr-label" class="inp" placeholder="예: 🔍 사전답사"><input id="pr-time" type="time" class="inp"><button class="btn dk" onclick="addPreset()">추가</button></div>
     <div id="pr-list" style="margin-top:8px"></div></details>
-  <details class="c acc hide"><summary>🎒 촬영 당일 체크리스트</summary><p>한 줄에 하나씩 적어 주세요. 계약금완료 예약마다 체크할 수 있어요.</p>
-    <textarea id="t-check" rows="7" class="inp" style="margin-top:8px"></textarea><button class="btn dk" style="width:100%;margin-top:8px" onclick="saveChecklist()">체크리스트 저장</button></details>
-  <details class="c acc hide"><summary>🎤 인터뷰 질문</summary><p>그룹별로 질문을 한 줄에 하나씩 적어 주세요. 예약마다 질문을 체크하고 답변 메모를 남길 수 있어요. 그룹 이름도 바꿀 수 있어요.</p>
-    <div id="iv-groups" style="margin-top:8px"></div>
-    <div class="g2" style="margin-top:8px"><button class="btn" onclick="addIvGroup()">+ 그룹 추가</button><button class="btn dk" onclick="saveIvSettings()">인터뷰 질문 저장</button></div>
-    <button class="btn" style="width:100%;margin-top:8px" onclick="ask('인터뷰 질문을 기본값으로 되돌릴까요? (직접 쓴 질문은 사라져요)',resetIv)">기본 질문으로 되돌리기</button></details>
+  <details class="c acc"><summary>🧾 세금 신고 일정</summary><p>가까워지면 홈의 "오늘 할 일"에 알려요. 날짜는 일반적인 간이과세자 기준이며, 바뀔 수 있으니 홈택스에서 확인하세요.</p>
+    <div id="tax-list" style="margin-top:8px"></div>
+    <label style="display:flex;gap:8px;align-items:center;margin-top:10px;font-weight:700"><input type="checkbox" id="tax-alert" style="width:18px;height:18px" onchange="taxSet()"> 신고 일정 알림 (D-30부터)</label>
+    <label style="display:flex;gap:8px;align-items:center;margin-top:6px;font-weight:700"><input type="checkbox" id="tax-notice" style="width:18px;height:18px" onchange="taxSet()"> 예정부과·중간예납 고지서를 받고 있어요</label></details>
   <details class="c acc"><summary>🚫 휴무 · 예약 마감일</summary><p>캘린더에 표시되고, 이 날짜로 예약하면 경고가 떠요.</p>
     <div class="g3" style="margin-top:8px;grid-template-columns:1.2fr 1fr auto"><input id="b-date" type="date" class="inp"><input id="b-label" class="inp" placeholder="사유(선택)"><button class="btn dk" onclick="addBlock()">추가</button></div>
     <div id="b-list" style="margin-top:8px"></div>
@@ -368,6 +358,7 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
   <div class="row"><h2 style="margin:0;font-size:16px">📥 카드내역 가져오기</h2><button class="btn sm" onclick="closeM('m-limp')">✕</button></div>
   <div id="li-step1">
     <p style="margin:8px 0">카드사에서 받은 <b>엑셀(.xls · .xlsx · .csv)</b>을 고르거나, 내역 표를 복사해서 아래에 붙여넣으세요. 같은 내역을 다시 가져와도 중복은 건너뛰어요.</p>
+    <p id="li-cov" style="font-size:12px;font-weight:700;color:#047857"></p>
     <input type="file" id="li-file" accept=".xls,.xlsx,.csv" class="inp" onchange="ledFile(this)">
     <label>또는 복사한 내역 붙여넣기</label>
     <textarea id="li-text" rows="5" class="inp" placeholder="이용일  이용시간  카드명  이용하신곳  금액 …"></textarea>
@@ -530,14 +521,6 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
   <div class="g3" style="margin-top:12px"><button class="btn" onclick="closeM('m-wait')">취소</button><button class="btn dk" style="grid-column:span 2" onclick="saveWait()">대기 등록</button></div>
 </div></div>
 
-<!-- MODAL: 체크리스트 -->
-<div id="m-check" class="mod mid hide"><div>
-  <div class="row"><h2 id="ck-title" style="margin:0;font-size:15px"></h2><button class="btn sm" onclick="closeM('m-check')">✕</button></div>
-  <p id="ck-sub" style="margin:6px 0 10px"></p>
-  <div id="ck-list" style="display:flex;flex-direction:column;gap:8px"></div>
-  <button class="btn dk" style="width:100%;margin-top:12px" onclick="closeM('m-check')">닫기</button>
-</div></div>
-
 <!-- MODAL: 빈 날짜 홍보 문구 -->
 <div id="m-promo" class="mod mid hide"><div>
   <div class="row"><h2 style="margin:0;font-size:15px">📣 빈 날짜 홍보 문구</h2><button class="btn sm" onclick="closeM('m-promo')">✕</button></div>
@@ -554,17 +537,6 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
   <div class="g2" style="margin-top:10px"><button class="btn dk" onclick="dlContract(conTok)">📄 PDF 다운로드</button><button class="btn rd" onclick="cmDel(conTok,true)">🗑️ 삭제</button></div>
   <button class="btn" style="width:100%;margin-top:8px" onclick="closeM('m-con')">닫기</button>
 </div></div>
-<!-- MODAL: 인터뷰 질문 -->
-<div id="m-iv" class="mod hide"><div>
-  <div class="row"><h2 id="iv-title" style="margin:0;font-size:15px"></h2><button class="btn sm" onclick="closeM('m-iv')">✕</button></div>
-  <p id="iv-sub" style="margin:6px 0"></p>
-  <div id="iv-tabs" class="scroll" style="margin-bottom:10px"></div>
-  <div id="iv-list" style="display:flex;flex-direction:column;gap:8px"></div>
-  <label>📝 이 그룹 답변 메모</label><textarea id="iv-note" rows="4" class="inp" oninput="saveIvNote(this.value)" placeholder="핵심 답변, 영상에 쓸 포인트 등"></textarea>
-  <div class="g2" style="margin-top:10px"><button class="btn" onclick="copyIv(false)">📋 이 그룹 질문 복사</button><button class="btn" onclick="copyIv(true)">📋 전체 질문 복사</button></div>
-  <button class="btn dk" style="width:100%;margin-top:8px" onclick="closeM('m-iv')">닫기</button>
-</div></div>
-
 <div id="toast"></div>
 
 <script src="rqpdf.js"></script>
@@ -1391,8 +1363,6 @@ function updateBadge(){
 function refresh(){
   renderCal(); renderAgenda(); renderTodo();
   if(activeTab==='inq') renderInq();
-  if(activeTab==='ck') renderCkTab();
-  if(activeTab==='iv') renderIvTab();
   if(activeTab==='stat') renderStat();
   if(activeTab==='mng') renderMng();
   if(activeTab==='led'&&typeof renderLed==='function') renderLed();
@@ -1400,7 +1370,7 @@ function refresh(){
 }
 function tab(n){
   activeTab=n; saveUI();
-  ['cal','inq','mng','ck','iv','stat','led','set'].forEach(k=>$('v-'+k).classList.toggle('hide',k!==n));
+  ['cal','inq','mng','stat','led','set'].forEach(k=>$('v-'+k).classList.toggle('hide',k!==n));
   document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on2',b.dataset.n===n)); $('gear').classList.toggle('on',n==='set');
   refresh(); window.scrollTo({top:0}); if(typeof clContractAuto==='function') clContractAuto();
 }
@@ -1415,6 +1385,7 @@ function renderTodo(){
     const last=S.meta.lastBackup||S.meta.firstUse||Date.now(), days=Math.floor((Date.now()-last)/86400000), lim=Number(S.cfg.backupDays)||14;
     if(days>=lim) add(1,'al-y',`💾 ${S.meta.lastBackup?`마지막 백업 ${days}일 전`:'아직 백업한 적이 없어요'} · 데이터는 이 폰에만 저장돼요`,`<button class="btn dk sm" onclick="exportJSON()">백업</button>`);
   }
+  try{ taxAlerts().forEach(a=>add(a.p,a.cls,a.text,a.btn)); }catch(e){ console.error(e); }
   act.forEach(i=>{
     if(i.status==='입금전'&&i.dueDate){
       const d=daysFromToday(i.dueDate);
@@ -1462,7 +1433,7 @@ function clAutoSave(){ const u=$('cl-url').value.trim(); if(u&&!/^https:\/\/scri
   function route(el){ const id=el.id||''; if(!id||!el.closest('#v-set,#led-set')) return null;
     if(/^(c-s-|c-cbody$|c-cpriv$)/.test(id)) return ['con',saveConTpl];
     if(/^c-/.test(id)) return ['cfg',saveCfg];
-    if(/^t-/.test(id)&&id!=='t-check') return ['tpl',saveTpl];
+    if(/^t-/.test(id)) return ['tpl',saveTpl];
     if(id==='cl-url'||id==='cl-key') return ['cl',clAutoSave];
     if(/^lc-/.test(id)) return ['lc',ledCfgSave];
     return null; }
@@ -2150,7 +2121,7 @@ function addBlock(){
 function delBlock(d){ S.blocked=S.blocked.filter(b=>b.date!==d); save(); renderBlocked(); renderCal(); renderAgenda(); }
 function renderSettings(){
   const C=S.cfg, T=S.templates;
-  $('c-total').value=C.defaultTotal?won(C.defaultTotal):''; $('c-dep').value=C.defaultDeposit?won(C.defaultDeposit):''; $('c-port').value=C.portDiscount?won(C.portDiscount):''; $('c-full').value=fullDef()?won(fullDef()):'';
+  $('c-total').value=C.defaultTotal?won(C.defaultTotal):''; $('c-dep').value=C.defaultDeposit?won(C.defaultDeposit):''; $('c-port').value=C.portDiscount?won(C.portDiscount):''; $('c-full').value=fullDef()?won(fullDef()):''; $('c-vatr').value=C.vatRate||40; $('c-ded').value=won(C.taxDed!=null?C.taxDed:1500000);
   $('c-due').value=C.dueDays; $('c-deliv').value=C.deliveryDays; $('c-backup').value=C.backupDays;
   $('c-pin').value=C.pairIn?won(C.pairIn):''; $('c-pout').value=C.pairOut?won(C.pairOut):''; $('c-pmax').value=C.pairMax; $('c-prefix').value=C.prefix;
   $('vars').innerHTML=VARS.map(v=>`<button class="btn sm" onclick="insVar('{${v}}')">{${v}}</button>`).join('');
@@ -2167,7 +2138,7 @@ function insVar(v){
 function saveCfg(q){
   const pre=($('c-prefix').value||'').toUpperCase().replace(/[^A-Z0-9]/g,'')||'RS';
   Object.assign(S.cfg,{defaultTotal:num($('c-total').value),defaultDeposit:num($('c-dep').value),portDiscount:num($('c-port').value),dueDays:num($('c-due').value)||3,
-    deliveryDays:num($('c-deliv').value)||30,backupDays:num($('c-backup').value)||14,gapHours:(()=>{ const v=parseFloat($('c-gap').value); return isNaN(v)?3:Math.max(0,v); })(),fullDiscount:num($('c-full').value),pairIn:num($('c-pin').value),pairOut:num($('c-pout').value),pairMax:num($('c-pmax').value),prefix:pre});
+    deliveryDays:num($('c-deliv').value)||30,backupDays:num($('c-backup').value)||14,gapHours:(()=>{ const v=parseFloat($('c-gap').value); return isNaN(v)?3:Math.max(0,v); })(),fullDiscount:num($('c-full').value),vatRate:parseFloat($('c-vatr').value)||40,taxDed:num($('c-ded').value),pairIn:num($('c-pin').value),pairOut:num($('c-pout').value),pairMax:num($('c-pmax').value),prefix:pre});
   save(); if(q){ if(q==='blur') $('c-prefix').value=pre; return autoMark(); } $('c-prefix').value=pre; refresh(); toast('💰 금액·할인 설정이 저장되었습니다 (새 예약부터 적용)');
 }
 function saveTpl(q){
@@ -2199,7 +2170,6 @@ function clearAll(){ S.inquiries=[]; save(); refresh(); toast('🗑️ 모두 �
 PILL.e='background:#0d9488;color:#fff';
 const costOf=i=>{ const c=i.cost||{}; return (Number(c.labor)||0)+(Number(c.travel)||0)+(Number(c.edit)||0)+(Number(c.etc)||0); };
 const profit=i=>price(i)-costOf(i);
-const ckDone=i=>S.checklist.filter(t=>(i.checks||[]).includes(t)).length;
 function timeMin(t){ if(!t||!t.includes(':')) return null; const [h,m]=t.split(':').map(Number); return h*60+m; }
 function goDate(ds){ selDate=ds; const [y,m]=ds.split('-').map(Number); calY=y; calM=m-1; tab('cal'); }
 function gapConflicts(){
@@ -2265,21 +2235,6 @@ function delWait(id){ S.wait=S.wait.filter(x=>x.id!==id); save(); refresh(); toa
 function convertWait(id){
   const w=S.wait.find(x=>x.id===id); if(!w) return;
   openInq(null,w.date); formWaitId=id; $('f-name').value=w.name; $('f-phone').value=w.phone||''; $('f-notes').value=w.memo?('대기 메모: '+w.memo):'';
-}
-
-/* ---------- v4: 촬영 체크리스트 ---------- */
-let ckId=null;
-function openCheck(id){ ckId=id; renderCheck(); openM('m-check'); }
-function renderCheck(){
-  const i=S.inquiries.find(x=>x.id===ckId); if(!i) return;
-  $('ck-title').textContent=`🎒 ${i.clientName}님 촬영 체크리스트`;
-  $('ck-sub').textContent=`${kdate(i.date)} ${ktime(i.time)} · ${i.venue||'장소 미정'} · ${ckDone(i)}/${S.checklist.length} 완료`;
-  $('ck-list').innerHTML=S.checklist.length?S.checklist.map((t,k)=>{ const on=(i.checks||[]).includes(t); return `<button type="button" class="ck ${on?'on':''}" onclick="toggleCheck(${k})">${on?'☑️':'⬜'} ${esc(t)}</button>`; }).join(''):'<p>설정 탭에서 체크리스트를 먼저 작성해 주세요</p>';
-}
-function toggleCheck(k){
-  const i=S.inquiries.find(x=>x.id===ckId), t=S.checklist[k]; if(!i||t==null) return;
-  if(!Array.isArray(i.checks)) i.checks=[]; const ix=i.checks.indexOf(t); if(ix>=0) i.checks.splice(ix,1); else i.checks.push(t);
-  save(); renderCheck(); refresh();
 }
 
 /* ---------- v4: 빈 날짜 홍보 문구 ---------- */
@@ -2393,12 +2348,11 @@ function renCat(k){ const l=cats().slice(), v=prompt('새 이름',l[k]); if(v==n
 function renderPresets(){ $('pr-list').innerHTML=S.presets.length?S.presets.map((p,k)=>`<div class="lrow"><span><b>${esc(p.label)}</b>${p.time?' · '+esc(p.time):''}</span><button class="btn rd sm" onclick="delPreset(${k})">삭제</button></div>`).join(''):'<p>등록된 일정이 없어요</p>'; }
 function addPreset(){ const l=$('pr-label').value.trim(); if(!l){ toast('일정 이름을 입력해 주세요'); return; } S.presets.push({label:l,time:$('pr-time').value||''}); $('pr-label').value=''; $('pr-time').value=''; save(); renderPresets(); toast('📌 자주 쓰는 일정에 추가했어요'); }
 function delPreset(k){ S.presets.splice(k,1); save(); renderPresets(); }
-function saveChecklist(){ S.checklist=$('t-check').value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean); save(); refresh(); toast('🎒 체크리스트가 저장되었습니다'); }
 function renderSettingsExtra(){
   const C=S.cfg, T=S.templates;
   $('c-gap').value=C.gapHours;
   $('t-contract').value=T.contractNotice||''; $('t-pdf').value=T.pdfRemind||''; $('t-cancel').value=T.cancelNotice||''; $('t-resched').value=T.rescheduleNotice||''; $('t-promo').value=T.promoTpl||'';
-  $('t-check').value=S.checklist.join('\n'); renderAlarmChips(); renderNoti(); renderCats(); renderPresets(); renderIvSettings(); renderCloud(); renderConTpl(); renderConMgr();
+  renderAlarmChips(); renderNoti(); taxRenderSettings(); renderCats(); renderPresets(); renderCloud(); renderConTpl(); renderConMgr();
   const ys=new Set([new Date().getFullYear()]); S.inquiries.forEach(i=>{ if(i.date) ys.add(+i.date.slice(0,4)); });
   const keepY=$('x-year').value, keepM=$('x-month').value;
   $('x-year').innerHTML=[...ys].sort((a,b)=>b-a).map(y=>`<option value="${y}">${y}년</option>`).join('');
@@ -2428,80 +2382,6 @@ function handleShared(){
     try{ history.replaceState({r:1},'',location.pathname); }catch(e){}
     tab('inq'); openInq(null,null,true); $('parser').value=txt; parseKakao(txt); toast('📩 공유한 카톡 내용을 자동으로 인식했어요');
   }catch(e){ console.error(e); }
-}
-
-/* ---------- v5: 인터뷰 질문 ---------- */
-const ivKey=(g,q)=>g+'||'+q;
-const ivTotal=()=>S.interview.reduce((s,g)=>s+g.qs.length,0);
-const ivDone=i=>{ const d=(i.iv&&i.iv.done)||{}; return S.interview.reduce((s,g)=>s+g.qs.filter(q=>d[ivKey(g.name,q)]).length,0); };
-let ivId=null, ivGroup=0;
-function ivEnsure(i){ i.iv=i.iv&&typeof i.iv==='object'?i.iv:{}; i.iv.done=i.iv.done||{}; i.iv.notes=i.iv.notes||{}; }
-function openIv(id){ ivId=id; ivGroup=0; const i=S.inquiries.find(x=>x.id===id); if(!i) return; ivEnsure(i); renderIv(); openM('m-iv'); }
-function renderIv(){
-  const i=S.inquiries.find(x=>x.id===ivId); if(!i) return; ivEnsure(i);
-  if(ivGroup>=S.interview.length) ivGroup=0;
-  $('iv-title').textContent=`🎤 ${i.clientName}님 인터뷰 질문`;
-  $('iv-sub').textContent=`전체 ${ivDone(i)}/${ivTotal()} 완료 · 질문을 누르면 체크돼요`;
-  $('iv-tabs').innerHTML=S.interview.map((x,k)=>{ const dn=x.qs.filter(q=>i.iv.done[ivKey(x.name,q)]).length; return `<button type="button" class="btn sm ${k===ivGroup?'on':''}" onclick="ivGroup=${k};renderIv()">${esc(x.name)} ${dn}/${x.qs.length}</button>`; }).join('');
-  const g=S.interview[ivGroup];
-  if(!g){ $('iv-list').innerHTML='<p>설정 탭에서 인터뷰 질문을 먼저 작성해 주세요</p>'; $('iv-note').value=''; return; }
-  $('iv-list').innerHTML=g.qs.length?g.qs.map((q,k)=>{ const on=!!i.iv.done[ivKey(g.name,q)]; return `<button type="button" class="ck ${on?'on':''}" onclick="toggleIv(${k})">${on?'☑️':'⬜'} ${esc(q)}</button>`; }).join(''):'<p>이 그룹에 질문이 없어요</p>';
-  const nv=i.iv.notes[g.name]||''; if($('iv-note').value!==nv) $('iv-note').value=nv;
-}
-function toggleIv(k){
-  const i=S.inquiries.find(x=>x.id===ivId), g=S.interview[ivGroup]; if(!i||!g) return; ivEnsure(i);
-  const key=ivKey(g.name,g.qs[k]); if(i.iv.done[key]) delete i.iv.done[key]; else i.iv.done[key]=true;
-  save(); renderIv(); refresh();
-}
-function saveIvNote(v){ const i=S.inquiries.find(x=>x.id===ivId), g=S.interview[ivGroup]; if(!i||!g) return; ivEnsure(i); if(v.trim()) i.iv.notes[g.name]=v; else delete i.iv.notes[g.name]; save(); }
-function copyIv(all){
-  const gs=all?S.interview:[S.interview[ivGroup]].filter(Boolean); if(!gs.length){ toast('복사할 질문이 없어요'); return; }
-  copyText(gs.map(g=>`[${g.name}]\n`+g.qs.map((q,k)=>`${k+1}. ${q}`).join('\n')).join('\n\n')); toast(all?'📋 전체 질문이 복사되었습니다':'📋 이 그룹 질문이 복사되었습니다');
-}
-function renderIvSettings(){
-  $('iv-groups').innerHTML=S.interview.map((g,k)=>`<div class="c" style="padding:10px;margin-bottom:8px"><div class="row" style="gap:6px"><input class="inp" id="ivn-${k}" value="${esc(g.name)}" placeholder="그룹 이름 (예: 신랑)"><button class="btn rd sm" onclick="delIvGroup(${k})">삭제</button></div><textarea id="ivq-${k}" rows="6" class="inp" style="margin-top:6px" placeholder="질문을 한 줄에 하나씩">${esc(g.qs.join('\n'))}</textarea></div>`).join('')||'<p>그룹이 없어요. + 그룹 추가를 눌러 주세요</p>';
-}
-function readIvSettings(){ return S.interview.map((g,k)=>{ const n=$('ivn-'+k), q=$('ivq-'+k); return n&&q?{name:n.value.trim()||g.name,qs:q.value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean)}:g; }); }
-function addIvGroup(){ S.interview=readIvSettings(); S.interview.push({name:'새 그룹',qs:[]}); save(); renderIvSettings(); toast('그룹을 추가했어요. 이름과 질문을 적고 저장하세요'); }
-function delIvGroup(k){ S.interview=readIvSettings(); S.interview.splice(k,1); save(); renderIvSettings(); refresh(); toast('그룹을 삭제했어요'); }
-function saveIvSettings(){
-  const gs=readIvSettings(), seen={}; gs.forEach(g=>{ let n=g.name,c=1; while(seen[n]) n=g.name+(++c); g.name=n; seen[n]=1; });
-  S.interview=gs; save(); renderIvSettings(); refresh(); toast('🎤 인터뷰 질문이 저장되었습니다');
-}
-function resetIv(){ S.interview=DEF_IV.map(g=>({name:g.name,qs:[...g.qs]})); save(); renderIvSettings(); refresh(); toast('기본 질문으로 되돌렸어요'); }
-
-/* ---------- v6: 체크리스트 / 인터뷰 탭 ---------- */
-function pickList(){
-  const t=todayISO(), a=S.inquiries.filter(i=>i.status!=='취소'&&i.date).sort((x,y)=>x.date.localeCompare(y.date));
-  const up=a.filter(i=>daysFromToday(i.date)>=-7); return up.length?up:a.slice(-10);
-}
-function pickChips(list,sel,fn){
-  return list.length?list.map(i=>{ const [,m,d]=i.date.split('-'); return `<button type="button" class="btn sm ${i.id===sel?'on':''}" onclick="${fn}('${i.id}')">${+m}/${+d} ${esc(i.clientName)}</button>`; }).join(''):'<p>날짜가 있는 예약이 없어요</p>';
-}
-function ensureSel(list,cur){ return list.some(i=>i.id===cur)?cur:(list.find(i=>daysFromToday(i.date)>=0)||list[0]||{}).id||null; }
-function selCk(id){ ckId=id; renderCkTab(); }
-function selIvT(id){ ivId=id; ivGroup=0; renderIvTab(); }
-function renderCkTab(){
-  const list=pickList(); ckId=ensureSel(list,ckId);
-  $('ck-pick').innerHTML=pickChips(list,ckId,'selCk');
-  const i=S.inquiries.find(x=>x.id===ckId);
-  if(!i){ $('ck-body').innerHTML='<p style="text-align:center;padding:20px">예약을 먼저 등록해 주세요</p>'; return; }
-  $('ck-body').innerHTML=`<b>${esc(i.clientName)}님</b><p style="margin:2px 0 8px">${kdate(i.date)} ${ktime(i.time)} · ${esc(i.venue||'장소 미정')} · ${ckDone(i)}/${S.checklist.length} 완료</p><div style="display:flex;flex-direction:column;gap:8px">`+
-    (S.checklist.length?S.checklist.map((x,k)=>{ const on=(i.checks||[]).includes(x); return `<button type="button" class="ck ${on?'on':''}" onclick="toggleCheck(${k})">${on?'☑️':'⬜'} ${esc(x)}</button>`; }).join(''):'<p>설정 탭에서 체크리스트를 먼저 작성해 주세요</p>')+`</div>`;
-}
-function renderIvTab(){
-  const list=pickList(); ivId=ensureSel(list,ivId);
-  $('ivt-pick').innerHTML=pickChips(list,ivId,'selIvT');
-  const i=S.inquiries.find(x=>x.id===ivId);
-  if(!i){ $('ivt-body').innerHTML='<p style="text-align:center;padding:20px">예약을 먼저 등록해 주세요</p>'; return; }
-  ivEnsure(i); if(ivGroup>=S.interview.length) ivGroup=0;
-  const g=S.interview[ivGroup];
-  const tabs=S.interview.map((x,k)=>{ const dn=x.qs.filter(q=>i.iv.done[ivKey(x.name,q)]).length; return `<button type="button" class="btn sm ${k===ivGroup?'on':''}" onclick="ivGroup=${k};renderIvTab()">${esc(x.name)} ${dn}/${x.qs.length}</button>`; }).join('');
-  const qs=g?(g.qs.length?g.qs.map((q,k)=>{ const on=!!i.iv.done[ivKey(g.name,q)]; return `<button type="button" class="ck ${on?'on':''}" onclick="toggleIv(${k})">${on?'☑️':'⬜'} ${esc(q)}</button>`; }).join(''):'<p>이 그룹에 질문이 없어요</p>'):'<p>설정 탭에서 인터뷰 질문을 먼저 작성해 주세요</p>';
-  const keep=document.activeElement&&document.activeElement.id==='ivt-note';
-  if(keep) return;
-  $('ivt-body').innerHTML=`<b>${esc(i.clientName)}님</b><p style="margin:2px 0 8px">${kdate(i.date)} · 전체 ${ivDone(i)}/${ivTotal()} 완료</p><div class="scroll" style="margin-bottom:10px">${tabs}</div><div style="display:flex;flex-direction:column;gap:8px">${qs}</div>`+
-    (g?`<label>📝 ${esc(g.name)} 답변 메모</label><textarea id="ivt-note" rows="4" class="inp" oninput="saveIvNote(this.value)" placeholder="핵심 답변, 영상에 쓸 포인트 등">${esc(i.iv.notes[g.name]||'')}</textarea><div class="g2" style="margin-top:10px"><button class="btn" onclick="copyIv(false)">📋 이 그룹 질문 복사</button><button class="btn" onclick="copyIv(true)">📋 전체 질문 복사</button></div>`:'');
 }
 
 /* ---------- v7: 구글 시트 클라우드 백업 ---------- */
@@ -2876,7 +2756,7 @@ function ask(msg,cb){ $('cf-msg').textContent=msg; cfCb=cb; openM('m-confirm'); 
 $('cf-ok').onclick=()=>{ const f=cfCb; cfCb=null; closeM('m-confirm'); if(typeof f==='function') f(); };
 window.addEventListener('popstate',()=>{
   if(skipPop>0){ skipPop--; return; }
-  const top=['m-confirm','m-con','m-iv','m-day','m-evt','m-past','m-wait','m-check','m-promo','m-prev','m-inq','m-cp','m-led','m-limp','m-lstore'].find(id=>!$(id).classList.contains('hide'));
+  const top=['m-confirm','m-con','m-day','m-evt','m-past','m-wait','m-promo','m-prev','m-inq','m-cp','m-led','m-limp','m-lstore'].find(id=>!$(id).classList.contains('hide'));
   if(top){ closeM(top,true); return; }
   if(activeTab!=='cal'){ tab('cal'); try{ history.pushState({b:1},''); }catch(e){} return; }
   const n=Date.now(); if(n-lastBack<2000) return;
@@ -2896,6 +2776,7 @@ if('serviceWorker' in navigator && location.protocol!=='file:'){
 </script>
 <script src="ledger.js"></script>
 <script src="coupang.js"></script>
+<script src="tax.js"></script>
 </body>
 </html>
 

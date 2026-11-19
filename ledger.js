@@ -163,7 +163,17 @@ function ledImportGo(){
   if(add.length){ const ds=add.map(x=>x.d).sort(); LP.y=+ds[ds.length-1].slice(0,4); LP.m=+ds[ds.length-1].slice(5,7)-1; LP.scope=(ds[0].slice(0,7)===ds[ds.length-1].slice(0,7))?'month':'all'; LF.cls='all'; LF.q=''; LF.lim=150; }
   refresh(); toast(`📥 ${n}건 가져왔어요${skip?` (제외 ${skip}건)`:''}`);
 }
-function ledOpenImp(){ $('li-step1').classList.remove('hide'); $('li-step2').classList.add('hide'); $('li-text').value=''; openM('m-limp'); }
+function ledCover(){
+  const m={}; S.ledger.filter(x=>x.io==='out'&&x.src==='kb'&&x.d).forEach(x=>{ const c=ledCard(x.card), o=m[c]||(m[c]={a:x.d,b:x.d,n:0}); if(x.d<o.a) o.a=x.d; if(x.d>o.b) o.b=x.d; o.n++; });
+  return m;
+}
+function ledCoverHTML(long){
+  const m=ledCover(), ks=Object.keys(m); if(!ks.length) return '아직 가져온 카드 내역이 없어요';
+  const f=d=>d.slice(2).replace(/-/g,'.');
+  const last=ks.map(k=>m[k].b).sort().pop();
+  return '📅 카드 내역 반영 기간 · '+ks.map(k=>`${esc(k)} ${f(m[k].a)}~${f(m[k].b)} (${m[k].n}건)`).join(' · ')+(long?`<br>다음에는 <b>${f(last)} 이후</b> 내역부터 받으면 돼요. 겹쳐도 같은 승인번호는 자동으로 건너뛰어요.`:'');
+}
+function ledOpenImp(){ if($('li-cov')) $('li-cov').innerHTML=ledCoverHTML(true); $('li-step1').classList.remove('hide'); $('li-step2').classList.add('hide'); $('li-text').value=''; openM('m-limp'); }
 
 /* ---------- 요약 ---------- */
 function ledBook(){
@@ -207,7 +217,7 @@ function ledScope(s){ LP.scope=s; LF.lim=150; renderLed(); }
 function renderLed(){
   if(!$('v-led')) return;
   const R=ledSummary(), net=R.rev-R.biz-R.bk.cost;
-  $('led-title').textContent=ledPeriodTitle();
+  $('led-title').textContent=ledPeriodTitle(); if($('led-cov')) $('led-cov').innerHTML=ledCoverHTML(false);
   ['month','year','all'].forEach(s=>{ const b=$('ls-'+s); if(b) b.className='btn sm '+(LP.scope===s?'on':''); });
   $('led-basis').innerHTML=[['contract','계약월'],['event','예식월'],['cash','입금일']].map(([v,l])=>`<button class="btn sm ${chBasis===v?'on':''}" onclick="chBasis='${v}';saveUI();renderLed()">${l}</button>`).join('');
   const inP=S.ledger.filter(x=>ledInPeriod(x.d)).length; $('led-basis-note').textContent=chBasis==='cash'?'입금일 기준: 계약금은 받은 날, 잔금은 받은 날에 수입으로 잡아요 (실제 현금 흐름). 세금 신고 기준과 다를 수 있어요.':chBasis==='event'?'예식월 기준: 예식일이 속한 달에 전체 금액을 잡아요.':'계약월 기준: 계약금 입금 달에 전체 금액을 잡아요.'; $('led-cnt').textContent=`${ledPeriodTitle()} ${inP}건 · 전체 ${S.ledger.length}건 저장됨`+(LP.scope!=='all'&&inP<S.ledger.length?' (월·연·전체 버튼으로 기간을 바꿔 보세요)':'');
@@ -234,6 +244,7 @@ function renderLed(){
     return `<button class="cmrow" style="text-align:left;width:100%;cursor:pointer" onclick="ledOpen('${x.id}')"><div class="row" style="align-items:flex-start"><div style="min-width:0"><b style="font-size:13px;word-break:break-all">${esc(x.shop||'(내용 없음)')}</b><div class="tl">${isIn?'<span class="tag t-a">수입</span>':ledClsChip(x.cls)}${x.cat&&x.cat!=='미분류'?`<span class="tag t-x">${esc(x.cat)}</span>`:''}${x.est?'<span class="tag t-b">≈환산</span>':''}${x.card&&x.src==='kb'?`<span style="font-size:10px;color:var(--mut)">${esc(ledCard(x.card))}</span>`:''}</div>${x.memo?`<div style="font-size:11px;color:var(--mut)">📝 ${esc(x.memo)}</div>`:''}</div><div style="text-align:right;flex-shrink:0"><b style="font-size:13px;color:${isIn?'#047857':neg?'#047857':'var(--ink)'}">${isIn?'+':neg?'−':''}${won(Math.abs(x.amt))}원</b><div style="font-size:10.5px;color:var(--mut);font-weight:700">${mdIso(x.d)}${x.usd?` · $${x.usd}`:''}</div></div></div></button>`;
   }).join('')||`<div class="c" style="text-align:center;padding:24px"><b>이 기간에 내역이 없어요</b><p style="margin-top:6px">[📥 카드내역 가져오기] 또는 [+ 직접 입력]으로 시작하세요</p></div>`;
   $('led-more').classList.toggle('hide',L.length<=LF.lim); $('led-more').textContent=`더 보기 (${L.length-LF.lim}건 남음)`;
+  try{ if(window.taxRender) taxRender(); }catch(e){ console.error(e); }
   if($('lc-rate')){ if(document.activeElement!==$('lc-rate')) $('lc-rate').value=won(S.cfg.usdRate||1400); if(document.activeElement!==$('lc-fee')) $('lc-fee').value=S.cfg.storeFee||0; }
 }
 function ledCfgSave(q){ S.cfg.usdRate=num($('lc-rate').value)||1400; const f=parseFloat(String($('lc-fee').value).replace(/[^0-9.]/g,'')); S.cfg.storeFee=isFinite(f)?f:0; save(); if(q) return autoMark(); renderLed(); toast('가계부 설정을 저장했어요'); }
