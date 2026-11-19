@@ -132,6 +132,9 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
 .dpsel{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:8px}
 .dpsel .inp{font-size:16px;font-weight:800;padding:12px 8px;text-align:center;text-align-last:center}
 .dpbox .bigdt.bad{color:#be123c}
+.auto-note{margin:10px 0 0;font-size:12px;font-weight:800;color:#047857}
+#autosave{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);background:#065f46;color:#fff;font-size:12px;font-weight:800;padding:7px 14px;border-radius:999px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:60}
+#autosave.on{opacity:.95}
 </style>
 </head>
 <body>
@@ -178,7 +181,7 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
       <button class="btn" style="background:#ffffff1a;color:#fff;border-color:#ffffff30" onclick="copyRequestTpl()">📤 고객용 문의양식 복사</button>
       <button class="btn am" onclick="openInq(null,null,true)">+ 카톡 자동등록</button>
     </div>
-    <button class="btn" style="width:100%;margin-top:8px;background:#ffffff1a;color:#fff;border-color:#ffffff30" onclick="openPast()">⏪ 지난 촬영 빠른 등록 (이미 끝난 촬영)</button>
+    <button class="btn" style="width:100%;margin-top:8px;background:#ffffff1a;color:#fff;border-color:#ffffff30" onclick="openPastForm()">⏪ 지난 촬영 등록 (이미 끝난 촬영)</button>
   </section>
   <section class="c">
     <div class="row" style="margin-bottom:8px"><b style="font-size:12px">📅 묶음 기준</b><div id="mode-chips" class="row" style="gap:4px"></div></div>
@@ -253,7 +256,7 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
   </section>
   <details class="c acc" id="led-set"><summary>⚙️ 가계부 설정</summary><p>해외결제 환산과 스토어 수수료 계산에 쓰는 값이에요. 실제 청구 금액과 다를 수 있어요.</p>
     <div class="g2"><div><label>해외결제 환율 (원/$)</label><input id="lc-rate" class="inp" inputmode="numeric" oninput="fmtMoney(this)"></div><div><label>스토어 수수료율 (%)</label><input id="lc-fee" class="inp" inputmode="decimal"></div></div>
-    <button class="btn dk" style="width:100%;margin-top:8px" onclick="ledCfgSave()">저장</button>
+    <p class="auto-note">✓ 입력하면 자동으로 저장돼요</p>
   </details>
 </main>
 
@@ -262,14 +265,14 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
   <div style="font-weight:800;font-size:16px;margin:2px 2px 8px">⚙️ 설정 <span style="font-size:11px;color:var(--mut);font-weight:600">— 항목을 누르면 펼쳐져요</span></div>
   <details class="c acc"><summary>💰 금액 · 운영 설정</summary><p>새 예약부터 적용돼요. 이미 등록된 예약의 금액은 바뀌지 않아요.</p>
     <div class="g2"><div><label>기본 상품 금액</label><input id="c-total" class="inp" inputmode="numeric" oninput="fmtMoney(this)"></div><div><label>기본 계약금</label><input id="c-dep" class="inp" inputmode="numeric" oninput="fmtMoney(this)"></div></div>
-    <div class="g2"><div><label>📸 포트폴리오 동의 할인</label><input id="c-port" class="inp" inputmode="numeric" oninput="fmtMoney(this)"></div><div><label>계약금 입금 기한 (일)</label><input id="c-due" class="inp" inputmode="numeric"></div></div>
+    <div class="g2"><div><label>💰 전액 결제 할인</label><input id="c-full" class="inp" inputmode="numeric" oninput="fmtMoney(this)"></div><div><label>📸 포트폴리오 동의 할인</label><input id="c-port" class="inp" inputmode="numeric" oninput="fmtMoney(this)"></div><div><label>계약금 입금 기한 (일)</label><input id="c-due" class="inp" inputmode="numeric"></div></div>
     <div class="g2"><div><label>납품 기한 (예식 후 N일)</label><input id="c-deliv" class="inp" inputmode="numeric"></div><div><label>백업 알림 주기 (일)</label><input id="c-backup" class="inp" inputmode="numeric"></div></div>
     <div><label>같은 날 예약 최소 간격 (시간, 0=끔)</label><input id="c-gap" class="inp" inputmode="decimal"></div>
   </details>
   <details class="c acc"><summary>🤝 짝꿍코드 설정</summary><p>계약금완료가 되면 코드가 자동 발급돼요. 소개 할인은 짝꿍이 '계약금완료'가 되면 코드 주인 금액에서 자동 차감돼요.</p>
     <div class="g2"><div><label>코드 입력한 분 할인</label><input id="c-pin" class="inp" inputmode="numeric" oninput="fmtMoney(this)"></div><div><label>코드 주인(소개한 분) 할인</label><input id="c-pout" class="inp" inputmode="numeric" oninput="fmtMoney(this)"></div></div>
     <div class="g2"><div><label>코드 1개당 사용 횟수 (0=무제한)</label><input id="c-pmax" class="inp" inputmode="numeric"></div><div><label>코드 앞 글자 (영문/숫자)</label><input id="c-prefix" class="inp" maxlength="4" style="text-transform:uppercase"></div></div>
-    <button class="btn dk" style="width:100%;margin-top:12px" onclick="saveCfg()">금액·할인 설정 저장</button>
+    <p class="auto-note">✓ 입력하면 자동으로 저장돼요</p>
   </details>
   <details class="c acc"><summary>🔔 촬영 전날 알림</summary><p>앱을 열 때 "내일 촬영"이 홈 상단에 크게 뜨고, 아래를 켜면 기기 알림도 한 번 보내요. 앱이 꺼져 있을 때는 울리지 않아요. (꺼진 상태 알림은 아래 .ics 알림의 '1일 전'을 쓰세요)</p><div class="row" style="margin-top:8px"><button id="noti-btn" class="btn" onclick="toggleNoti()"></button></div></details>
   <details class="c acc"><summary>📆 캘린더 알림</summary><p>.ics로 저장할 때 일정에 함께 들어가는 알림이에요. (구글캘린더 바로 추가 버튼은 구글캘린더 앱의 기본 알림 설정을 따라요)</p><div id="al-chips" class="wrap" style="margin-top:8px"></div></details>
@@ -303,13 +306,13 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
     <label style="color:#be123c">❎ 취소·환불 규정 안내 멘트</label><textarea id="t-cancel" rows="7" class="inp" onfocus="lastTpl='t-cancel'"></textarea>
     <label style="color:#92400e">🔁 일정 변경 안내 멘트</label><textarea id="t-resched" rows="6" class="inp" onfocus="lastTpl='t-resched'"></textarea>
     <label style="color:#047857">📣 빈 날짜 홍보 문구 ({월} {날짜목록} {남은수})</label><textarea id="t-promo" rows="6" class="inp" onfocus="lastTpl='t-promo'"></textarea>
-    <div class="g2" style="margin-top:10px"><button class="btn dk" onclick="saveTpl()">템플릿 저장</button><button class="btn" onclick="ask('멘트 템플릿을 기본값으로 초기화할까요?',resetTpl)">기본값 초기화</button></div>
+    <div class="g2" style="margin-top:10px"><span class="auto-note" style="align-self:center">✓ 입력하면 자동 저장돼요</span><button class="btn" onclick="ask('멘트 템플릿을 기본값으로 초기화할까요?',resetTpl)">기본값 초기화</button></div>
   </details>
-  <details class="c acc"><summary>☁️ 구글 시트 클라우드 백업</summary><p id="cl-info">내 구글 시트에 백업하고, 자동 동기화를 켜면 폰·컴퓨터의 예약이 서로 합쳐져요.</p>
+  <details class="c acc"><summary>☁️ 백업 · 동기화</summary><p id="cl-info">내 구글 시트에 백업하고, 자동 동기화를 켜면 폰·컴퓨터의 예약이 서로 합쳐져요.</p>
     <label>웹 앱 주소 (Apps Script 배포 URL)</label><input id="cl-url" class="inp" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off">
     <label>비밀키 (Code.gs 의 SECRET 과 같은 값)</label><input id="cl-key" class="inp" type="password" placeholder="나만 아는 긴 비밀키" autocomplete="off">
     <label style="display:flex;gap:8px;align-items:center;margin-top:8px"><input type="checkbox" id="cl-auto" style="width:18px;height:18px" onchange="clSaveCfg(false);if(this.checked) clSync(false)"> 🔄 자동 동기화 (여러 기기 · 켜면 폰과 컴퓨터가 알아서 맞춰져요)</label>
-    <div class="g2" style="margin-top:8px"><button class="btn" onclick="clSaveCfg(true)">🔌 저장 · 연결 테스트</button><button class="btn dk" onclick="clSync(false)">🔄 지금 동기화</button></div>
+    <div class="g2" style="margin-top:8px"><button class="btn" onclick="clSaveCfg(true)">🔌 연결 테스트</button><button class="btn dk" onclick="clSync(false)">🔄 지금 동기화</button></div>
     <div class="g2" style="margin-top:8px"><button class="btn bl" onclick="clRestore()">☁️ 클라우드로 덮어쓰기(복원)</button><button class="btn" onclick="clBackup(false,false)">☁️ 이 기기로 덮어쓰기(백업)</button></div>
     <details style="margin-top:8px"><summary style="font-size:12px;font-weight:800;cursor:pointer">📖 처음 연결하는 방법</summary>
       <ol style="font-size:12px;line-height:1.7;margin:6px 0 0;padding-left:18px;color:var(--mut)">
@@ -318,8 +321,16 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
         <li>기본 코드를 지우고 <b>apps-script/Code.gs</b> 내용을 붙여넣어요</li>
         <li>맨 위 <b>SECRET</b> 값을 나만 아는 긴 문자열로 바꾸고 저장해요</li>
         <li><b>배포 → 새 배포 → 웹 앱</b> 선택, 실행: <b>나</b>, 액세스: <b>모든 사용자</b> → 배포 (권한 승인 필요)</li>
-        <li>나온 <b>웹 앱 URL</b> 과 SECRET 을 위 칸에 붙여넣고 <b>저장 · 연결 테스트</b></li>
+        <li>나온 <b>웹 앱 URL</b> 과 SECRET 을 위 칸에 붙여넣고 <b>연결 테스트</b></li>
       </ol></details>
+    <hr style="border:0;border-top:1px solid var(--ln);margin:14px 0 10px"><b>💾 파일로 백업 · 내보내기</b><p id="bk-info">기기를 바꾸거나 브라우저 데이터를 지우기 전에 꼭 백업하세요.</p>
+    <div class="g2" style="margin-top:8px"><button class="btn dk" onclick="exportJSON()">💾 백업 저장(.json)</button><button class="btn" onclick="$('imp').click()">📂 백업 불러오기</button></div>
+    <input id="imp" type="file" accept=".json" class="hide" onchange="importJSON(event)">
+    <label style="display:flex;gap:8px;align-items:center;margin-top:10px;font-weight:700"><input type="checkbox" id="ics-done" style="width:18px;height:18px" onchange="S.cfg.icsDone=this.checked;save();autoMark()"> 촬영완료된 예약도 캘린더로 보내기</label>
+    <button class="btn bl" style="width:100%;margin-top:6px" onclick="exportAllICS()">📅 전체 일정 한 번에 캘린더로 내보내기 (.ics)</button>
+    <div class="g3" style="margin-top:8px"><select id="x-basis" class="inp"><option value="date">예식일 기준</option><option value="deposit">계약일 기준</option></select><select id="x-year" class="inp"></select><select id="x-month" class="inp"></select></div>
+    <button class="btn gn" style="width:100%;margin-top:8px" onclick="exportCSV()">📄 세무용 엑셀(CSV) 내보내기 (계약금완료·촬영완료)</button>
+    <div class="g2" style="margin-top:8px"><button class="btn bl" onclick="ask('샘플 예약 2건을 추가할까요?',addSamples)">✨ 샘플 추가</button><button class="btn rd" onclick="ask('등록된 모든 예약을 삭제할까요? (백업 권장)',clearAll)">🗑️ 전체 삭제</button></div>
   </details>
   <details class="c acc"><summary>📝 전자 계약서 (링크로 받기)</summary><p>예약 카드의 [📋 입금전 안내] 또는 [📝 계약서 링크 복사]를 누르면 고객 전용 링크가 만들어져요 (입금전 멘트에는 자동으로 들어가요). 고객이 링크에서 계약서를 읽고 서명하면 연락처·포트폴리오 동의가 앱에 자동으로 들어와요. 서명 후 7일 동안만 고객이 사본을 다시 열 수 있고(연락처는 가려서 보여요), 고객은 PDF를 직접 저장해요. <b>☁️ 클라우드 백업 연결이 먼저 필요해요.</b></p>
     <label>계약 조항 <span style="font-weight:600">· 변수: {성함} {예식일자} {예식시간} {예식장소} {상품} (금액 변수는 할인 때문에 표와 달라 보일 수 있어 기본 문구에서는 뺐어요)</span></label>
@@ -332,21 +343,13 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
     <input id="c-s-addr" class="inp" style="margin-top:6px" placeholder="사업장 주소 (시·구까지 전체 주소를 적어 주세요)">
     <p id="con-base" style="margin-top:6px"></p>
     <p style="margin-top:6px"><b>작성 방법</b>: 항목은 한 줄 <code>=====</code> 로 나눠요. 각 항목의 <b>첫 줄이 제목</b>이고, 마지막 줄을 <code>☑ 동의합니다.</code> 처럼 쓰면 그 문구가 고객 체크칸 이름이 돼요. 항목 안에 <code>[[포트폴리오선택]]</code> 을 쓰면 그 자리에 동의/미동의 선택이 들어가요. 강조하고 싶은 글자는 <code>**이렇게**</code> 감싸면 <b>굵은 글씨+형광펜</b>으로 보여요. 【 】가 남아 있으면 링크를 만들 때 한 번 더 물어봐요.</p>
-    <div class="g2" style="margin-top:8px"><button class="btn dk" onclick="saveConTpl()">계약서 문구 저장</button><button class="btn" onclick="ask('계약서·개인정보 문구를 기본 틀로 되돌릴까요? (직접 쓴 내용은 사라져요)',resetConTpl)">기본 틀로 되돌리기</button></div>
+    <div class="g2" style="margin-top:8px"><span class="auto-note" style="align-self:center">✓ 입력하면 자동 저장돼요</span><button class="btn" onclick="ask('계약서·개인정보 문구를 기본 틀로 되돌릴까요? (직접 쓴 내용은 사라져요)',resetConTpl)">기본 틀로 되돌리기</button></div>
     <button class="btn bl" style="width:100%;margin-top:8px" onclick="clContractSync(false)">🔄 서명 도착했는지 확인</button>
   </details>
   <details class="c acc" id="s-conmgr"><summary>📂 계약서 관리</summary><p>고객이 서명한 계약서를 <b>열람 · PDF로 다운로드 · 삭제</b>할 수 있어요. 삭제하면 구글 시트에서 연락처·서명 이미지·동의 기록이 지워지고 고객 링크도 닫혀요. (예약 카드의 "서명 완료" 표시는 남아요)</p>
     <div class="g2" style="margin-top:8px"><button class="btn dk" onclick="cmLoad()">🔄 목록 불러오기</button><button class="btn rd" onclick="cmPurgeOld()">🧹 서명 1년 지난 것 삭제</button></div>
     <div id="cm-info" style="margin-top:6px"></div>
     <div id="cm-list" style="display:flex;flex-direction:column;gap:8px;margin-top:8px"></div>
-  </details>
-  <details class="c acc"><summary>💾 백업 · 내보내기</summary><p id="bk-info">기기를 바꾸거나 브라우저 데이터를 지우기 전에 꼭 백업하세요.</p>
-    <div class="g2" style="margin-top:8px"><button class="btn dk" onclick="exportJSON()">💾 백업 저장(.json)</button><button class="btn" onclick="$('imp').click()">📂 백업 불러오기</button></div>
-    <input id="imp" type="file" accept=".json" class="hide" onchange="importJSON(event)">
-    <button class="btn bl" style="width:100%;margin-top:8px" onclick="exportAllICS()">📅 전체 일정 한 번에 캘린더로 내보내기 (.ics)</button>
-    <div class="g3" style="margin-top:8px"><select id="x-basis" class="inp"><option value="date">예식일 기준</option><option value="deposit">계약일 기준</option></select><select id="x-year" class="inp"></select><select id="x-month" class="inp"></select></div>
-    <button class="btn gn" style="width:100%;margin-top:8px" onclick="exportCSV()">📄 세무용 엑셀(CSV) 내보내기 (계약금완료·촬영완료)</button>
-    <div class="g2" style="margin-top:8px"><button class="btn bl" onclick="ask('샘플 예약 2건을 추가할까요?',addSamples)">✨ 샘플 추가</button><button class="btn rd" onclick="ask('등록된 모든 예약을 삭제할까요? (백업 권장)',clearAll)">🗑️ 전체 삭제</button></div>
   </details>
 </main>
 
@@ -424,6 +427,7 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
     <label>예식장소 (선택)</label><input id="ps-venue" class="inp">
     <label>메모 (선택)</label><input id="ps-memo" class="inp">
     <div class="g3" style="margin-top:12px"><button type="button" class="btn" onclick="closeM('m-inq')">닫기</button><button type="button" class="btn dk" style="grid-column:span 2" onclick="psSave()">지난 촬영 등록</button></div>
+    <button type="button" class="btn" style="width:100%;margin-top:8px" onclick="closeM('m-inq');setTimeout(openPast,80)">📋 여러 건 한꺼번에 붙여넣기</button>
   </div>
   <form id="form" onsubmit="saveInq(event)">
     <input type="hidden" id="f-id"><input type="hidden" id="f-date">
@@ -453,7 +457,9 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
     <div><label>🤝 짝꿍코드 입력</label><input id="f-code" class="inp" placeholder="예: RS-K7M2" autocapitalize="characters" style="text-transform:uppercase" oninput="renderFormPrice()"></div>
     <div id="code-msg" style="font-size:11px;font-weight:700;margin-top:4px"></div>
     <div data-fx="pay">
-    <div class="g2"><div><label>기본 상품 금액(원)</label><input id="f-total" class="inp" inputmode="numeric" oninput="fmtMoney(this);renderFormPrice()"></div><div><label>계약금(원)</label><input id="f-dep" class="inp" inputmode="numeric" oninput="fmtMoney(this);renderFormPrice()"></div></div>
+    <div class="g2"><div><label>기본 상품 금액(원)</label><input id="f-total" class="inp" inputmode="numeric" oninput="fmtMoney(this);renderFormPrice()"></div><div><label id="f-dep-l">계약금(원)</label><input id="f-dep" class="inp" inputmode="numeric" oninput="fmtMoney(this);renderFormPrice()"></div></div>
+    <label style="display:flex;gap:8px;align-items:center;margin-top:10px;font-weight:800"><input type="checkbox" id="f-full" style="width:18px;height:18px" onchange="fullToggle()"> 💰 전액 결제 (할인 적용 · 계약금 = 전액)</label>
+    <div id="f-fullbox" class="hide" style="margin-top:6px"><label>전액 결제 할인 (원) · 고객마다 수정 가능</label><input id="f-fdisc" class="inp" inputmode="numeric" oninput="fmtMoney(this);renderFormPrice()"></div>
     <div id="f-calc" class="box" style="margin-top:8px"></div>
     </div>
     <div data-fx="due"><label>계약금 입금 기한</label><input id="f-due" type="date" class="inp"></div>
@@ -955,7 +961,8 @@ function earned(i){
   if(!i.pairCode) return 0;
   return S.inquiries.filter(r=>r.codeUsed===i.pairCode&&isConf(r)&&r.id!==i.id).reduce((s,r)=>s+(Number(r.codeOutDisc)||0),0);
 }
-const price = i => Math.max(0, base(i)-(Number(i.portDisc)||0)-(Number(i.codeInDisc)||0)-earned(i));
+const price = i => Math.max(0, base(i)-(Number(i.portDisc)||0)-(Number(i.codeInDisc)||0)-(Number(i.fullDisc)||0)-earned(i));
+const fullDef = () => S.cfg.fullDiscount!=null?(Number(S.cfg.fullDiscount)||0):20000;
 const balOf = i => Math.max(0, price(i)-(Number(i.depositAmount)||0));
 function genCode(){
   const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789', pre=(String(S.cfg.prefix||'RS').toUpperCase().replace(/[^A-Z0-9]/g,'')||'RS');
@@ -1309,7 +1316,7 @@ function normalizeAll(){
     if(!STATUSES.includes(i.status)) i.status='문의접수';
     if(i.basePrice==null) i.basePrice=Number(i.totalPrice)||0;
     delete i.totalPrice;
-    ['portDisc','codeInDisc','codeOutDisc','depositAmount'].forEach(k=>{ i[k]=Number(i[k])||0; });
+    ['portDisc','codeInDisc','codeOutDisc','fullDisc','depositAmount'].forEach(k=>{ i[k]=Number(i[k])||0; });
     i.delivered=!!i.delivered; i.receipt=!!i.receipt; i.deliveredAt=i.deliveredAt||'';
     i.codeUsed=i.codeUsed||''; i.source=i.source||''; i.portfolio=i.portfolio||''; i.address=i.address||''; i.cost=i.cost||{}; i.checks=Array.isArray(i.checks)?i.checks:[]; if(!i.iv||typeof i.iv!=='object') i.iv={}; i.iv.done=i.iv.done||{}; i.iv.notes=i.iv.notes||{}; if(i.contract===undefined) i.contract=true;
     if(!i.createdAt) i.createdAt=now;
@@ -1446,6 +1453,22 @@ function renderTodo(){
 }
 
 /* ---------- calendar ---------- */
+/* v32: 설정 자동 저장 */
+let _asT=null;
+function autoMark(){ let b=document.getElementById('autosave'); if(!b){ b=document.createElement('div'); b.id='autosave'; b.textContent='✓ 자동 저장됨'; document.body.appendChild(b); } b.classList.add('on'); clearTimeout(_asT); _asT=setTimeout(()=>b.classList.remove('on'),1200); }
+function clAutoSave(){ const u=$('cl-url').value.trim(); if(u&&!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec/.test(u)) return; CL.url=u; CL.key=$('cl-key').value.trim(); CL.blocked=false; CL.status=''; clStore(); autoMark(); }
+(function(){
+  const T={};
+  function route(el){ const id=el.id||''; if(!id||!el.closest('#v-set,#led-set')) return null;
+    if(/^(c-s-|c-cbody$|c-cpriv$)/.test(id)) return ['con',saveConTpl];
+    if(/^c-/.test(id)) return ['cfg',saveCfg];
+    if(/^t-/.test(id)&&id!=='t-check') return ['tpl',saveTpl];
+    if(id==='cl-url'||id==='cl-key') return ['cl',clAutoSave];
+    if(/^lc-/.test(id)) return ['lc',ledCfgSave];
+    return null; }
+  document.addEventListener('input',e=>{ const r=route(e.target); if(!r) return; clearTimeout(T[r[0]]); T[r[0]]=setTimeout(()=>{ try{ r[1](true); }catch(x){} },700); });
+  document.addEventListener('change',e=>{ const r=route(e.target); if(!r) return; clearTimeout(T[r[0]]); try{ r[1]('blur'); }catch(x){} });
+})();
 let lastTap={d:'',t:0};
 document.addEventListener('click',e=>{ const c=e.target.closest&&e.target.closest('#cal-grid .cell'); if(!c||!c.dataset.d) return; const n=Date.now();
   if(lastTap.d===c.dataset.d&&n-lastTap.t<400){ lastTap={d:'',t:0}; openDay(c.dataset.d); } else lastTap={d:c.dataset.d,t:n}; },true);
@@ -1529,7 +1552,7 @@ function msgBtnsFor(i){
 }
 function cardHTML(i){
   const k=SK[i.status]||'q', tp=price(i), dep=Number(i.depositAmount)||0, bal=balOf(i), conf=isConf(i), e=earned(i), cost=costOf(i);
-  const disc=[]; if(i.portDisc>0) disc.push(`포트폴리오 −${won(i.portDisc)}`); if(i.codeInDisc>0) disc.push(`짝꿍코드 −${won(i.codeInDisc)}`); if(e>0) disc.push(`소개 −${won(e)}`);
+  const disc=[]; if(i.portDisc>0) disc.push(`포트폴리오 −${won(i.portDisc)}`); if(i.codeInDisc>0) disc.push(`짝꿍코드 −${won(i.codeInDisc)}`); if(i.fullDisc>0) disc.push(`전액결제 −${won(i.fullDisc)}`); if(e>0) disc.push(`소개 −${won(e)}`);
   const tl=[`📥 접수 ${mdTs(i.createdAt)}`]; if(i.depositAt) tl.push(`💳 계약금 ${mdTs(i.depositAt)}`); if(i.shotAt) tl.push(`🎬 촬영완료 ${mdTs(i.shotAt)}`); if(i.delivered&&i.deliveredAt) tl.push(`📦 납품 ${mdIso(i.deliveredAt)}`);
   const dueTxt=i.dueDate&&i.status==='입금전'?`<div><span>입금기한</span><b style="color:#be123c">${kdate(i.dueDate)}</b></div>`:'';
   const balTxt=conf&&tp>dep?`<div><span>잔금</span><b style="color:${i.balancePaid?'#047857':'#be123c'}">${i.balancePaid?'✅ 완료':'미수 '+won(bal)+'원'}</b></div>`:'';
@@ -1692,6 +1715,7 @@ function buildMsg(i,type,raw){
   const tp=price(i), dep=Number(i.depositAmount)||0, bal=balOf(i), e=earned(i), lines=[];
   if(i.portDisc>0) lines.push(`· 포트폴리오 동의 할인 −${won(i.portDisc)}원`);
   if(i.codeInDisc>0) lines.push(`· 짝꿍코드 할인 −${won(i.codeInDisc)}원`);
+  if(i.fullDisc>0) lines.push(`· 전액 결제 할인 −${won(i.fullDisc)}원`);
   if(e>0) lines.push(`· 짝꿍 소개 할인 −${won(e)}원`);
   const dtext=lines.length?[`■ 기본금액: ${won(base(i))}원`,...lines].join('\n'):'';
   const dd=i.date?daysFromToday(i.date):null;
@@ -1807,12 +1831,15 @@ function formCalc(){
     if(ed&&ed.codeUsed===code){ inD=Number(ed.codeInDisc)||0; outD=Number(ed.codeOutDisc)||0; }
     else { inD=Number(S.cfg.pairIn)||0; outD=Number(S.cfg.pairOut)||0; }
   }
-  const earn=ed?earned(ed):0, fin=Math.max(0,baseP-port-inD-earn), dep=num($('f-dep').value);
+  const earn=ed?earned(ed):0, full=$('f-full')&&$('f-full').checked, fd=full?num($('f-fdisc').value):0, fin=Math.max(0,baseP-port-inD-fd-earn);
+  let dep=num($('f-dep').value); if(full) dep=fin;
   const cost=num($('f-c1').value)+num($('f-c2').value)+num($('f-c3').value)+num($('f-c4').value);
-  return {baseP,code,chk,port,inD,outD,earn,fin,dep,cost};
+  return {baseP,code,chk,port,inD,outD,earn,fin,dep,cost,full,fd};
 }
+function fullToggle(){ const on=$('f-full').checked; $('f-fullbox').classList.toggle('hide',!on); if(on&&!$('f-fdisc').value) $('f-fdisc').value=fullDef()?won(fullDef()):''; renderFormPrice(); }
 function renderFormPrice(){
   const c=formCalc(), msg=$('code-msg');
+  { const full=$('f-full').checked, d=$('f-dep'); d.readOnly=full; d.style.opacity=full?'.6':''; $('f-dep-l').textContent=full?'전액 입금액(원)':'계약금(원)'; if(full) d.value=won(c.fin); }
   if(c.chk.empty){ msg.textContent=''; }
   else if(c.chk.ok){ msg.style.color='#047857'; msg.textContent=`✅ ${c.chk.owner.clientName}님의 짝꿍코드 (${c.chk.used+1}/${c.chk.max||'∞'}회째) · 할인 −${won(c.inD)}원${c.outD?` · ${c.chk.owner.clientName}님께도 −${won(c.outD)}원 (계약금완료 시 적용)`:''}`; }
   else { msg.style.color='#be123c'; msg.textContent=c.chk.msg; }
@@ -1820,6 +1847,7 @@ function renderFormPrice(){
   let h=row('기본 금액',won(c.baseP)+'원');
   if(c.port) h+=row('📸 포트폴리오 할인','−'+won(c.port)+'원','color:#6d28d9');
   if(c.inD) h+=row('🤝 짝꿍코드 할인','−'+won(c.inD)+'원','color:#6d28d9');
+  if(c.fd) h+=row('💰 전액 결제 할인','−'+won(c.fd)+'원','color:#6d28d9');
   if(c.earn) h+=row('🤝 소개 할인 (내 코드 사용)','−'+won(c.earn)+'원','color:#6d28d9');
   h+=row('최종 금액',won(c.fin)+'원','border-top:1px solid var(--ln);margin-top:3px;padding-top:5px;font-size:14px');
   h+=row('잔금 (최종 − 계약금)',won(Math.max(0,c.fin-c.dep))+'원','color:#b45309');
@@ -1842,6 +1870,7 @@ function openInq(editId,prefillDate,focusParser){
     $('f-due').value=i.dueDate||''; $('f-bal').value=i.balancePaid?'1':'0'; $('f-notes').value=i.notes||'';
     $('f-rcpt').value=i.receipt?'1':'0'; $('f-deliv').value=i.delivered?'1':'0'; $('f-contract').value=i.contract?'1':'0'; $('f-src').value=i.source||''; $('f-code').value=i.codeUsed||'';
     ['labor','travel','edit','etc'].forEach((k,n)=>{ $('f-c'+(n+1)).value=c[k]?won(c[k]):''; });
+    $('f-full').checked=!!i.fullPay||i.fullDisc>0; $('f-fdisc').value=i.fullDisc>0?won(i.fullDisc):'';
     $('f-time').value=i.time||'12:00'; setFormStatus(i.status||'문의접수'); pkDate=i.date||selDate; formPort=i.portfolio||'';
     $('f-depdate').value=i.depositAt?iso(new Date(i.depositAt)):''; $('f-baldate').value=i.balanceAt?iso(new Date(i.balanceAt)):'';
   } else {
@@ -1851,6 +1880,8 @@ function openInq(editId,prefillDate,focusParser){
     $('f-time').value='12:00'; pkDate=prefillDate||'';
     const d=new Date(); d.setDate(d.getDate()+(Number(C.dueDays)||3)); $('f-due').value=iso(d);
   }
+  if(!editId){ $('f-full').checked=false; $('f-fdisc').value=''; }
+  $('f-fullbox').classList.toggle('hide',!$('f-full').checked); renderFormPrice();
   tmUnsure=false; dtUnsure=''; $('f-date').value=pkDate||''; dpSync();
   setPort(formPort); markTime(); openM('m-inq');
   if(focusParser) setTimeout(()=>$('parser').focus(),150);
@@ -1921,11 +1952,12 @@ function saveInq(e){
   if(tmUnsure){ toast('시간(오전/오후)을 확인하고 [맞아요]를 눌러 주세요'); const pk=$('tp-label'); if(pk) pk.scrollIntoView({block:'center',behavior:'smooth'}); return; }
   if(!date){ toast('예식 날짜를 선택해 주세요'); const pk=$('pk-picked'); if(pk) pk.scrollIntoView({block:'center',behavior:'smooth'}); return; }
   const p=Object.assign({},old||{},{id:id||('inq-'+Date.now()),status:formStatus,clientName:name,phone:$('f-phone').value.trim(),address:$('f-addr').value.trim(),category:$('f-cat').value,date,time:$('f-time').value||'12:00',
-    venue:$('f-venue').value.trim(),paymentMethod:$('f-pay').value.trim()||'미정',basePrice:c.baseP,portDisc:c.port,codeUsed:c.code,codeInDisc:c.inD,codeOutDisc:c.outD,
+    venue:$('f-venue').value.trim(),paymentMethod:$('f-pay').value.trim()||'미정',basePrice:c.baseP,portDisc:c.port,fullPay:!!c.full,fullDisc:c.fd,codeUsed:c.code,codeInDisc:c.inD,codeOutDisc:c.outD,
     depositAmount:c.dep,dueDate:$('f-due').value||'',balancePaid:$('f-bal').value==='1',receipt:$('f-rcpt').value==='1',delivered:$('f-deliv').value==='1',contract:$('f-contract').value==='1',
     cost:{labor:num($('f-c1').value),travel:num($('f-c2').value),edit:num($('f-c3').value),etc:num($('f-c4').value)},
     source:$('f-src').value||(c.code?'짝꿍코드':''),notes:$('f-notes').value.trim(),portfolio:formPort});
   delete p.totalPrice;
+  if(c.full){ p.balancePaid=true; }
   const ddv=$('f-depdate').value, bdv=$('f-baldate').value;
   if(ddv&&(p.status==='계약금완료'||p.status==='촬영완료')) p.depositAt=new Date(ddv+'T12:00:00').getTime();
   if(p.balancePaid){ if(bdv) p.balanceAt=new Date(bdv+'T12:00:00').getTime(); } else p.balanceAt=null;
@@ -1976,9 +2008,9 @@ const vcal=evs=>['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//RunicSnap//Booking//
 function icsOne(id){ const i=S.inquiries.find(x=>x.id===id); if(!i||!i.date){ toast('예식일자가 없어요'); return; } download(`루닉필름_${i.date}_${i.clientName.replace(/\s+/g,'_')}.ics`,vcal([vevent(i)]),'text/calendar;charset=utf-8'); toast('📲 .ics 저장됨 — 열어서 캘린더에 등록하세요'); }
 function icsEvt(id){ const e=S.events.find(x=>x.id===id); if(!e) return; download(`루닉필름_일정_${e.date}.ics`,vcal([veventEvt(e)]),'text/calendar;charset=utf-8'); toast('📲 .ics 저장됨'); }
 function exportAllICS(){
-  const l=S.inquiries.filter(i=>i.status!=='취소'&&i.date); const all=[...l.map(vevent),...S.events.map(veventEvt)];
+  const l=S.inquiries.filter(i=>i.status!=='취소'&&i.date&&(S.cfg.icsDone||i.status!=='촬영완료')); const all=[...l.map(vevent),...S.events.map(veventEvt)];
   if(!all.length){ toast('내보낼 일정이 없습니다'); return; }
-  download(`루닉필름_전체일정_${todayISO()}.ics`,vcal(all),'text/calendar;charset=utf-8'); toast(`📅 예약 ${l.length}건 + 개인일정 ${S.events.length}건을 .ics로 저장했어요`);
+  download(`루닉필름_전체일정_${todayISO()}.ics`,vcal(all),'text/calendar;charset=utf-8'); toast(`📅 예약 ${l.length}건 + 개인일정 ${S.events.length}건을 .ics로 저장했어요${S.cfg.icsDone?'':' (촬영완료 제외)'}`);
 }
 function gcalUrl(title,date,time,durMin,details,loc){
   const [y,m,d]=date.split('-').map(Number); let dates;
@@ -2059,8 +2091,8 @@ function renderStat(){
     +cell('잔금 (미수)',m.bal,['#fff1f2','#fecdd3','#be123c','#9f1239'],m.bal?'아직 못 받은 금액':'모두 수금 완료')
     +cell('가예약 예상 (입금전)',m.pend,['#fffbeb','#fde68a','#92400e','#78350f'],'확정되면 매출')
     +`</div><div class="bar" style="margin-top:10px"><i style="width:${pct}%;background:var(--a)"></i></div>`;
-  const cf=list.filter(isConf), pd=cf.reduce((s,i)=>s+(Number(i.portDisc)||0),0), cd=cf.reduce((s,i)=>s+(Number(i.codeInDisc)||0)+earned(i),0);
-  $('disc-box').innerHTML=`<b style="color:var(--mut);display:block">🏷️ 할인 합계 (확정 건)</b><div><span>📸 포트폴리오 할인</span><b>−${won(pd)}원</b></div><div><span>🤝 짝꿍 할인</span><b>−${won(cd)}원</b></div>`;
+  const cf=list.filter(isConf), pd=cf.reduce((s,i)=>s+(Number(i.portDisc)||0),0), cd=cf.reduce((s,i)=>s+(Number(i.codeInDisc)||0)+earned(i),0), fd=cf.reduce((s,i)=>s+(Number(i.fullDisc)||0),0);
+  $('disc-box').innerHTML=`<b style="color:var(--mut);display:block">🏷️ 할인 합계 (확정 건)</b><div><span>📸 포트폴리오 할인</span><b>−${won(pd)}원</b></div><div><span>🤝 짝꿍 할인</span><b>−${won(cd)}원</b></div><div><span>💰 전액 결제 할인</span><b>−${won(fd)}원</b></div>`;
   const cs={labor:0,travel:0,edit:0,etc:0}; cf.forEach(i=>{ const c=i.cost||{}; Object.keys(cs).forEach(k=>{ cs[k]+=Number(c[k])||0; }); });
   const cSum=cs.labor+cs.travel+cs.edit+cs.etc, rSum=cf.reduce((s,i)=>s+price(i),0);
   $('cost-box').innerHTML=`<b style="color:var(--mut);display:block">💸 지출 · 순이익 (확정 건)</b><div><span>인건비</span><b>${won(cs.labor)}원</b></div><div><span>교통·식비</span><b>${won(cs.travel)}원</b></div><div><span>편집 외주</span><b>${won(cs.edit)}원</b></div><div><span>장비·기타</span><b>${won(cs.etc)}원</b></div><div style="border-top:1px solid var(--ln);margin-top:3px;padding-top:5px"><span>지출 합계</span><b>${won(cSum)}원</b></div><div><span>순이익</span><b style="color:${rSum-cSum<0?'#be123c':'#047857'}">${won(rSum-cSum)}원${rSum?` (마진 ${Math.round((rSum-cSum)/rSum*100)}%)`:''}</b></div>`;
@@ -2118,12 +2150,13 @@ function addBlock(){
 function delBlock(d){ S.blocked=S.blocked.filter(b=>b.date!==d); save(); renderBlocked(); renderCal(); renderAgenda(); }
 function renderSettings(){
   const C=S.cfg, T=S.templates;
-  $('c-total').value=C.defaultTotal?won(C.defaultTotal):''; $('c-dep').value=C.defaultDeposit?won(C.defaultDeposit):''; $('c-port').value=C.portDiscount?won(C.portDiscount):'';
+  $('c-total').value=C.defaultTotal?won(C.defaultTotal):''; $('c-dep').value=C.defaultDeposit?won(C.defaultDeposit):''; $('c-port').value=C.portDiscount?won(C.portDiscount):''; $('c-full').value=fullDef()?won(fullDef()):'';
   $('c-due').value=C.dueDays; $('c-deliv').value=C.deliveryDays; $('c-backup').value=C.backupDays;
   $('c-pin').value=C.pairIn?won(C.pairIn):''; $('c-pout').value=C.pairOut?won(C.pairOut):''; $('c-pmax').value=C.pairMax; $('c-prefix').value=C.prefix;
   $('vars').innerHTML=VARS.map(v=>`<button class="btn sm" onclick="insVar('{${v}}')">{${v}}</button>`).join('');
   $('t-bank').value=T.bankInfo||''; $('t-req').value=T.inquiryRequest||''; $('t-before').value=T.beforeDeposit||''; $('t-after').value=T.afterDeposit||'';
   $('t-balance').value=T.balanceNotice||''; $('t-delivery').value=T.deliveryNotice||''; $('t-review').value=T.reviewRequest||'';
+  { const c=$('ics-done'); if(c) c.checked=!!S.cfg.icsDone; }
   const lb=S.meta.lastBackup; $('bk-info').textContent=lb?`마지막 백업: ${new Date(lb).getMonth()+1}월 ${new Date(lb).getDate()}일 (${Math.floor((Date.now()-lb)/86400000)}일 전) · 기기를 바꾸거나 브라우저 데이터를 지우기 전에 꼭 백업하세요.`:'아직 백업한 적이 없어요. 기기를 바꾸거나 브라우저 데이터를 지우면 예약이 사라져요.';
   renderBlocked(); renderSettingsExtra();
 }
@@ -2131,16 +2164,16 @@ function insVar(v){
   const el=$(lastTpl)||$('t-before'), s=el.selectionStart??el.value.length, e=el.selectionEnd??el.value.length;
   el.value=el.value.slice(0,s)+v+el.value.slice(e); el.focus(); el.selectionStart=el.selectionEnd=s+v.length;
 }
-function saveCfg(){
+function saveCfg(q){
   const pre=($('c-prefix').value||'').toUpperCase().replace(/[^A-Z0-9]/g,'')||'RS';
   Object.assign(S.cfg,{defaultTotal:num($('c-total').value),defaultDeposit:num($('c-dep').value),portDiscount:num($('c-port').value),dueDays:num($('c-due').value)||3,
-    deliveryDays:num($('c-deliv').value)||30,backupDays:num($('c-backup').value)||14,gapHours:(()=>{ const v=parseFloat($('c-gap').value); return isNaN(v)?3:Math.max(0,v); })(),pairIn:num($('c-pin').value),pairOut:num($('c-pout').value),pairMax:num($('c-pmax').value),prefix:pre});
-  save(); $('c-prefix').value=pre; refresh(); toast('💰 금액·할인 설정이 저장되었습니다 (새 예약부터 적용)');
+    deliveryDays:num($('c-deliv').value)||30,backupDays:num($('c-backup').value)||14,gapHours:(()=>{ const v=parseFloat($('c-gap').value); return isNaN(v)?3:Math.max(0,v); })(),fullDiscount:num($('c-full').value),pairIn:num($('c-pin').value),pairOut:num($('c-pout').value),pairMax:num($('c-pmax').value),prefix:pre});
+  save(); if(q){ if(q==='blur') $('c-prefix').value=pre; return autoMark(); } $('c-prefix').value=pre; refresh(); toast('💰 금액·할인 설정이 저장되었습니다 (새 예약부터 적용)');
 }
-function saveTpl(){
+function saveTpl(q){
   Object.assign(S.templates,{bankInfo:$('t-bank').value.trim(),inquiryRequest:$('t-req').value,beforeDeposit:$('t-before').value,afterDeposit:$('t-after').value,
     balanceNotice:$('t-balance').value,deliveryNotice:$('t-delivery').value,reviewRequest:$('t-review').value,contractNotice:$('t-contract').value,pdfRemind:$('t-pdf').value,cancelNotice:$('t-cancel').value,rescheduleNotice:$('t-resched').value,promoTpl:$('t-promo').value});
-  save(); toast('💬 템플릿 설정이 저장되었습니다');
+  save(); if(q) return autoMark(); toast('💬 템플릿 설정이 저장되었습니다');
 }
 function resetTpl(){ S.templates={...DEF}; save(); renderSettings(); toast('기본 템플릿으로 복원되었습니다'); }
 function exportJSON(){
@@ -2827,7 +2860,7 @@ function cmPurgeOld(){
   });
 }
 function renderConTpl(){ if(!$('c-cbody')) return; { const b=contractPageBase(); $('con-base').innerHTML=b?`🌐 고객 계약서 페이지: <b>${esc(b)}</b><br>깃허브에 올린 뒤 이 주소가 열리면(불러오는 중… 화면) 준비된 거예요.`:'🌐 앱을 깃허브 페이지(https 주소)에서 열면 고객 계약서 주소가 여기에 표시돼요.'; } { const s=S.cfg.seller||{}; [['name','c-s-name'],['rep','c-s-rep'],['biz','c-s-biz'],['tel','c-s-tel'],['addr','c-s-addr']].forEach(([k,id])=>{ if(document.activeElement!==$(id)) $(id).value=s[k]||''; }); } if(document.activeElement!==$('c-cbody')) $('c-cbody').value=S.templates.contractBody||''; if(document.activeElement!==$('c-cpriv')) $('c-cpriv').value=S.templates.privacyBody||''; }
-function saveConTpl(){ S.cfg.seller={name:$('c-s-name').value.trim(),rep:$('c-s-rep').value.trim(),biz:$('c-s-biz').value.trim(),tel:$('c-s-tel').value.trim(),addr:$('c-s-addr').value.trim()}; S.templates.contractBody=$('c-cbody').value; S.templates.privacyBody=$('c-cpriv').value; save(); toast('📝 계약서 문구가 저장되었습니다'); }
+function saveConTpl(q){ S.cfg.seller={name:$('c-s-name').value.trim(),rep:$('c-s-rep').value.trim(),biz:$('c-s-biz').value.trim(),tel:$('c-s-tel').value.trim(),addr:$('c-s-addr').value.trim()}; S.templates.contractBody=$('c-cbody').value; S.templates.privacyBody=$('c-cpriv').value; save(); if(q) return autoMark(); toast('📝 계약서 문구가 저장되었습니다'); }
 function resetConTpl(){ S.templates.contractBody=DEF.contractBody; S.templates.privacyBody=DEF.privacyBody; save(); renderConTpl(); toast('기본 틀로 되돌렸어요'); }
 setTimeout(()=>clContractAuto(true),2500);
 

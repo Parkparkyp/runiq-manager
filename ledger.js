@@ -236,7 +236,7 @@ function renderLed(){
   $('led-more').classList.toggle('hide',L.length<=LF.lim); $('led-more').textContent=`더 보기 (${L.length-LF.lim}건 남음)`;
   if($('lc-rate')){ if(document.activeElement!==$('lc-rate')) $('lc-rate').value=won(S.cfg.usdRate||1400); if(document.activeElement!==$('lc-fee')) $('lc-fee').value=S.cfg.storeFee||0; }
 }
-function ledCfgSave(){ S.cfg.usdRate=num($('lc-rate').value)||1400; const f=parseFloat(String($('lc-fee').value).replace(/[^0-9.]/g,'')); S.cfg.storeFee=isFinite(f)?f:0; save(); renderLed(); toast('가계부 설정을 저장했어요'); }
+function ledCfgSave(q){ S.cfg.usdRate=num($('lc-rate').value)||1400; const f=parseFloat(String($('lc-fee').value).replace(/[^0-9.]/g,'')); S.cfg.storeFee=isFinite(f)?f:0; save(); if(q) return autoMark(); renderLed(); toast('가계부 설정을 저장했어요'); }
 
 /* ---------- 건별 편집 / 직접 입력 ---------- */
 function ledOpen(id,io){
