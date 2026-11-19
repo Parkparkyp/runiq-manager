@@ -134,6 +134,15 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
 .auto-note{margin:10px 0 0;font-size:12px;font-weight:800;color:#047857}
 #autosave{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);background:#065f46;color:#fff;font-size:12px;font-weight:800;padding:7px 14px;border-radius:999px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:60}
 #autosave.on{opacity:.95}
+.ccard{padding:0;border-left:4px solid var(--sc,#94a3b8);overflow:hidden}
+.chead{display:flex;flex-direction:column;gap:3px;padding:12px 14px 6px;cursor:pointer}
+.chead .l1{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.chead .nm{font-size:16px;font-weight:900;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chead .l2{font-size:13px;font-weight:700;color:#475569;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.cact{display:flex;gap:8px;padding:6px 14px 12px}
+.cact .btn.pri{flex:1}
+.cdet{display:flex;flex-direction:column;gap:9px;padding:0 14px 14px;border-top:1px solid #f1f5f9;margin-top:2px;padding-top:12px}
+.cdet.off{display:none}
 </style>
 </head>
 <body>
@@ -183,11 +192,13 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
     <button class="btn" style="width:100%;margin-top:8px;background:#ffffff1a;color:#fff;border-color:#ffffff30" onclick="openPastForm()">⏪ 지난 촬영 등록 (이미 끝난 촬영)</button>
   </section>
   <section class="c">
-    <div class="row" style="margin-bottom:8px"><b style="font-size:12px">📅 묶음 기준</b><div id="mode-chips" class="row" style="gap:4px"></div></div>
-    <div id="year-chips" class="scroll" style="margin-bottom:8px"></div>
     <div id="pipe" class="scroll" style="margin-bottom:8px"></div>
-    <input id="q" class="inp" placeholder="🔍 성함, 연락처, 장소, 상품, 짝꿍코드 검색" oninput="renderInq()">
-    <div id="port-filter" class="scroll" style="margin-top:8px"></div>
+    <div class="row" style="gap:8px"><input id="q" class="inp" style="flex:1;min-width:0" placeholder="🔍 성함, 연락처, 장소, 상품, 짝꿍코드 검색" oninput="renderInq()"><button id="filt-btn" class="btn" onclick="toggleFilt()">⚙ 필터</button></div>
+    <div id="filt-panel" class="hide" style="margin-top:10px">
+      <div class="row" style="margin-bottom:8px"><b style="font-size:12px">📅 묶음 기준</b><div id="mode-chips" class="row" style="gap:4px"></div></div>
+      <div id="year-chips" class="scroll" style="margin-bottom:8px"></div>
+      <div id="port-filter" class="scroll"></div>
+    </div>
   </section>
   <div id="inq-list" style="display:flex;flex-direction:column;gap:10px"></div>
 </main>
@@ -1540,7 +1551,7 @@ function cardHTML(i){
   const usedBox=i.codeUsed?`<div class="note" style="background:#f5f3ff;color:#5b21b6">🔗 사용한 짝꿍코드 <b>${esc(i.codeUsed)}</b>${ow?` (${esc(ow.clientName)}님 소개)`:''}</div>`:'';
   const mapq=encodeURIComponent(i.venue||'');
   const pre=i.status==='계약금완료';
-  return `<article class="c" style="display:flex;flex-direction:column;gap:9px">
+  const det=`
   <div class="row"><div class="row" style="gap:5px;min-width:0;flex-wrap:wrap"><span class="tag t-${k}">${i.status}</span><span class="tag t-x">${esc(i.category)}</span>${i.source?`<span class="tag t-x">${esc(i.source)}</span>`:''}</div>
     <select class="btn sm" onchange="requestStatus('${i.id}',this.value)">${STATUSES.map(s=>`<option ${s===i.status?'selected':''}>${s}</option>`).join('')}</select></div>
   <div class="row"><b style="font-size:16px">${esc(i.clientName)} 님</b>${i.phone?`<a href="tel:${esc(i.phone)}" style="color:var(--mut);font-size:12px;font-weight:700;text-decoration:none">📞 ${esc(i.phone)}</a>`:''}</div>
@@ -1567,8 +1578,26 @@ function cardHTML(i){
     ${i.date?`<a class="btn bl sm" target="_blank" rel="noopener" href="${gcalBooking(i)}">📆 구글캘린더</a><button class="btn bl sm" onclick="icsOne('${i.id}')">📅 .ics</button>`:''}
     <button class="btn sm" onclick="openInq('${i.id}')">수정</button>
     <button class="btn rd sm" onclick="delInq('${i.id}')">삭제</button>
-  </div></article>`;
+  </div>`;
+  const open=!!cardOpen[i.id], SC={'문의접수':'#94a3b8','입금전':'#f59e0b','계약금완료':'#2563eb','촬영완료':'#10b981','취소':'#e11d48'};
+  let pri='';
+  if(i.status==='문의접수'&&mb.length) pri=`<button class="btn am pri" onclick="copyMsg('${i.id}','${mb[0][0]}')">${mb[0][1]} 복사</button>`;
+  else if(i.status==='입금전') pri=`<button class="btn dk pri" onclick="requestStatus('${i.id}','계약금완료')">✅ 입금 확인 (계약금완료)</button>`;
+  else if(conf&&tp>dep&&!i.balancePaid) pri=`<button class="btn am pri" onclick="toggleBal('${i.id}')">💰 잔금 완료 처리 (${won(bal)}원)</button>`;
+  else if(conf&&!i.delivered) pri=`<button class="btn dk pri" onclick="toggleDeliv('${i.id}')">📦 납품 완료 처리</button>`;
+  else if(conf&&!i.receipt) pri=`<button class="btn pri" onclick="toggleRcpt('${i.id}')">🧾 영수증 발행 완료 처리</button>`;
+  const dd=i.date?daysFromToday(i.date):null, due=i.status==='입금전'&&i.dueDate?daysFromToday(i.dueDate):null;
+  const dueTag=due!=null&&due<=1?`<span style="color:#be123c;font-weight:900">⏰ ${due<0?'입금기한 '+(-due)+'일 지남':due===0?'오늘 입금기한':'내일 입금기한'}</span>`:'';
+  return `<article class="c ccard" id="card-${i.id}" style="--sc:${SC[i.status]||'#94a3b8'}">
+  <div class="chead" onclick="toggleCard('${i.id}')"><div class="l1"><span class="nm">${esc(i.clientName)} 님</span><span class="row" style="gap:6px;flex-shrink:0"><span class="tag t-${k}">${i.status}</span>${ddayBadge(i)}</span></div>
+    <div class="l2"><span>${i.date?(()=>{const [y,m,d]=i.date.split('-').map(Number);return `${y}.${m}.${d}(${DOW[new Date(y,m-1,d).getDay()]})`+(i.time?' '+i.time:'')})():'날짜 미정'}</span><span>·</span><b>${won(tp)}원</b>${dueTag?`<span>·</span>${dueTag}`:''}</div></div>
+  <div class="cact">${pri}<button class="btn sm" id="tg-${i.id}" onclick="toggleCard('${i.id}')">${open?'접기 ▴':'상세 ▾'}</button></div>
+  <div class="cdet ${open?'':'off'}" id="det-${i.id}">${det}</div></article>`;
 }
+let cardOpen={};
+function toggleCard(id){ const d=document.getElementById('det-'+id); if(!d) return; const on=d.classList.contains('off'); d.classList.toggle('off',!on); cardOpen[id]=on; const b=document.getElementById('tg-'+id); if(b) b.textContent=on?'접기 ▴':'상세 ▾'; }
+let filtOpen=false;
+function toggleFilt(){ filtOpen=!filtOpen; $('filt-panel').classList.toggle('hide',!filtOpen); }
 const monthKey = i => inqMode==='created' ? (()=>{ const d=new Date(i.createdAt||Date.now()); return `${d.getFullYear()}-${pad(d.getMonth()+1)}`; })() : ((i.date||'').slice(0,7)||'미정');
 function toggleMonth(k,def){ const id=inqMode+':'+k; monthOpen[id]=!(id in monthOpen?monthOpen[id]:def); renderInq(); }
 function renderInq(){
@@ -1579,6 +1608,7 @@ function renderInq(){
   const allBy={}; base.forEach(i=>{ const k=monthKey(i); (allBy[k]=allBy[k]||[]).push(i); });
   const years=[...new Set(Object.keys(allBy).map(k=>k.slice(0,4)).filter(y=>/^\d{4}$/.test(y)))].sort().reverse();
   if(yearFilter!=='전체'&&!years.includes(yearFilter)) yearFilter='전체';
+  { const n=(yearFilter!=='전체'?1:0)+(portFilter!=='전체'?1:0)+(inqMode!=='created'?1:0); const fb=$('filt-btn'); fb.textContent='⚙ 필터'+(n?' '+n:''); fb.classList.toggle('on',!!n); $('filt-panel').classList.toggle('hide',!filtOpen); }
   $('mode-chips').innerHTML=[['created','📥 접수월'],['event','💍 예식월']].map(([v,l])=>`<button class="btn sm ${inqMode===v?'on':''}" onclick="inqMode='${v}';renderInq()">${l}</button>`).join('');
   $('year-chips').innerHTML=['전체',...years].map(y=>`<button class="btn sm ${yearFilter===y?'on':''}" onclick="yearFilter='${y}';renderInq()">${y==='전체'?'전체 연도':y+'년'}</button>`).join('');
   $('pipe').innerHTML=['전체','문의접수','입금전','취소'].map(s=>{
