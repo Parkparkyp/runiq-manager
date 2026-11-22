@@ -12,6 +12,13 @@ header{background:var(--ink);color:#fff;padding:20px 16px 18px;margin:0 -14px 14
 header small{color:#fcd34d;font-weight:800;font-size:12px;letter-spacing:.5px}
 header h1{margin:2px 0 0;font-size:19px}
 header p{margin:6px 0 0;color:#cbd5e1;font-size:13px}
+header .biz{margin-top:10px;padding-top:10px;border-top:1px solid #334155;font-size:12px;color:#94a3b8;line-height:1.7}
+header .biz a{color:#fcd34d;font-weight:800;text-decoration:none}
+.btn2{display:block;width:100%;margin-top:10px;padding:14px;border:0;border-radius:12px;font:inherit;font-size:15px;font-weight:800;cursor:pointer;text-align:center;text-decoration:none}
+.btn-y{background:#fee500;color:#191919}
+.btn-g{background:#fff;color:var(--ink);border:1.5px solid var(--ink)}
+.ask{margin-top:16px;padding:14px;border-radius:14px;background:#fffbeb;border:1.5px solid #fde68a;text-align:left;font-size:14px}
+.ask b{display:block;font-size:15px;margin-bottom:4px}
 .c{background:#fff;border:1px solid var(--ln);border-radius:16px;padding:14px;margin-bottom:12px}
 .c h2{margin:0 0 4px;font-size:14px}
 label{display:block;font-size:12px;font-weight:800;color:var(--mut);margin:14px 0 5px}
@@ -42,11 +49,18 @@ input:focus,select:focus,textarea:focus{outline:0;border-color:var(--ink)}
 </head><body><div class="wrap" id="app"></div>
 <script>
 var X={brand:'루닉필름',product:'DVD',disc:0};
+// 사업자 정보·카카오톡 채널 주소 (공개 정보). CH_URL 예: 'https://pf.kakao.com/_abcdEf' — 비우면 채널 링크·버튼이 숨겨져요.
+var BIZ={rep:'박희윤',no:'637-12-03118'};
+var CH_URL='';
+function chOk(){return /^https:\/\/pf\.kakao\.com\/_[A-Za-z0-9_-]+$/.test(CH_URL);}
 var app=document.getElementById('app');
 function el(t,a,x){var e=document.createElement(t);if(a)for(var k in a){if(k==='class')e.className=a[k];else e.setAttribute(k,a[k]);}if(x!=null)e.textContent=x;return e;}
 function won(n){return String(Math.round(Number(n)||0)).replace(/\B(?=(\d{3})+(?!\d))/g,',')+'원';}
 function two(n){return n<10?'0'+n:''+n;}
-function head(){var h=el('header');h.appendChild(el('small',0,X.brand));h.appendChild(el('h1',0,'예약신청'));h.appendChild(el('p',0,'아래 내용을 작성해 주시면 확인 후 연락드려요.'));app.appendChild(h);}
+function head(){var h=el('header');h.appendChild(el('small',0,X.brand));h.appendChild(el('h1',0,'예약신청'));h.appendChild(el('p',0,'아래 내용을 작성해 주시면 확인 후 연락드려요.'));
+  var b=el('div',{class:'biz'},X.brand+' · 대표 '+BIZ.rep+' · 사업자등록번호 '+BIZ.no);
+  if(chOk()){b.appendChild(document.createElement('br'));b.appendChild(document.createTextNode('카카오톡 채널 '));var a=el('a',{href:CH_URL,target:'_blank',rel:'noopener'},'바로가기 ›');b.appendChild(a);}
+  h.appendChild(b);app.appendChild(h);}
 function big(t,s){app.innerHTML='';head();var c=el('div',{class:'c big'});c.appendChild(el('b',0,t));c.appendChild(el('span',{class:'note'},s));app.appendChild(c);}
 
 var GID=new URLSearchParams(location.search).get('g')||'';
@@ -153,7 +167,20 @@ function done(p){
   c.appendChild(el('span',{class:'note'},p.name+'님, 확인 후 남겨 주신 연락처로 연락드릴게요.'));
   var t=el('table',{style:'margin:14px auto 0;font-size:14px;text-align:left;border-collapse:collapse'});
   [['예식일',p.date+' '+p.time],['예식장소',p.venue],['결제방식',p.pay],['포트폴리오',p.portfolio]].forEach(function(r){var tr=el('tr');tr.appendChild(el('td',{style:'padding:4px 12px 4px 0;color:#64748b'},r[0]));tr.appendChild(el('td',{style:'padding:4px 0;font-weight:800'},r[1]));t.appendChild(tr);});
-  c.appendChild(t);app.appendChild(c);
+  c.appendChild(t);
+  var q=el('div',{class:'ask'});q.appendChild(el('b',0,'💬 카카오톡으로 한 통만 남겨 주세요'));
+  q.appendChild(el('span',0,'아래 문구를 복사해서 카카오톡 채널 채팅에 붙여넣고 보내 주시면, 확인 후 채팅으로 바로 안내드려요.'));
+  var md=p.date.split('-'),txt='예약신청했어요. 성함 '+p.name+', '+(+md[1])+'/'+(+md[2])+' '+p.venue+' 확인 부탁드려요.';
+  q.appendChild(el('div',{style:'margin-top:10px;padding:10px 12px;background:#fff;border:1px dashed #cbd5e1;border-radius:10px;font-weight:700;word-break:keep-all'},txt));
+  var cp=el('button',{type:'button',class:'btn2 btn-g'},'📋 문구 복사');
+  cp.addEventListener('click',function(){copyTxt(txt,function(ok){cp.textContent=ok?'✅ 복사됐어요':'길게 눌러 직접 복사해 주세요';});});
+  q.appendChild(cp);
+  if(chOk()){q.appendChild(el('a',{class:'btn2 btn-y',href:CH_URL+'/chat',target:'_blank',rel:'noopener'},'💬 카카오톡 채널 채팅 열기'));}
+  c.appendChild(q);app.appendChild(c);
+}
+function copyTxt(t,cb){
+  function fb(){try{var ta=el('textarea',{readonly:'readonly',style:'position:fixed;left:-9999px;top:0;opacity:0'});ta.value=t;document.body.appendChild(ta);ta.select();ta.setSelectionRange(0,t.length);var ok=document.execCommand('copy');document.body.removeChild(ta);cb(ok);}catch(e){cb(false);}}
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(function(){cb(true);},fb);}else fb();
 }
 function start(){
   if(!API){big('유효하지 않은 링크예요','링크를 다시 확인하시거나 담당자에게 문의해 주세요.');return;}
