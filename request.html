@@ -49,7 +49,7 @@ input:focus,select:focus,textarea:focus{outline:0;border-color:var(--ink)}
 </head><body><div class="wrap" id="app"></div>
 <script>
 var X={brand:'루닉필름',product:'DVD',disc:0};
-// 사업자 정보·카카오톡 채널 주소 (공개 정보). CH_URL 예: 'https://pf.kakao.com/_abcdEf' — 비우면 채널 링크·버튼이 숨겨져요.
+// 사업자 정보 (공개 정보). 카카오톡 채널 주소는 앱 설정에서 입력하면 서버(reqCfg)를 통해 들어와요.
 var BIZ={rep:'박희윤',no:'637-12-03118'};
 var CH_URL='';
 function chOk(){return /^https:\/\/pf\.kakao\.com\/_[A-Za-z0-9_-]+$/.test(CH_URL);}
@@ -186,7 +186,7 @@ function start(){
   if(!API){big('유효하지 않은 링크예요','링크를 다시 확인하시거나 담당자에게 문의해 주세요.');return;}
   app.innerHTML='';head();var c=el('div',{class:'c big'});c.appendChild(el('b',0,'불러오는 중…'));app.appendChild(c);
   post({action:'reqCfg'}).then(function(r){
-    if(r&&r.ok){X.brand=r.brand||X.brand;X.product=r.product||X.product;X.disc=Number(r.portDiscount)||0;if(r.open===false){return big('지금은 예약신청을 받지 않고 있어요','카카오톡으로 문의해 주세요.');}}
+    if(r&&r.ok){X.brand=r.brand||X.brand;X.product=r.product||X.product;X.disc=Number(r.portDiscount)||0;CH_URL=r.channelUrl||CH_URL;if(r.open===false){return big('지금은 예약신청을 받지 않고 있어요','카카오톡으로 문의해 주세요.');}}
     build();
   }).catch(function(){build();});
 }

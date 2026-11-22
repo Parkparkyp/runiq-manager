@@ -69,7 +69,7 @@ function doPost(e) {
 
 function doGet(e) {
   const c = e && e.parameter && e.parameter.c;
-  if (!c) return out_({ ok: true, msg: BRAND + ' 서버 동작 중', version: 'v41-source' });   // 배포된 코드 버전 확인용
+  if (!c) return out_({ ok: true, msg: BRAND + ' 서버 동작 중', version: 'v42-source' });   // 배포된 코드 버전 확인용
   if (e.parameter.action === 'contract') return out_(Object.assign({ ok: true }, contractView_(String(c))));
   return out_({ ok: false, error: 'use-post' });
 }
@@ -310,7 +310,7 @@ function kstToday_() { return Utilities.formatDate(new Date(), 'Asia/Seoul', 'yy
 /* 신청 페이지가 읽는 공개 설정 (금액·접수 여부만) */
 function reqCfg_() {
   const p = pub_();
-  return { ok: true, brand: BRAND, product: 'DVD', portDiscount: Number(p.portDiscount) || 0, open: p.reqOpen !== false };
+  return { ok: true, brand: BRAND, product: 'DVD', portDiscount: Number(p.portDiscount) || 0, open: p.reqOpen !== false, channelUrl: p.channelUrl || '' };
 }
 
 /* 앱 → 공개 설정 올리기 (포트폴리오 할인 금액 / 앱 주소 / 접수 켜기·끄기) */
@@ -318,6 +318,7 @@ function pubSet_(b) {
   const cur = pub_(), v = b.pub || {};
   if (v.portDiscount != null) cur.portDiscount = Math.max(0, Math.min(10000000, Math.round(Number(v.portDiscount) || 0)));
   if (typeof v.reqOpen === 'boolean') cur.reqOpen = v.reqOpen;
+  if (typeof v.channelUrl === 'string') cur.channelUrl = /^https:\/\/pf\.kakao\.com\/_[A-Za-z0-9_-]{2,40}$/.test(v.channelUrl) ? v.channelUrl : '';
   if (typeof v.appUrl === 'string') cur.appUrl = /^https:\/\/[A-Za-z0-9.\-\/_]{3,150}$/.test(v.appUrl) ? v.appUrl : '';
   props_().setProperty('pub', JSON.stringify(cur));
   return { ok: true };

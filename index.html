@@ -372,6 +372,9 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
     <div class="g2" style="grid-template-columns:1fr auto"><input id="rq-link" class="inp" readonly style="font-size:12px"><button class="btn dk" onclick="reqCopyLink()">🔗 복사</button></div>
     <label class="chk" style="display:flex;gap:8px;align-items:center;margin-top:10px;font-size:13px;font-weight:700"><input type="checkbox" id="rq-open" onchange="reqOpenSet()" style="width:20px;height:20px"> 신청 받는 중 (끄면 고객 화면에 "지금은 받지 않아요"가 떠요)</label>
     <div class="g2" style="margin-top:8px"><button class="btn bl" onclick="openReq()">📩 신청함 열기</button><button class="btn" onclick="reqPoll(false,true)">🔄 새 신청 확인</button></div>
+    <label style="display:block;font-size:12px;font-weight:800;color:var(--mut);margin-top:12px">💬 카카오톡 채널 주소 (신청 페이지에 표시)</label>
+    <input id="rq-ch" class="inp" inputmode="url" placeholder="https://pf.kakao.com/_xxxxx" style="font-size:13px" onchange="reqChSave()">
+    <p class="hint" style="margin-top:4px">채널 관리자센터의 채널 홈 주소를 붙여넣으세요. 비워 두면 채널 링크·버튼이 숨겨져요.</p>
     <p id="rq-info" style="margin-top:6px"></p>
     <p style="margin-top:6px">📱 <b>텔레그램 알림</b>은 앱이 아니라 Apps Script 에 연결해요. 설치 방법은 README 의 "예약신청 + 텔레그램 알림" 을 보세요. 포트폴리오 할인 금액은 이 화면의 <b>💰 금액·할인 설정</b> 값이 고객 신청 페이지에 그대로 표시돼요.</p>
   </details>
@@ -2888,10 +2891,10 @@ function reqPageUrl(){
   return '';
 }
 function appBaseUrl(){ try{ const u=new URL('./',location.href); return u.protocol==='https:'?u.origin+u.pathname:''; }catch(e){ return ''; } }
-function reqPubSig(){ return JSON.stringify({d:Number(S.cfg.portDiscount)||0,o:S.cfg.reqOpen!==false,a:appBaseUrl()}); }
+function reqPubSig(){ return JSON.stringify({d:Number(S.cfg.portDiscount)||0,o:S.cfg.reqOpen!==false,a:appBaseUrl(),c:S.cfg.chUrl||''}); }
 async function reqPubSync(force){
   if(!CL.url||!CL.key) return; const sig=reqPubSig(); if(!force&&CL.pubSig===sig) return;
-  try{ const r=await clPost({action:'pubSet',pub:{portDiscount:Number(S.cfg.portDiscount)||0,reqOpen:S.cfg.reqOpen!==false,appUrl:appBaseUrl()}}); if(r&&r.ok){ CL.pubSig=sig; clStore(); } }catch(e){}
+  try{ const r=await clPost({action:'pubSet',pub:{portDiscount:Number(S.cfg.portDiscount)||0,reqOpen:S.cfg.reqOpen!==false,appUrl:appBaseUrl(),channelUrl:S.cfg.chUrl||''}}); if(r&&r.ok){ CL.pubSig=sig; clStore(); } }catch(e){}
 }
 function reqSrcMap(v){ return v==='지인'?'지인 소개':(v||''); }
 function reqAtMs(at){ const t=conSignMs(at); return t||Date.now(); }
@@ -2917,10 +2920,16 @@ function renderReqSet(){
   if(!$('rq-link')) return;
   $('rq-link').value=reqPageUrl()||'(☁️ 클라우드 백업을 먼저 연결해 주세요)';
   $('rq-open').checked=S.cfg.reqOpen!==false;
+  if(document.activeElement!==$('rq-ch')) $('rq-ch').value=S.cfg.chUrl||'';
   const n=(REQ.list||[]).length;
   $('rq-info').textContent=REQ.old?'⚠️ 서버(Code.gs)가 예전 버전이에요. 새 Code.gs 를 붙여넣고 "새 버전"으로 다시 배포해 주세요.':(CL.url&&CL.key?(n?`📩 대기 중인 신청 ${n}건`:'대기 중인 신청이 없어요'):'');
 }
 function reqCopyLink(){ const u=reqPageUrl(); if(!u){ toast('클라우드 백업을 먼저 연결해 주세요'); return; } copyText(u); toast('🔗 신청 링크를 복사했어요'); }
+function reqChSave(){
+  let v=$('rq-ch').value.trim().replace(/\/chat\/?$/,'').replace(/\/+$/,'').replace(/^http:\/\//,'https://');
+  if(v&&!/^https:\/\/pf\.kakao\.com\/_[A-Za-z0-9_-]{2,40}$/.test(v)){ toast('채널 주소 형식이 아니에요 (예: https://pf.kakao.com/_xxxxx)'); return; }
+  S.cfg.chUrl=v; $('rq-ch').value=v; save(); reqPubSync(true); toast(v?'💬 채널 주소를 저장했어요':'채널 주소를 지웠어요');
+}
 function reqOpenSet(){ S.cfg.reqOpen=$('rq-open').checked; save(); reqPubSync(true); toast(S.cfg.reqOpen?'신청을 받는 중이에요':'신청 받기를 껐어요 (고객 화면에 안내가 떠요)'); }
 async function openReq(){
   if(!CL.url||!CL.key){ toast('클라우드 백업을 먼저 연결해 주세요'); return; }
