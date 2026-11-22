@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>예약신청</title>
+<style>
+:root{--ink:#0f172a;--mut:#64748b;--ln:#e2e8f0;--am:#fbbf24;--bg:#f1f5f9}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.65 -apple-system,'Apple SD Gothic Neo','Noto Sans KR',sans-serif}
+.wrap{max-width:520px;margin:0 auto;padding:0 14px 48px}
+header{background:var(--ink);color:#fff;padding:20px 16px 18px;margin:0 -14px 14px;border-radius:0 0 18px 18px}
+header small{color:#fcd34d;font-weight:800;font-size:12px;letter-spacing:.5px}
+header h1{margin:2px 0 0;font-size:19px}
+header p{margin:6px 0 0;color:#cbd5e1;font-size:13px}
+.c{background:#fff;border:1px solid var(--ln);border-radius:16px;padding:14px;margin-bottom:12px}
+.c h2{margin:0 0 4px;font-size:14px}
+label{display:block;font-size:12px;font-weight:800;color:var(--mut);margin:14px 0 5px}
+label:first-of-type{margin-top:0}
+label i{font-style:normal;color:#be123c}
+input[type=text],input[type=tel],input[type=date],select,textarea{width:100%;padding:12px;border:1.5px solid var(--ln);border-radius:12px;font-size:16px;font-family:inherit;background:#fff;color:var(--ink);-webkit-appearance:none;appearance:none}
+select{background-image:linear-gradient(45deg,transparent 50%,#64748b 50%),linear-gradient(135deg,#64748b 50%,transparent 50%);background-position:calc(100% - 18px) 55%,calc(100% - 12px) 55%;background-size:6px 6px;background-repeat:no-repeat;padding-right:34px}
+textarea{min-height:92px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:0;border-color:var(--ink)}
+.row2{display:flex;gap:8px}.row2>*{flex:1;min-width:0}
+.opt{display:flex;gap:8px;flex-wrap:wrap}
+.opt label{flex:1 1 40%;margin:0;display:flex;align-items:center;justify-content:center;gap:6px;padding:12px 8px;border:1.5px solid var(--ln);border-radius:12px;font-size:14px;color:var(--ink);cursor:pointer;text-align:center;background:#fff}
+.opt input{position:absolute;opacity:0;pointer-events:none}
+.opt label.on{border-color:var(--ink);background:var(--ink);color:#fff}
+.prod{display:flex;align-items:center;gap:10px;background:#fffbeb;border:1.5px solid #fde68a;border-radius:12px;padding:12px;font-weight:800}
+.hint{font-size:12px;color:var(--mut);margin-top:6px}
+.disc{margin-top:8px;padding:10px 12px;border-radius:12px;background:#f0fdf4;border:1.5px solid #86efac;color:#166534;font-size:13.5px;font-weight:800;display:none}
+.ck{display:flex;gap:10px;align-items:flex-start;margin-top:12px;font-size:14px;font-weight:700;color:var(--ink)}
+.ck input{width:22px;height:22px;flex:none;margin-top:1px}
+.go{width:100%;margin-top:14px;padding:16px;border:0;border-radius:14px;background:var(--ink);color:#fcd34d;font:inherit;font-size:16px;font-weight:800;cursor:pointer}
+.go:disabled{opacity:.55}
+.err{color:#be123c;font-weight:800;font-size:13px;margin-top:10px;white-space:pre-wrap}
+.big{text-align:center;padding:36px 10px}
+.big b{display:block;font-size:20px;margin-bottom:8px}
+.note{font-size:12px;color:var(--mut)}
+.hpw{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
+</style>
+</head><body><div class="wrap" id="app"></div>
+<script>
+var X={brand:'루닉필름',product:'DVD',disc:0};
+var app=document.getElementById('app');
+function el(t,a,x){var e=document.createElement(t);if(a)for(var k in a){if(k==='class')e.className=a[k];else e.setAttribute(k,a[k]);}if(x!=null)e.textContent=x;return e;}
+function won(n){return String(Math.round(Number(n)||0)).replace(/\B(?=(\d{3})+(?!\d))/g,',')+'원';}
+function two(n){return n<10?'0'+n:''+n;}
+function head(){var h=el('header');h.appendChild(el('small',0,X.brand));h.appendChild(el('h1',0,'예약신청'));h.appendChild(el('p',0,'아래 내용을 작성해 주시면 확인 후 연락드려요.'));app.appendChild(h);}
+function big(t,s){app.innerHTML='';head();var c=el('div',{class:'c big'});c.appendChild(el('b',0,t));c.appendChild(el('span',{class:'note'},s));app.appendChild(c);}
+
+var GID=new URLSearchParams(location.search).get('g')||'';
+var API=/^[A-Za-z0-9_-]{20,200}$/.test(GID)?'https://script.google.com/macros/s/'+GID+'/exec':'';
+var T0=Date.now();
+function post(o){return fetch(API,{method:'POST',body:JSON.stringify(o)}).then(function(r){return r.text();}).then(function(t){try{return JSON.parse(t);}catch(e){return{ok:false,error:'서버 응답을 읽지 못했어요'};}});}
+
+function chips(name,list,onchange){
+  var box=el('div',{class:'opt',role:'radiogroup'});
+  list.forEach(function(v){
+    var lb=el('label'),inp=el('input',{type:'radio',name:name,value:v});
+    inp.addEventListener('change',function(){
+      var ls=box.querySelectorAll('label');for(var i=0;i<ls.length;i++)ls[i].classList.remove('on');
+      lb.classList.add('on');if(onchange)onchange(v);
+    });
+    lb.appendChild(inp);lb.appendChild(document.createTextNode(v));box.appendChild(lb);
+  });
+  return box;
+}
+function val(name){var r=document.querySelector('input[name="'+name+'"]:checked');return r?r.value:'';}
+function lab(t,req){var l=el('label',0,t);if(req){var s=el('i',0,' *');l.appendChild(s);}return l;}
+
+function build(){
+  app.innerHTML='';head();
+  var c=el('div',{class:'c'}),form=el('form',{novalidate:'novalidate'});c.appendChild(form);app.appendChild(c);
+
+  form.appendChild(lab('📦 예약상품'));
+  var pr=el('div',{class:'prod'},X.product);form.appendChild(pr);
+
+  form.appendChild(lab('1. 예약자 성함',1));
+  var nm=el('input',{type:'text',autocomplete:'name',maxlength:'50',placeholder:'예: 홍길동'});form.appendChild(nm);
+
+  form.appendChild(lab('2. 연락처',1));
+  var ph=el('input',{type:'tel',inputmode:'tel',autocomplete:'tel',maxlength:'20',placeholder:'010-0000-0000'});form.appendChild(ph);
+
+  form.appendChild(lab('3. 예식일자',1));
+  var dt=el('input',{type:'date'});var d0=new Date();dt.min=d0.getFullYear()+'-'+two(d0.getMonth()+1)+'-'+two(d0.getDate());form.appendChild(dt);
+
+  form.appendChild(lab('4. 예식장소',1));
+  var vn=el('input',{type:'text',maxlength:'80',placeholder:'예: 더채플앳청담'});form.appendChild(vn);
+
+  form.appendChild(lab('5. 예식시간',1));
+  var tr=el('div',{class:'row2'}),hs=el('select',{'aria-label':'시'}),ms=el('select',{'aria-label':'분'});
+  hs.appendChild(el('option',{value:''},'시'));
+  for(var h=9;h<=20;h++){hs.appendChild(el('option',{value:two(h)},(h<12?'오전 '+h:(h===12?'오후 12':'오후 '+(h-12)))+'시'));}
+  ms.appendChild(el('option',{value:''},'분'));
+  function fillMin(){var keep=ms.value;ms.innerHTML='';ms.appendChild(el('option',{value:''},'분'));for(var m=0;m<60;m+=5){if(hs.value==='20'&&m>0)break;ms.appendChild(el('option',{value:two(m)},two(m)+'분'));}if(keep&&ms.querySelector('option[value="'+keep+'"]'))ms.value=keep;}
+  hs.addEventListener('change',fillMin);fillMin();
+  tr.appendChild(hs);tr.appendChild(ms);form.appendChild(tr);
+  form.appendChild(el('div',{class:'hint'},'정확한 시작 시간을 골라 주세요. (5분 단위)'));
+
+  form.appendChild(lab('6. 결제방식',1));
+  form.appendChild(chips('pay',['계좌','카드']));
+
+  form.appendChild(lab('7. 포트폴리오 활용',1));
+  var dsc=el('div',{class:'disc'});
+  form.appendChild(chips('port',['동의','미동의'],function(v){
+    if(v==='동의'){dsc.textContent=X.disc>0?'동의하시면 '+won(X.disc)+' 할인돼요 🎁':'동의하시면 할인이 적용돼요 🎁';dsc.style.display='block';}
+    else dsc.style.display='none';
+  }));
+  form.appendChild(dsc);
+  form.appendChild(el('div',{class:'hint'},'촬영 영상을 홍보용으로 활용하는 데 동의하시는지 선택해 주세요. 자세한 내용은 계약서에서 다시 안내드려요.'));
+
+  form.appendChild(lab('8. 요청사항 (선택)'));
+  var nt=el('textarea',{maxlength:'500',placeholder:'궁금한 점이나 요청하실 내용을 적어 주세요'});form.appendChild(nt);
+
+  form.appendChild(lab('9. 알게 되신 경로',1));
+  form.appendChild(chips('src',['인스타그램','블로그','유튜브','지인']));
+
+  var hpw=el('div',{class:'hpw','aria-hidden':'true'}),hp=el('input',{type:'text',name:'website',tabindex:'-1',autocomplete:'off'});hpw.appendChild(hp);form.appendChild(hpw);
+
+  var ck=el('label',{class:'ck'}),pv=el('input',{type:'checkbox'});ck.appendChild(pv);ck.appendChild(el('span',0,'예약 상담을 위해 성함·연락처·예식 정보를 수집·이용하는 데 동의합니다.'));form.appendChild(ck);
+
+  var er=el('div',{class:'err',role:'alert'});form.appendChild(er);
+  var go=el('button',{type:'submit',class:'go'},'예약신청 보내기');form.appendChild(go);
+  form.appendChild(el('div',{class:'note',style:'margin-top:10px;text-align:center'},'신청이 곧 확정은 아니에요. 확인 후 연락드릴게요.'));
+
+  form.addEventListener('submit',function(ev){
+    ev.preventDefault();er.textContent='';
+    var digits=ph.value.replace(/\D/g,'');
+    var p={name:nm.value.trim(),phone:ph.value.trim(),date:dt.value,venue:vn.value.trim(),time:(hs.value&&ms.value)?hs.value+':'+ms.value:'',pay:val('pay'),portfolio:val('port'),note:nt.value,source:val('src'),privacy:pv.checked,hp:hp.value,t:T0};
+    var msg='';
+    if(!p.name)msg='성함을 입력해 주세요';
+    else if(digits.length<9||digits.length>12)msg='연락처를 확인해 주세요';
+    else if(!p.date)msg='예식일자를 선택해 주세요';
+    else if(p.date<dt.min)msg='지난 날짜는 선택할 수 없어요';
+    else if(!p.venue)msg='예식장소를 입력해 주세요';
+    else if(!p.time)msg='예식시간(시·분)을 모두 선택해 주세요';
+    else if(!p.pay)msg='결제방식을 선택해 주세요';
+    else if(!p.portfolio)msg='포트폴리오 활용 여부를 선택해 주세요';
+    else if(!p.source)msg='알게 되신 경로를 선택해 주세요';
+    else if(!p.privacy)msg='개인정보 수집·이용에 동의해 주세요';
+    if(msg){er.textContent=msg;return;}
+    go.disabled=true;go.textContent='보내는 중…';
+    post({action:'reqSubmit',p:p}).then(function(r){
+      if(r&&r.ok){done(p);}
+      else{go.disabled=false;go.textContent='예약신청 보내기';er.textContent=(r&&r.error)||'전송에 실패했어요. 잠시 후 다시 시도해 주세요';}
+    }).catch(function(){go.disabled=false;go.textContent='예약신청 보내기';er.textContent='인터넷 연결을 확인하고 다시 시도해 주세요';});
+  });
+}
+function done(p){
+  app.innerHTML='';head();
+  var c=el('div',{class:'c big'});c.appendChild(el('b',0,'✅ 신청이 접수되었어요'));
+  c.appendChild(el('span',{class:'note'},p.name+'님, 확인 후 남겨 주신 연락처로 연락드릴게요.'));
+  var t=el('table',{style:'margin:14px auto 0;font-size:14px;text-align:left;border-collapse:collapse'});
+  [['예식일',p.date+' '+p.time],['예식장소',p.venue],['결제방식',p.pay],['포트폴리오',p.portfolio]].forEach(function(r){var tr=el('tr');tr.appendChild(el('td',{style:'padding:4px 12px 4px 0;color:#64748b'},r[0]));tr.appendChild(el('td',{style:'padding:4px 0;font-weight:800'},r[1]));t.appendChild(tr);});
+  c.appendChild(t);app.appendChild(c);
+}
+function start(){
+  if(!API){big('유효하지 않은 링크예요','링크를 다시 확인하시거나 담당자에게 문의해 주세요.');return;}
+  app.innerHTML='';head();var c=el('div',{class:'c big'});c.appendChild(el('b',0,'불러오는 중…'));app.appendChild(c);
+  post({action:'reqCfg'}).then(function(r){
+    if(r&&r.ok){X.brand=r.brand||X.brand;X.product=r.product||X.product;X.disc=Number(r.portDiscount)||0;if(r.open===false){return big('지금은 예약신청을 받지 않고 있어요','카카오톡으로 문의해 주세요.');}}
+    build();
+  }).catch(function(){build();});
+}
+start();
+</script>
+</body></html>

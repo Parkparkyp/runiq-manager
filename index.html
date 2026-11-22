@@ -136,6 +136,7 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
 #autosave.on{opacity:.95}
 .hm-motto{font-size:15px;font-weight:900;line-height:1.4;color:var(--ink)}
 .hm-goal{margin-top:10px}.hm-bar{height:12px;border-radius:99px;background:#e2e8f0;overflow:hidden;margin-top:6px}.hm-bar i{display:block;height:100%;background:linear-gradient(90deg,#f59e0b,#10b981);border-radius:99px;transition:width .5s}
+.hm-req{margin-top:10px;display:flex;align-items:center;justify-content:space-between;gap:8px;background:#fffbeb;border:1.5px solid #f59e0b;border-radius:12px;padding:10px 12px;font-size:13px;font-weight:800;cursor:pointer;color:#92400e}
 .hm-next{margin-top:10px;display:flex;align-items:center;justify-content:space-between;gap:8px;background:#f8fafc;border:1px solid var(--ln);border-radius:12px;padding:10px 12px;font-size:13px;font-weight:800;cursor:pointer}
 .hm-yr{display:flex;align-items:flex-end;gap:3px;height:74px;margin-top:10px;position:relative}
 .hm-yr div{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;position:relative;font-size:10px;font-weight:800;color:var(--mut)}
@@ -365,6 +366,15 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
     <div id="cm-info" style="margin-top:6px"></div>
     <div id="cm-list" style="display:flex;flex-direction:column;gap:8px;margin-top:8px"></div>
   </details>
+  <details class="c acc" id="s-req"><summary>📩 예약신청 페이지</summary>
+    <p>고객이 직접 작성하는 <b>신청 링크</b>예요. 카카오톡 자동응답에 이 링크를 넣어 두면 돼요. 신청이 들어오면 <b>홈에 알림</b>이 뜨고, [신청함]에서 <b>문의접수로 등록</b>해요. (Code.gs 를 새 버전으로 다시 배포해야 동작해요)</p>
+    <label>고객에게 보낼 링크</label>
+    <div class="g2" style="grid-template-columns:1fr auto"><input id="rq-link" class="inp" readonly style="font-size:12px"><button class="btn dk" onclick="reqCopyLink()">🔗 복사</button></div>
+    <label class="chk" style="display:flex;gap:8px;align-items:center;margin-top:10px;font-size:13px;font-weight:700"><input type="checkbox" id="rq-open" onchange="reqOpenSet()" style="width:20px;height:20px"> 신청 받는 중 (끄면 고객 화면에 "지금은 받지 않아요"가 떠요)</label>
+    <div class="g2" style="margin-top:8px"><button class="btn bl" onclick="openReq()">📩 신청함 열기</button><button class="btn" onclick="reqPoll(false,true)">🔄 새 신청 확인</button></div>
+    <p id="rq-info" style="margin-top:6px"></p>
+    <p style="margin-top:6px">📱 <b>텔레그램 알림</b>은 앱이 아니라 Apps Script 에 연결해요. 설치 방법은 README 의 "예약신청 + 텔레그램 알림" 을 보세요. 포트폴리오 할인 금액은 이 화면의 <b>💰 금액·할인 설정</b> 값이 고객 신청 페이지에 그대로 표시돼요.</p>
+  </details>
 </main>
 
 <nav>
@@ -445,7 +455,8 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
     <input id="f-addr" type="hidden">
     <div class="g2"><div><label>예약상품</label><select id="f-cat" class="inp"></select></div><div><label>예식장소</label><input id="f-venue" class="inp" placeholder="예: 남원새생명교회"></div></div>
     <label>💳 결제방식</label><div class="g4" id="f-paychips" style="margin-bottom:6px"></div><input id="f-pay" class="inp" placeholder="직접 입력">
-    <div id="f-port-wrap" class="hide"><label>📸 포트폴리오 동의</label><div id="f-port" class="g3"></div></div><select id="f-src" class="hide"></select>
+    <div id="f-port-wrap" class="hide"><label>📸 포트폴리오 동의</label><div id="f-port" class="g3"></div>
+      <div id="f-pdisc-box" class="hide" style="margin-top:6px"><label>📸 포트폴리오 할인 금액(원) · 고객마다 바꿀 수 있어요</label><input id="f-pdisc" class="inp" inputmode="numeric" placeholder="0" oninput="fmtMoney(this);renderFormPrice()"><p style="margin:4px 0 0;font-size:11px;color:var(--mut)">동의를 누르면 설정의 금액이 기본으로 들어가요. 이 고객만 다르게 하려면 직접 고쳐 주세요.</p></div></div><select id="f-src" class="hide"></select>
     <div class="box dpbox" style="margin-top:12px">
       <b id="dp-title">📅 예식 날짜</b>
       <div id="pk-picked" class="bigdt"></div>
@@ -558,6 +569,13 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
   <div id="con-body" style="margin-top:10px"></div>
   <div class="g2" style="margin-top:10px"><button class="btn dk" onclick="dlContract(conTok)">📄 PDF 다운로드</button><button class="btn rd" onclick="cmDel(conTok,true)">🗑️ 삭제</button></div>
   <button class="btn" style="width:100%;margin-top:8px" onclick="closeM('m-con')">닫기</button>
+</div></div>
+<!-- MODAL: 예약신청함 -->
+<div id="m-req" class="mod hide"><div>
+  <div class="row"><h2 style="margin:0;font-size:15px">📩 예약신청함</h2><button class="btn sm" onclick="closeM('m-req')">✕</button></div>
+  <p id="rq-top" style="margin:6px 0 0"></p>
+  <div id="rq-list" style="display:flex;flex-direction:column;gap:8px;margin-top:8px"></div>
+  <button class="btn" style="width:100%;margin-top:8px" onclick="closeM('m-req')">닫기</button>
 </div></div>
 <div id="toast"></div>
 
@@ -1457,7 +1475,7 @@ function renderHome(){
   const yc=S.inquiries.filter(i=>isConf(i)&&String(i.date||'').startsWith(Y+'-')), avg=yc.length?Math.round(yc.reduce((a,i)=>a+price(i),0)/yc.length):(Number(S.cfg.defaultTotal)||0);
   const t=todayISO(), nx=S.inquiries.filter(i=>i.status==='계약금완료'&&i.date&&i.date>=t).sort((a,b)=>(a.date+(a.time||'')).localeCompare(b.date+(b.time||'')))[0];
   const mot=String(S.cfg.motto||'').trim();
-    h.innerHTML=(mot?`<div class="hm-motto">${esc(mot)}</div>`:'')
+    h.innerHTML=reqBar()+(mot?`<div class="hm-motto">${esc(mot)}</div>`:'')
    +(goal?`<div class="hm-goal"><div class="row"><b>🎯 ${M+1}월 목표 ${goal}건</b><b style="color:${cur>=goal?'#047857':'var(--ink)'}">${cur}건 · ${pct}%${cur>=goal?' 🎉':''}</b></div><div class="hm-bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div>
       <p style="margin-top:4px">${avg?`목표 달성 시 예상 매출 약 <b>${won(goal*avg)}원</b> · 지금까지 약 ${won(cur*avg)}원 (평균 단가 ${won(avg)}원)`:'평균 단가가 정해지면 예상 매출이 표시돼요'} · 계약금 입금 기준 건수</p></div>`
      :`<div class="hm-goal"><p>🎯 설정 → "🏠 홈 · 알림 문구"에서 월 목표 건수를 정하면 달성 막대가 나와요</p></div>`)
@@ -1820,11 +1838,17 @@ function setPay(v){
   $('f-pay').value=v||'';
   document.querySelectorAll('#f-paychips .btn').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
 }
+let pdiscInit=false;
 function setPort(v){
   formPort=v||'';
   $('f-port').innerHTML=[['동의','☑️ 동의','a'],['미동의','⬜ 미동의','r'],['','❔ 미확인','']].map(([val,l,k])=>
     `<button type="button" class="btn sm ${formPort===val?(k?'on-'+k:'on'):''}" onclick="setPort('${val}')">${l}</button>`).join('');
-  renderFormPrice();
+  const box=$('f-pdisc-box');
+  if(formPort==='동의'){
+    if(!pdiscInit){ const ed=formEdit, d=(ed&&ed.portfolio==='동의'&&ed.portDisc!=null)?Number(ed.portDisc):(Number(S.cfg.portDiscount)||0); $('f-pdisc').value=d?won(d):''; pdiscInit=true; }
+    box.classList.remove('hide');
+  } else { pdiscInit=false; $('f-pdisc').value=''; box.classList.add('hide'); }
+  applyFormFx(); renderFormPrice();
 }
 let tmUnsure=false, dtUnsure='';
 function tpLabel(v){ const m=/^(\d{1,2}):(\d{2})/.exec(v||''); if(!m) return ''; const h=+m[1], mi=+m[2]; return `${h<12?'오전':'오후'} ${h%12||12}시${mi?' '+mi+'분':''}`; }
@@ -1864,7 +1888,7 @@ function dpChange(){
   if(y&&m&&d){ pkDate=`${y}-${pad(+m)}-${pad(+d)}`; $('f-date').value=pkDate; } else { pkDate=''; $('f-date').value=''; }
   renderPicker(); autoPast();
 }
-function applyFormFx(){ const s=formStatus, show={pay:s!=='문의접수',due:s==='입금전',late:(s==='계약금완료'||s==='촬영완료'||s==='취소'||s==='잠수')}; document.querySelectorAll('[data-fx]').forEach(el=>el.classList.toggle('hide',!show[el.dataset.fx])); const pw=$('f-port-wrap'); if(pw) pw.classList.toggle('hide',!(s==='계약금완료'||s==='촬영완료')); const opt=noDateOK(); if($('dp-title')){ $('dp-title').textContent=opt?'📅 예식 날짜 (선택 · 몰라도 돼요)':'📅 예식 날짜'; $('tp-title').textContent=opt?'⏰ 예식 시간 (선택)':'⏰ 예식 시간'; } }
+function applyFormFx(){ const s=formStatus, show={pay:s!=='문의접수',due:s==='입금전',late:(s==='계약금완료'||s==='촬영완료'||s==='취소'||s==='잠수')}; document.querySelectorAll('[data-fx]').forEach(el=>el.classList.toggle('hide',!show[el.dataset.fx])); const pw=$('f-port-wrap'); if(pw) pw.classList.toggle('hide',!(s==='계약금완료'||s==='촬영완료'||formPort)); const opt=noDateOK(); if($('dp-title')){ $('dp-title').textContent=opt?'📅 예식 날짜 (선택 · 몰라도 돼요)':'📅 예식 날짜'; $('tp-title').textContent=opt?'⏰ 예식 시간 (선택)':'⏰ 예식 시간'; } }
 function setFormStatus(s,auto){
   formStatus=s; if(!auto) statusTouched=true;
   $('f-status').innerHTML=STATUSES.map(x=>`<button type="button" class="btn sm ${x===s?'on-'+SK[x]:''}" onclick="setFormStatus('${x}')">${x}</button>`).join('');
@@ -1872,7 +1896,7 @@ function setFormStatus(s,auto){
 }
 function formCalc(){
   const ed=formEdit, baseP=num($('f-total').value), code=normCode($('f-code').value), chk=checkCodeFor(code,ed?ed.id:null);
-  const port=formPort==='동의'?((ed&&ed.portfolio==='동의'&&ed.portDisc!=null)?Number(ed.portDisc):(Number(S.cfg.portDiscount)||0)):0;
+  const port=formPort==='동의'?num($('f-pdisc').value):0;
   let inD=0,outD=0;
   if(chk.ok){
     if(ed&&ed.codeUsed===code){ inD=Number(ed.codeInDisc)||0; outD=Number(ed.codeOutDisc)||0; }
@@ -1930,7 +1954,7 @@ function openInq(editId,prefillDate,focusParser,createdDate){
   if(!editId){ $('f-full').checked=false; $('f-fdisc').value=''; }
   $('f-fullbox').classList.toggle('hide',!$('f-full').checked); renderFormPrice();
   tmUnsure=false; dtUnsure=''; $('f-date').value=pkDate||''; dpSync();
-  setPort(formPort); markTime(); crNote(); statusTouched=false; openM('m-inq');
+  pdiscInit=false; setPort(formPort); markTime(); crNote(); statusTouched=false; openM('m-inq');
   if(focusParser) setTimeout(()=>$('parser').focus(),150);
 }
 function renderPicker(){
@@ -2212,6 +2236,7 @@ function addBlock(){
 }
 function delBlock(d){ S.blocked=S.blocked.filter(b=>b.date!==d); save(); renderBlocked(); renderCal(); renderAgenda(); }
 function renderSettings(){
+  try{ renderReqSet(); }catch(e){}
   const C=S.cfg, T=S.templates;
   $('c-total').value=C.defaultTotal?won(C.defaultTotal):''; $('c-dep').value=C.defaultDeposit?won(C.defaultDeposit):''; $('c-port').value=C.portDiscount?won(C.portDiscount):''; $('c-full').value=fullDef()?won(fullDef()):''; $('c-vatr').value=C.vatRate||40; $('c-ded').value=won(C.taxDed!=null?C.taxDed:1500000);
   $('c-motto').value=C.motto||''; $('c-goal').value=C.goalN||''; $('c-popon').checked=C.popOn!==false; { const P=C.pop||{}; $('c-pop1').value=P.wk||POP_DEF.wk; $('c-pop2').value=P.ev||POP_DEF.ev; $('c-pop3').value=P.wkev||POP_DEF.wkev; }
@@ -2232,7 +2257,7 @@ function saveCfg(q){
   const pre=($('c-prefix').value||'').toUpperCase().replace(/[^A-Z0-9]/g,'')||'RS';
   Object.assign(S.cfg,{defaultTotal:num($('c-total').value),defaultDeposit:num($('c-dep').value),portDiscount:num($('c-port').value),dueDays:num($('c-due').value)||3,
     deliveryDays:num($('c-deliv').value)||30,backupDays:num($('c-backup').value)||14,gapHours:(()=>{ const v=parseFloat($('c-gap').value); return isNaN(v)?3:Math.max(0,v); })(),fullDiscount:num($('c-full').value),motto:$('c-motto').value.trim(),goalN:num($('c-goal').value),popOn:$('c-popon').checked,pop:{wk:$('c-pop1').value,ev:$('c-pop2').value,wkev:$('c-pop3').value},vatRate:parseFloat($('c-vatr').value)||40,taxDed:num($('c-ded').value),pairIn:num($('c-pin').value),pairOut:num($('c-pout').value),pairMax:num($('c-pmax').value),prefix:pre});
-  save(); renderHome(); if(q){ if(q==='blur') $('c-prefix').value=pre; return autoMark(); } $('c-prefix').value=pre; refresh(); toast('💰 금액·할인 설정이 저장되었습니다 (새 예약부터 적용)');
+  save(); renderHome(); reqPubSync(); if(q){ if(q==='blur') $('c-prefix').value=pre; return autoMark(); } $('c-prefix').value=pre; refresh(); toast('💰 금액·할인 설정이 저장되었습니다 (새 예약부터 적용)');
 }
 function saveTpl(q){
   Object.assign(S.templates,{bankInfo:$('t-bank').value.trim(),inquiryRequest:$('t-req').value,beforeDeposit:$('t-before').value,afterDeposit:$('t-after').value,
@@ -2854,6 +2879,92 @@ function saveConTpl(q){ S.cfg.seller={name:$('c-s-name').value.trim(),rep:$('c-s
 function resetConTpl(){ S.templates.contractBody=DEF.contractBody; S.templates.privacyBody=DEF.privacyBody; save(); renderConTpl(); toast('기본 틀로 되돌렸어요'); }
 setTimeout(()=>clContractAuto(true),2500);
 
+/* ---------- v41: 예약신청 (고객 신청 페이지 → 신청함 → 문의접수) ---------- */
+var REQ={list:[],at:0,busy:false,old:false}, reqAt=0;
+function reqBar(){ const n=(REQ.list||[]).length; return n?`<div class="hm-req" onclick="openReq()"><span>📩 새 예약신청 <b>${n}건</b>이 왔어요</span><span>확인하기 ›</span></div>`:''; }
+function reqPageUrl(){
+  const m=String(CL.url||'').match(/\/macros\/s\/([A-Za-z0-9_-]+)\/exec/); if(!m) return '';
+  try{ const u=new URL('request.html',location.href); if(u.protocol==='https:'||u.protocol==='http:') return u.origin+u.pathname+'?g='+m[1]; }catch(e){}
+  return '';
+}
+function appBaseUrl(){ try{ const u=new URL('./',location.href); return u.protocol==='https:'?u.origin+u.pathname:''; }catch(e){ return ''; } }
+function reqPubSig(){ return JSON.stringify({d:Number(S.cfg.portDiscount)||0,o:S.cfg.reqOpen!==false,a:appBaseUrl()}); }
+async function reqPubSync(force){
+  if(!CL.url||!CL.key) return; const sig=reqPubSig(); if(!force&&CL.pubSig===sig) return;
+  try{ const r=await clPost({action:'pubSet',pub:{portDiscount:Number(S.cfg.portDiscount)||0,reqOpen:S.cfg.reqOpen!==false,appUrl:appBaseUrl()}}); if(r&&r.ok){ CL.pubSig=sig; clStore(); } }catch(e){}
+}
+function reqSrcMap(v){ return v==='지인'?'지인 소개':(v||''); }
+function reqAtMs(at){ const t=conSignMs(at); return t||Date.now(); }
+async function reqPoll(silent,force){
+  if(!CL.url||!CL.key||REQ.busy){ if(!silent&&(!CL.url||!CL.key)) toast('클라우드 백업을 먼저 연결해 주세요'); return; }
+  if(!force&&Date.now()-reqAt<60000) return; reqAt=Date.now(); REQ.busy=true;
+  try{
+    reqPubSync();
+    const r=await clPost({action:'reqList'});
+    if(!r.ok){ REQ.old=(r.error==='action'); if(!silent) toast(REQ.old?'⚠️ Code.gs 를 새 버전으로 다시 배포해 주세요 (README 참고)':'❌ '+clErr(r)); renderReqSet(); return; }
+    REQ.old=false;
+    const all=r.list||[], dup=all.filter(x=>S.inquiries.some(i=>i.reqId===x.id));      // 등록은 됐는데 처리 표시가 실패했던 것
+    if(dup.length) clPost({action:'reqMark',ids:dup.map(x=>x.id),mode:'done'}).catch(()=>{});
+    const prev=new Set(REQ.list.map(x=>x.id)), list=all.filter(x=>!dup.includes(x)), fresh=list.filter(x=>!prev.has(x.id));
+    REQ.list=list; REQ.at=Date.now(); renderHome(); renderReqSet();
+    if(!$('m-req').classList.contains('hide')) renderReq();
+    if(fresh.length) toast(`📩 새 예약신청 ${fresh.length}건이 왔어요!`);
+    else if(!silent) toast(list.length?`📩 대기 중인 신청 ${list.length}건`:'새 신청이 없어요');
+  }catch(e){ if(!silent) toast('❌ 확인 실패 — 인터넷 연결을 확인해 주세요'); }
+  finally{ REQ.busy=false; }
+}
+function renderReqSet(){
+  if(!$('rq-link')) return;
+  $('rq-link').value=reqPageUrl()||'(☁️ 클라우드 백업을 먼저 연결해 주세요)';
+  $('rq-open').checked=S.cfg.reqOpen!==false;
+  const n=(REQ.list||[]).length;
+  $('rq-info').textContent=REQ.old?'⚠️ 서버(Code.gs)가 예전 버전이에요. 새 Code.gs 를 붙여넣고 "새 버전"으로 다시 배포해 주세요.':(CL.url&&CL.key?(n?`📩 대기 중인 신청 ${n}건`:'대기 중인 신청이 없어요'):'');
+}
+function reqCopyLink(){ const u=reqPageUrl(); if(!u){ toast('클라우드 백업을 먼저 연결해 주세요'); return; } copyText(u); toast('🔗 신청 링크를 복사했어요'); }
+function reqOpenSet(){ S.cfg.reqOpen=$('rq-open').checked; save(); reqPubSync(true); toast(S.cfg.reqOpen?'신청을 받는 중이에요':'신청 받기를 껐어요 (고객 화면에 안내가 떠요)'); }
+async function openReq(){
+  if(!CL.url||!CL.key){ toast('클라우드 백업을 먼저 연결해 주세요'); return; }
+  renderReq(); openM('m-req'); await reqPoll(true,true); renderReq();
+}
+function renderReq(){
+  const box=$('rq-list'); if(!box) return;
+  const L=REQ.list||[];
+  $('rq-top').textContent=REQ.old?'⚠️ Code.gs 를 새 버전으로 다시 배포해 주세요.':(L.length?`대기 중 ${L.length}건 · 등록하면 문의접수로 들어가요`:(REQ.at?'대기 중인 신청이 없어요 🎉':'불러오는 중…'));
+  box.innerHTML=L.map(r=>{
+    const d=r.date?new Date(r.date+'T00:00:00'):null, dw=d&&!isNaN(d)?DOW[d.getDay()]:'';
+    const same=S.inquiries.filter(i=>i.date===r.date&&!isDead(i)), conf=same.filter(isConf).length, oth=same.length-conf;
+    const warn=conf?`<span class="tag t-r">⚠️ 같은 날 확정 ${conf}건</span>`:(oth?`<span class="tag t-b">같은 날 문의 ${oth}건</span>`:'');
+    const pd=r.portfolio==='동의'?` (할인 ${won(Number(S.cfg.portDiscount)||0)}원)`:'';
+    return `<div class="cmrow"><div style="display:flex;justify-content:space-between;gap:6px"><b style="font-size:13px">${esc(r.name)}</b><span style="color:var(--mut)">${esc(r.at)}</span></div>
+<div class="tl">${warn}</div>
+<div>📅 ${esc(r.date)}${dw?`(${dw})`:''} ${esc(r.time)} · ${esc(r.venue)}<br>📞 ${esc(r.phone)} · 💳 ${esc(r.pay)} · 📸 포트폴리오 ${esc(r.portfolio)}${esc(pd)}<br>🧭 ${esc(r.source)}${r.note?`<br>💬 ${esc(r.note)}`:''}</div>
+<div class="g3" style="margin-top:6px;grid-template-columns:2fr 1fr"><button class="btn sm gn" onclick="reqRegister('${r.id}')">✅ 문의접수로 등록</button><button class="btn sm rd" onclick="reqDel('${r.id}')">🗑️ 삭제</button></div></div>`;
+  }).join('');
+}
+async function reqRegister(id){
+  const r=(REQ.list||[]).find(x=>x.id===id); if(!r) return;
+  if(S.inquiries.some(i=>i.reqId===id)){ toast('이미 등록된 신청이에요'); return; }
+  const C=S.cfg, dd=new Date(); dd.setDate(dd.getDate()+(Number(C.dueDays)||3));
+  const i={id:'inq-'+Date.now()+'-'+Math.random().toString(36).slice(2,6),status:'문의접수',clientName:r.name,phone:r.phone,address:'',category:'DVD',date:r.date,time:r.time,venue:r.venue,
+    paymentMethod:r.pay==='계좌'?'계좌이체':'카드',basePrice:Number(C.defaultTotal)||0,portDisc:r.portfolio==='동의'?(Number(C.portDiscount)||0):0,fullPay:false,fullDisc:0,codeUsed:'',codeInDisc:0,codeOutDisc:0,
+    depositAmount:Number(C.defaultDeposit)||0,dueDate:iso(dd),balancePaid:false,receipt:false,delivered:false,contract:false,cost:{labor:0,travel:0,edit:0,etc:0},
+    source:reqSrcMap(r.source),notes:r.note||'',portfolio:r.portfolio,checks:[],createdAt:reqAtMs(r.at),reqId:id};
+  stampStatus(i); S.inquiries.unshift(i); save();
+  REQ.list=REQ.list.filter(x=>x.id!==id); renderReq(); renderHome(); refresh();
+  toast(`✅ ${r.name}님 신청을 문의접수로 등록했어요`);
+  try{ await clPost({action:'reqMark',ids:[id],mode:'done'}); }catch(e){}     // 실패해도 reqId 로 중복 등록이 막혀요
+}
+function reqDel(id){
+  const r=(REQ.list||[]).find(x=>x.id===id); if(!r) return;
+  ask(`${r.name}님 신청을 삭제할까요?\n구글 시트에서 연락처 등 신청 내용이 지워지고 되돌릴 수 없어요.`,async()=>{
+    try{ const x=await clPost({action:'reqMark',ids:[id],mode:'delete'}); if(!x.ok){ toast('❌ '+clErr(x)); return; } }catch(e){ toast('❌ 삭제 실패 — 인터넷 연결을 확인해 주세요'); return; }
+    REQ.list=REQ.list.filter(x=>x.id!==id); renderReq(); renderHome(); renderReqSet(); toast('🗑️ 신청을 삭제했어요');
+  });
+}
+setTimeout(()=>reqPoll(true,true),2800);
+setInterval(()=>{ if(!document.hidden) reqPoll(true); },60000);
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden) reqPoll(true); });
+
 /* ---------- modals + Android back button ---------- */
 let skipPop=0, lastBack=0, cfCb=null;
 function openM(id){ $(id).classList.remove('hide'); try{ history.pushState({m:1},''); }catch(e){} }
@@ -2866,7 +2977,7 @@ function ask(msg,cb){ $('cf-msg').textContent=msg; cfCb=cb; openM('m-confirm'); 
 $('cf-ok').onclick=()=>{ const f=cfCb; cfCb=null; closeM('m-confirm'); if(typeof f==='function') f(); };
 window.addEventListener('popstate',()=>{
   if(skipPop>0){ skipPop--; return; }
-  const top=['m-confirm','m-con','m-det','m-tom','m-day','m-evt','m-past','m-wait','m-promo','m-prev','m-inq','m-cp','m-led','m-limp','m-lstore'].find(id=>!$(id).classList.contains('hide'));
+  const top=['m-confirm','m-req','m-con','m-det','m-tom','m-day','m-evt','m-past','m-wait','m-promo','m-prev','m-inq','m-cp','m-led','m-limp','m-lstore'].find(id=>!$(id).classList.contains('hide'));
   if(top){ closeM(top,true); return; }
   if(activeTab!=='cal'){ tab('cal'); try{ history.pushState({b:1},''); }catch(e){} return; }
   const n=Date.now(); if(n-lastBack<2000) return;
