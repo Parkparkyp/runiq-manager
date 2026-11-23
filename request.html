@@ -172,6 +172,9 @@ function build(){
   form.appendChild(chips('src',['인스타그램','블로그','유튜브','지인','기타'],function(v){so.style.display=(v==='기타')?'block':'none';if(v==='기타')so.focus();}));
   form.appendChild(so);
 
+  if(new URLSearchParams(location.search).get('src')==='ig'){   /* 인스타 광고 주소(runiq.kr/ig)로 들어오면 인스타그램을 미리 선택해요 */
+    var ri=form.querySelector('input[name="src"][value="인스타그램"]');if(ri){ri.checked=true;ri.dispatchEvent(new Event('change'));}
+  }
   var hpw=el('div',{class:'hpw','aria-hidden':'true'}),hp=el('input',{type:'text',name:'website',tabindex:'-1',autocomplete:'off'});hpw.appendChild(hp);form.appendChild(hpw);
 
   var ck=el('label',{class:'ck'}),pv=el('input',{type:'checkbox'});ck.appendChild(pv);ck.appendChild(el('span',0,'예약 상담을 위해 성함·연락처·예식 정보를 수집·이용하는 데 동의합니다.'));form.appendChild(ck);
