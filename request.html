@@ -179,9 +179,12 @@ function done(p){
     go.addEventListener('click',function(){copyTxt(txt,function(ok){doneMsg(ok,true);});});   /* 막지 않아요: 복사와 동시에 채널이 열려요 */
     q.appendChild(go);
   }
-  var cp=el('button',{type:'button',class:'btn2 btn-g'},chOk()?'📋 문구만 복사':'📋 문구 복사');
-  cp.addEventListener('click',function(){copyTxt(txt,function(ok){doneMsg(ok,false);});});
-  q.appendChild(cp);q.appendChild(st);
+  if(!chOk()){   /* 채널 주소가 없을 때만 복사 버튼을 따로 보여요 */
+    var cp=el('button',{type:'button',class:'btn2 btn-g'},'📋 문구 복사');
+    cp.addEventListener('click',function(){copyTxt(txt,function(ok){doneMsg(ok,false);});});
+    q.appendChild(cp);
+  }
+  q.appendChild(st);
   c.appendChild(q);app.appendChild(c);
 }
 function copyTxt(t,cb){
