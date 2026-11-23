@@ -169,13 +169,19 @@ function done(p){
   [['예식일',p.date+' '+p.time],['예식장소',p.venue],['결제방식',p.pay],['포트폴리오',p.portfolio]].forEach(function(r){var tr=el('tr');tr.appendChild(el('td',{style:'padding:4px 12px 4px 0;color:#64748b'},r[0]));tr.appendChild(el('td',{style:'padding:4px 0;font-weight:800'},r[1]));t.appendChild(tr);});
   c.appendChild(t);
   var q=el('div',{class:'ask'});q.appendChild(el('b',0,'💬 카카오톡으로 한 통만 남겨 주세요'));
-  q.appendChild(el('span',0,'아래 문구를 복사해서 카카오톡 채널 채팅에 붙여넣고 보내 주시면, 확인 후 채팅으로 바로 안내드려요.'));
+  q.appendChild(el('span',0,'아래 버튼을 누르면 문구가 복사되고 채널 채팅이 열려요. 붙여넣기 하고 보내 주시면, 확인 후 채팅으로 바로 안내드려요.'));
   var md=p.date.split('-'),txt='예약신청했어요. 성함 '+p.name+', '+(+md[1])+'/'+(+md[2])+' '+p.venue+' 확인 부탁드려요.';
   q.appendChild(el('div',{style:'margin-top:10px;padding:10px 12px;background:#fff;border:1px dashed #cbd5e1;border-radius:10px;font-weight:700;word-break:keep-all'},txt));
-  var cp=el('button',{type:'button',class:'btn2 btn-g'},'📋 문구 복사');
-  cp.addEventListener('click',function(){copyTxt(txt,function(ok){cp.textContent=ok?'✅ 복사됐어요':'길게 눌러 직접 복사해 주세요';});});
-  q.appendChild(cp);
-  if(chOk()){q.appendChild(el('a',{class:'btn2 btn-y',href:CH_URL+'/chat',target:'_blank',rel:'noopener'},'💬 카카오톡 채널 채팅 열기'));}
+  var st=el('div',{style:'margin-top:8px;font-size:13px;font-weight:700;min-height:18px;word-break:keep-all'},'');
+  function doneMsg(ok,go){st.style.color=ok?'#15803d':'#b91c1c';st.textContent=ok?(go?'✅ 복사됐어요. 채팅창에서 붙여넣기 하고 보내 주세요.':'✅ 복사됐어요.'):'복사가 안 됐어요. 위 문구를 길게 눌러 직접 복사해 주세요.';}
+  if(chOk()){
+    var go=el('a',{class:'btn2 btn-y',href:CH_URL+'/chat',target:'_blank',rel:'noopener'},'💬 문구 복사하고 카카오톡 채널 열기');
+    go.addEventListener('click',function(){copyTxt(txt,function(ok){doneMsg(ok,true);});});   /* 막지 않아요: 복사와 동시에 채널이 열려요 */
+    q.appendChild(go);
+  }
+  var cp=el('button',{type:'button',class:'btn2 btn-g'},chOk()?'📋 문구만 복사':'📋 문구 복사');
+  cp.addEventListener('click',function(){copyTxt(txt,function(ok){doneMsg(ok,false);});});
+  q.appendChild(cp);q.appendChild(st);
   c.appendChild(q);app.appendChild(c);
 }
 function copyTxt(t,cb){

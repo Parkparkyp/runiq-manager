@@ -475,6 +475,7 @@ a.btn{text-decoration:none;display:inline-block;text-align:center}
     <div id="code-msg" style="font-size:11px;font-weight:700;margin-top:4px"></div>
     <div data-fx="pay">
     <div class="g2"><div><label>기본 상품 금액(원)</label><input id="f-total" class="inp" inputmode="numeric" oninput="fmtMoney(this);renderFormPrice()"></div><div><label id="f-dep-l">계약금(원)</label><input id="f-dep" class="inp" inputmode="numeric" oninput="fmtMoney(this);renderFormPrice()"></div></div>
+    <div style="margin-top:8px"><label>🚗 출장비 (원) · 고객에게 받는 금액 (없으면 비워 두세요)</label><input id="f-travel" class="inp" inputmode="numeric" placeholder="예: 50,000" oninput="fmtMoney(this);renderFormPrice()"></div>
     <label style="display:flex;gap:8px;align-items:center;margin-top:10px;font-weight:800"><input type="checkbox" id="f-full" style="width:18px;height:18px" onchange="fullToggle()"> 💰 전액 결제 (할인 적용 · 계약금 = 전액)</label>
     <div id="f-fullbox" class="hide" style="margin-top:6px"><label>전액 결제 할인 (원) · 고객마다 수정 가능</label><input id="f-fdisc" class="inp" inputmode="numeric" oninput="fmtMoney(this);renderFormPrice()"></div>
     <div id="f-calc" class="box" style="margin-top:8px"></div>
@@ -978,7 +979,8 @@ function earned(i){
   if(!i.pairCode) return 0;
   return S.inquiries.filter(r=>r.codeUsed===i.pairCode&&isConf(r)&&r.id!==i.id).reduce((s,r)=>s+(Number(r.codeOutDisc)||0),0);
 }
-const price = i => Math.max(0, base(i)-(Number(i.portDisc)||0)-(Number(i.codeInDisc)||0)-(Number(i.fullDisc)||0)-earned(i));
+const travelOf = i => Math.max(0, Number(i.travelFee)||0);
+const price = i => Math.max(0, base(i)+travelOf(i)-(Number(i.portDisc)||0)-(Number(i.codeInDisc)||0)-(Number(i.fullDisc)||0)-earned(i));
 const fullDef = () => S.cfg.fullDiscount!=null?(Number(S.cfg.fullDiscount)||0):20000;
 const balOf = i => Math.max(0, price(i)-(Number(i.depositAmount)||0));
 function genCode(){
@@ -1333,7 +1335,7 @@ function normalizeAll(){
     if(!STATUSES.includes(i.status)) i.status='문의접수';
     if(i.basePrice==null) i.basePrice=Number(i.totalPrice)||0;
     delete i.totalPrice;
-    ['portDisc','codeInDisc','codeOutDisc','fullDisc','depositAmount'].forEach(k=>{ i[k]=Number(i[k])||0; });
+    ['portDisc','codeInDisc','codeOutDisc','fullDisc','depositAmount','travelFee'].forEach(k=>{ i[k]=Number(i[k])||0; });
     i.delivered=!!i.delivered; i.receipt=!!i.receipt; i.deliveredAt=i.deliveredAt||'';
     i.codeUsed=i.codeUsed||''; i.source=i.source||''; i.portfolio=i.portfolio||''; i.address=i.address||''; i.cost=i.cost||{}; i.checks=Array.isArray(i.checks)?i.checks:[]; if(!i.iv||typeof i.iv!=='object') i.iv={}; i.iv.done=i.iv.done||{}; i.iv.notes=i.iv.notes||{}; if(i.contract===undefined) i.contract=true;
     if(!i.createdAt) i.createdAt=now;
@@ -1594,7 +1596,7 @@ function msgBtnsFor(i){
 }
 function cardHTML(i,detOnly){
   const k=SK[i.status]||'q', tp=price(i), dep=Number(i.depositAmount)||0, bal=balOf(i), conf=isConf(i), e=earned(i), cost=costOf(i);
-  const disc=[]; if(i.portDisc>0) disc.push(`포트폴리오 −${won(i.portDisc)}`); if(i.codeInDisc>0) disc.push(`짝꿍코드 −${won(i.codeInDisc)}`); if(i.fullDisc>0) disc.push(`전액결제 −${won(i.fullDisc)}`); if(e>0) disc.push(`소개 −${won(e)}`);
+  const disc=[]; if(i.travelFee>0) disc.push(`출장비 +${won(i.travelFee)}`); if(i.portDisc>0) disc.push(`포트폴리오 −${won(i.portDisc)}`); if(i.codeInDisc>0) disc.push(`짝꿍코드 −${won(i.codeInDisc)}`); if(i.fullDisc>0) disc.push(`전액결제 −${won(i.fullDisc)}`); if(e>0) disc.push(`소개 −${won(e)}`);
   const tl=[`📥 접수 ${mdTs(i.createdAt)}`]; if(i.depositAt) tl.push(`💳 계약금 ${mdTs(i.depositAt)}`); if(i.shotAt) tl.push(`🎬 촬영완료 ${mdTs(i.shotAt)}`); if(i.delivered&&i.deliveredAt) tl.push(`📦 납품 ${mdIso(i.deliveredAt)}`);
   const dueTxt=i.dueDate&&i.status==='입금전'?`<div><span>입금기한</span><b style="color:#be123c">${kdate(i.dueDate)}</b></div>`:'';
   const balTxt=conf&&tp>dep?`<div><span>잔금</span><b style="color:${i.balancePaid?'#047857':'#be123c'}">${i.balancePaid?'✅ 완료':'미수 '+won(bal)+'원'}</b></div>`:'';
@@ -1781,6 +1783,7 @@ function buildMsg(i,type,raw){
   const key=(MSGS.find(m=>m[0]===type)||MSGS[0])[2];
   let t=raw!=null?String(raw):String(S.templates[key]||'');
   const tp=price(i), dep=Number(i.depositAmount)||0, bal=balOf(i), e=earned(i), lines=[];
+  if(i.travelFee>0) lines.push(`· 출장비 +${won(i.travelFee)}원`);
   if(i.portDisc>0) lines.push(`· 포트폴리오 동의 할인 −${won(i.portDisc)}원`);
   if(i.codeInDisc>0) lines.push(`· 짝꿍코드 할인 −${won(i.codeInDisc)}원`);
   if(i.fullDisc>0) lines.push(`· 전액 결제 할인 −${won(i.fullDisc)}원`);
@@ -1899,16 +1902,16 @@ function setFormStatus(s,auto){
 }
 function formCalc(){
   const ed=formEdit, baseP=num($('f-total').value), code=normCode($('f-code').value), chk=checkCodeFor(code,ed?ed.id:null);
-  const port=formPort==='동의'?num($('f-pdisc').value):0;
+  const port=formPort==='동의'?num($('f-pdisc').value):0, tf=num($('f-travel').value);
   let inD=0,outD=0;
   if(chk.ok){
     if(ed&&ed.codeUsed===code){ inD=Number(ed.codeInDisc)||0; outD=Number(ed.codeOutDisc)||0; }
     else { inD=Number(S.cfg.pairIn)||0; outD=Number(S.cfg.pairOut)||0; }
   }
-  const earn=ed?earned(ed):0, full=$('f-full')&&$('f-full').checked, fd=full?num($('f-fdisc').value):0, fin=Math.max(0,baseP-port-inD-fd-earn);
+  const earn=ed?earned(ed):0, full=$('f-full')&&$('f-full').checked, fd=full?num($('f-fdisc').value):0, fin=Math.max(0,baseP+tf-port-inD-fd-earn);
   let dep=num($('f-dep').value); if(full) dep=fin;
   const cost=num($('f-c1').value)+num($('f-c2').value)+num($('f-c3').value)+num($('f-c4').value);
-  return {baseP,code,chk,port,inD,outD,earn,fin,dep,cost,full,fd};
+  return {baseP,tf,code,chk,port,inD,outD,earn,fin,dep,cost,full,fd};
 }
 function fullToggle(){ const on=$('f-full').checked; $('f-fullbox').classList.toggle('hide',!on); if(on&&!$('f-fdisc').value) $('f-fdisc').value=fullDef()?won(fullDef()):''; renderFormPrice(); }
 function renderFormPrice(){
@@ -1919,6 +1922,7 @@ function renderFormPrice(){
   else { msg.style.color='#be123c'; msg.textContent=c.chk.msg; }
   const row=(l,v,st)=>`<div style="${st||''}"><span>${l}</span><b>${v}</b></div>`;
   let h=row('기본 금액',won(c.baseP)+'원');
+  if(c.tf) h+=row('🚗 출장비','+'+won(c.tf)+'원','color:#0369a1');
   if(c.port) h+=row('📸 포트폴리오 할인','−'+won(c.port)+'원','color:#6d28d9');
   if(c.inD) h+=row('🤝 짝꿍코드 할인','−'+won(c.inD)+'원','color:#6d28d9');
   if(c.fd) h+=row('💰 전액 결제 할인','−'+won(c.fd)+'원','color:#6d28d9');
@@ -1940,7 +1944,7 @@ function openInq(editId,prefillDate,focusParser,createdDate){
     const i=formEdit, c=i.cost||{};
     $('inq-title').textContent='예약문의 수정'; $('f-id').value=i.id;
     $('f-name').value=i.clientName||''; $('f-phone').value=i.phone||''; $('f-addr').value=i.address||''; setCat(i.category||'DVD'); $('f-venue').value=i.venue||'';
-    setPay(i.paymentMethod||''); $('f-total').value=base(i)?won(base(i)):''; $('f-dep').value=i.depositAmount?won(i.depositAmount):'';
+    setPay(i.paymentMethod||''); $('f-total').value=base(i)?won(base(i)):''; $('f-travel').value=i.travelFee?won(i.travelFee):''; $('f-dep').value=i.depositAmount?won(i.depositAmount):'';
     $('f-due').value=i.dueDate||''; $('f-bal').value=i.balancePaid?'1':'0'; $('f-notes').value=i.notes||'';
     $('f-rcpt').value=i.receipt?'1':'0'; $('f-deliv').value=i.delivered?'1':'0'; $('f-contract').value=i.contract?'1':'0'; $('f-src').value=i.source||''; $('f-code').value=i.codeUsed||'';
     ['labor','travel','edit','etc'].forEach((k,n)=>{ $('f-c'+(n+1)).value=c[k]?won(c[k]):''; });
@@ -2007,7 +2011,7 @@ function saveInq(e){
   if(tmUnsure&&date){ toast('시간(오전/오후)을 확인하고 [맞아요]를 눌러 주세요'); const pk=$('tp-label'); if(pk) pk.scrollIntoView({block:'center',behavior:'smooth'}); return; }
   if(!date&&!noDateOK()){ toast('예식 날짜를 선택해 주세요 (문의접수·잠수는 안 적어도 돼요)'); const pk=$('pk-picked'); if(pk) pk.scrollIntoView({block:'center',behavior:'smooth'}); return; }
   const p=Object.assign({},old||{},{id:id||('inq-'+Date.now()),status:formStatus,clientName:name,phone:$('f-phone').value.trim(),address:$('f-addr').value.trim(),category:$('f-cat').value,date,time:$('f-time').value||'12:00',
-    venue:$('f-venue').value.trim(),paymentMethod:$('f-pay').value.trim()||'미정',basePrice:c.baseP,portDisc:c.port,fullPay:!!c.full,fullDisc:c.fd,codeUsed:c.code,codeInDisc:c.inD,codeOutDisc:c.outD,
+    venue:$('f-venue').value.trim(),paymentMethod:$('f-pay').value.trim()||'미정',basePrice:c.baseP,travelFee:c.tf,portDisc:c.port,fullPay:!!c.full,fullDisc:c.fd,codeUsed:c.code,codeInDisc:c.inD,codeOutDisc:c.outD,
     depositAmount:c.dep,dueDate:$('f-due').value||'',balancePaid:$('f-bal').value==='1',receipt:$('f-rcpt').value==='1',delivered:$('f-deliv').value==='1',contract:$('f-contract').value==='1',
     cost:{labor:num($('f-c1').value),travel:num($('f-c2').value),edit:num($('f-c3').value),etc:num($('f-c4').value)},
     source:$('f-src').value||(c.code?'짝꿍코드':''),notes:$('f-notes').value.trim(),portfolio:formPort});
@@ -2741,7 +2745,7 @@ function conBtn(i){
 function reissueContract(id){ const i=S.inquiries.find(x=>x.id===id); if(!i||i.contractSignedAt) return;
   ask('지금 설정의 계약서 문구로 다시 발급할까요?\n(아직 서명 안 한 이 고객의 계약서 내용이 새 문구로 바뀌어요. 링크는 그대로예요)',async()=>{ i.conTplBody=S.templates.contractBody||''; i.conTplPriv=S.templates.privacyBody||''; if(await ensureContract(i)){ refresh(); toast('🔄 새 문구로 다시 발급했어요'); } }); }
 function contractSnap(i){
-  return {name:i.clientName||'',date:kdate(i.date),time:ktime(i.time),venue:i.venue||'장소 미정',category:i.category||'',total:price(i),portApplied:Number(i.portDisc)||0,portDiscount:Number(S.cfg.portDiscount)||0,
+  return {name:i.clientName||'',date:kdate(i.date),time:ktime(i.time),venue:i.venue||'장소 미정',category:i.category||'',total:price(i),travel:travelOf(i),portApplied:Number(i.portDisc)||0,portDiscount:Number(S.cfg.portDiscount)||0,
     deposit:Number(i.depositAmount)||0,phone:i.phone||'',portfolio:i.portfolio||'',
     seller:{...(S.cfg.seller||{})},body:buildMsg(i,'contract',i.conTplBody!=null?i.conTplBody:(S.templates.contractBody||'')),privacy:buildMsg(i,'contract',i.conTplPriv!=null?i.conTplPriv:(S.templates.privacyBody||''))};
 }
