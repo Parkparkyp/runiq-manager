@@ -2900,7 +2900,8 @@ async function reqPubSync(force){
   if(!CL.url||!CL.key) return; const sig=reqPubSig(); if(!force&&CL.pubSig===sig) return;
   try{ const r=await clPost({action:'pubSet',pub:{portDiscount:Number(S.cfg.portDiscount)||0,reqOpen:S.cfg.reqOpen!==false,appUrl:appBaseUrl(),channelUrl:S.cfg.chUrl||''}}); if(r&&r.ok){ CL.pubSig=sig; clStore(); } }catch(e){}
 }
-function reqSrcMap(v){ return v==='지인'?'지인 소개':(v||''); }
+function reqSrcMap(v){ v=String(v||''); return v==='지인'?'지인 소개':(v.indexOf('기타')===0?'기타':v); }
+function reqSrcOther(v){ v=String(v||''); return v.indexOf('기타: ')===0?v.slice(4):''; }
 function reqAtMs(at){ const t=conSignMs(at); return t||Date.now(); }
 async function reqPoll(silent,force){
   if(!CL.url||!CL.key||REQ.busy){ if(!silent&&(!CL.url||!CL.key)) toast('클라우드 백업을 먼저 연결해 주세요'); return; }
@@ -2961,7 +2962,7 @@ async function reqRegister(id){
   const i={id:'inq-'+Date.now()+'-'+Math.random().toString(36).slice(2,6),status:'문의접수',clientName:r.name,phone:r.phone,address:'',category:'DVD',date:r.date,time:r.time,venue:r.venue,
     paymentMethod:r.pay==='계좌'?'계좌이체':'카드',basePrice:Number(C.defaultTotal)||0,portDisc:r.portfolio==='동의'?(Number(C.portDiscount)||0):0,fullPay:false,fullDisc:0,codeUsed:'',codeInDisc:0,codeOutDisc:0,
     depositAmount:Number(C.defaultDeposit)||0,dueDate:iso(dd),balancePaid:false,receipt:false,delivered:false,contract:false,cost:{labor:0,travel:0,edit:0,etc:0},
-    source:reqSrcMap(r.source),notes:r.note||'',portfolio:r.portfolio,checks:[],createdAt:reqAtMs(r.at),reqId:id};
+    source:reqSrcMap(r.source),notes:[r.note||'',reqSrcOther(r.source)?'[알게 된 경로] '+reqSrcOther(r.source):''].filter(Boolean).join('\n'),portfolio:r.portfolio,checks:[],createdAt:reqAtMs(r.at),reqId:id};
   stampStatus(i); S.inquiries.unshift(i); save();
   REQ.list=REQ.list.filter(x=>x.id!==id); renderReq(); renderHome(); refresh();
   toast(`✅ ${r.name}님 신청을 문의접수로 등록했어요`);

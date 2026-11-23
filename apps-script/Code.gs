@@ -23,7 +23,7 @@ const S_DATA = '데이터', S_PREV = '데이터_이전', S_LIST = '예약목록'
 const CON_HEAD = ['토큰', '생성', '고객명', '계약내용(JSON)', '상태', '서명시각', '서명자', '연락처', '유입경로', '포트폴리오', '개인정보동의', '서명(PNG base64)', '(미사용)', 'PDF저장'];
 const S_REQ = '신청함';
 const REQ_HEAD = ['ID', '접수시각', '성함', '연락처', '예식일', '시간', '장소', '결제방식', '포트폴리오', '요청사항', '유입경로', '상태', '처리시각'];
-const REQ_SRC = ['인스타그램', '블로그', '유튜브', '지인'];
+const REQ_SRC = ['인스타그램', '블로그', '유튜브', '지인', '기타'];
 const REQ_PAY = ['계좌', '카드'];
 const REQ_PER_HOUR = 20;               // 한 시간에 받는 최대 신청 수 (스팸 방지)
 const REQ_MIN_SEC = 4;                 // 페이지를 연 뒤 최소 작성 시간(초)
@@ -69,7 +69,7 @@ function doPost(e) {
 
 function doGet(e) {
   const c = e && e.parameter && e.parameter.c;
-  if (!c) return out_({ ok: true, msg: BRAND + ' 서버 동작 중', version: 'v42-source' });   // 배포된 코드 버전 확인용
+  if (!c) return out_({ ok: true, msg: BRAND + ' 서버 동작 중', version: 'v45-source' });   // 배포된 코드 버전 확인용
   if (e.parameter.action === 'contract') return out_(Object.assign({ ok: true }, contractView_(String(c))));
   return out_({ ok: false, error: 'use-post' });
 }
@@ -372,6 +372,12 @@ function reqSubmit_(p) {
     if (REQ_PAY.indexOf(p.pay) < 0) return { ok: false, error: '결제방식을 선택해 주세요' };
     if (p.portfolio !== '동의' && p.portfolio !== '미동의') return { ok: false, error: '포트폴리오 활용 여부를 선택해 주세요' };
     if (REQ_SRC.indexOf(p.source) < 0) return { ok: false, error: '유입경로를 선택해 주세요' };
+    let srcVal = p.source;
+    if (p.source === '기타') {                                       // 기타는 어떤 경로인지 같이 적어요 (최대 30자)
+      const other = String(p.sourceOther == null ? '' : p.sourceOther).replace(/[\r\n\t]+/g, ' ').trim().slice(0, 30);
+      if (!other) return { ok: false, error: '어떤 경로인지 적어 주세요' };
+      srcVal = '기타: ' + other;
+    }
     if (p.privacy !== true) return { ok: false, error: '개인정보 수집·이용에 동의해 주세요' };
     const note = String(p.note == null ? '' : p.note).replace(/[\r\t]+/g, ' ').trim().slice(0, 500);
 
@@ -390,7 +396,7 @@ function reqSubmit_(p) {
     const id = Utilities.getUuid().replace(/-/g, '');
     const r = n + 1;
     s.getRange(r, 1, 1, REQ_HEAD.length).setNumberFormat('@');
-    s.getRange(r, 1, 1, REQ_HEAD.length).setValues([[id, nowStr_(), name, phone, date, tm[0], venue, p.pay, p.portfolio, note, p.source, '대기', '']]);
+    s.getRange(r, 1, 1, REQ_HEAD.length).setValues([[id, nowStr_(), name, phone, date, tm[0], venue, p.pay, p.portfolio, note, srcVal, '대기', '']]);
     ts.push(Date.now());
     pr.setProperty('reqTs', JSON.stringify(ts));
 

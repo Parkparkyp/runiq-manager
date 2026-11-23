@@ -15,6 +15,19 @@ header p{margin:6px 0 0;color:#cbd5e1;font-size:13px}
 header .biz{margin-top:10px;padding-top:10px;border-top:1px solid #334155;font-size:12px;color:#94a3b8;line-height:1.7}
 header .biz a{color:#fcd34d;font-weight:800;text-decoration:none}
 .btn2{display:block;width:100%;margin-top:10px;padding:14px;border:0;border-radius:12px;font:inherit;font-size:15px;font-weight:800;cursor:pointer;text-align:center;text-decoration:none}
+.pbox{margin-top:8px;padding:12px 14px;background:#fff;border:1.5px solid var(--ink);border-radius:12px;text-align:center}
+.pbox b{font-size:20px;display:block}
+.pbox span{display:block;font-size:13px;color:#64748b;margin-top:4px;word-break:keep-all}
+.pbox details{margin-top:8px;text-align:left}
+.pbox summary{cursor:pointer;font-size:13px;font-weight:800;text-align:center;list-style:none;color:#0f172a}
+.pbox summary::-webkit-details-marker{display:none}
+.pbox summary:after{content:' ▾'}
+.pbox ul{list-style:none;margin:8px 0 0;padding:0}
+.pbox li{padding:7px 0;border-top:1px solid #e2e8f0;font-size:14px;font-weight:700}
+.pbox .xh{margin-top:14px;font-size:12px;font-weight:800;color:#64748b;text-align:center}
+.pbox .xr{display:flex;justify-content:space-between;gap:12px}
+.pbox .xv{white-space:nowrap;font-weight:800;text-align:right}
+.pbox li em{display:block;font-style:normal;font-weight:500;font-size:12.5px;color:#64748b}
 .btn-y{background:#fee500;color:#191919}
 .btn-g{background:#fff;color:var(--ink);border:1.5px solid var(--ink)}
 .ask{margin-top:16px;padding:14px;border-radius:14px;background:#fffbeb;border:1.5px solid #fde68a;text-align:left;font-size:14px}
@@ -83,12 +96,39 @@ function chips(name,list,onchange){
 function val(name){var r=document.querySelector('input[name="'+name+'"]:checked');return r?r.value:'';}
 function lab(t,req){var l=el('label',0,t);if(req){var s=el('i',0,' *');l.appendChild(s);}return l;}
 
+var HP_API='https://script.google.com/macros/s/AKfycbzWxLMOzulGS7SxULr0nF3ho9mUkfxoVoGzkWcrq4IKSEfyavO_D-iNLnuvU48xS711/exec';
+function loadProd(cb){
+  try{
+    var ctl=window.AbortController?new AbortController():null,tm=setTimeout(function(){if(ctl)ctl.abort();},4000);
+    fetch(HP_API+'?a=cfg',ctl?{signal:ctl.signal}:{}).then(function(r){return r.json();}).then(function(c){
+      clearTimeout(tm);if(!c||c.ok!==true)return;
+      var P=c.price||{};function f(t){return String(t==null?'':t).replace(/\{(total|deposit|portfolio|full)\}/g,function(m,k){return won(P[k]);});}
+      cb({name:typeof c.productName==='string'?c.productName.trim().slice(0,40):'',total:Number(P.total)||0,
+        items:(Array.isArray(c.items)?c.items:[]).slice(0,12).map(function(i){return {t:f(i&&i.t),d:f(i&&i.d)};}).filter(function(i){return i.t&&!/전자계약서/.test(i.t);}),
+        extras:(Array.isArray(c.extras)?c.extras:[]).slice(0,10).map(function(i){return {t:f(i&&i.t),d:f(i&&i.d),v:f(i&&i.v)};}).filter(function(i){return i.t&&!/전액/.test(i.t);})});
+    }).catch(function(){});
+  }catch(e){}
+}
 function build(){
   app.innerHTML='';head();
   var c=el('div',{class:'c'}),form=el('form',{novalidate:'novalidate'});c.appendChild(form);app.appendChild(c);
 
   form.appendChild(lab('📦 예약상품'));
   var pr=el('div',{class:'prod'},X.product);form.appendChild(pr);
+  var pbox=el('div',{class:'pbox',style:'display:none'});form.appendChild(pbox);
+  loadProd(function(h){
+    if(h.name)pr.textContent=h.name;
+    if(!(h.total>0))return;
+    pbox.innerHTML='';pbox.appendChild(el('b',0,won(h.total)));
+    var prov=h.items.filter(function(i){return !/계약금/.test(i.t);}),pay=h.items.filter(function(i){return /계약금/.test(i.t);});
+    if(prov.length||pay.length||h.extras.length){var dt2=el('details'),sm=el('summary',0,'자세히 보기');dt2.appendChild(sm);
+      function sec(title,rows,withV){if(!rows.length)return;dt2.appendChild(el('div',{class:'xh'},title));var u=el('ul');
+        rows.forEach(function(it){var li=el('li',withV?{class:'xr'}:0),Lb=el('div',0,it.t);if(it.d)Lb.appendChild(el('em',0,it.d));li.appendChild(Lb);if(withV&&it.v)li.appendChild(el('span',{class:'xv'},it.v));u.appendChild(li);});dt2.appendChild(u);}
+      sec('제공 목록',prov,false);
+      sec('결제 · 할인 · 추가 비용',pay.map(function(i){return {t:i.t,d:i.d,v:''};}).concat(h.extras),true);
+      pbox.appendChild(dt2);}
+    pbox.style.display='block';
+  });
 
   form.appendChild(lab('1. 예약자 성함',1));
   var nm=el('input',{type:'text',autocomplete:'name',maxlength:'50',placeholder:'예: 홍길동'});form.appendChild(nm);
@@ -128,7 +168,9 @@ function build(){
   var nt=el('textarea',{maxlength:'500',placeholder:'궁금한 점이나 요청하실 내용을 적어 주세요'});form.appendChild(nt);
 
   form.appendChild(lab('9. 알게 되신 경로',1));
-  form.appendChild(chips('src',['인스타그램','블로그','유튜브','지인']));
+  var so=el('input',{type:'text',maxlength:'30',placeholder:'예: 네이버 검색, 웨딩박람회',style:'display:none;margin-top:8px'});
+  form.appendChild(chips('src',['인스타그램','블로그','유튜브','지인','기타'],function(v){so.style.display=(v==='기타')?'block':'none';if(v==='기타')so.focus();}));
+  form.appendChild(so);
 
   var hpw=el('div',{class:'hpw','aria-hidden':'true'}),hp=el('input',{type:'text',name:'website',tabindex:'-1',autocomplete:'off'});hpw.appendChild(hp);form.appendChild(hpw);
 
@@ -141,7 +183,7 @@ function build(){
   form.addEventListener('submit',function(ev){
     ev.preventDefault();er.textContent='';
     var digits=ph.value.replace(/\D/g,'');
-    var p={name:nm.value.trim(),phone:ph.value.trim(),date:dt.value,venue:vn.value.trim(),time:(hs.value&&ms.value)?hs.value+':'+ms.value:'',pay:val('pay'),portfolio:val('port'),note:nt.value,source:val('src'),privacy:pv.checked,hp:hp.value,t:T0};
+    var p={name:nm.value.trim(),phone:ph.value.trim(),date:dt.value,venue:vn.value.trim(),time:(hs.value&&ms.value)?hs.value+':'+ms.value:'',pay:val('pay'),portfolio:val('port'),note:nt.value,source:val('src'),sourceOther:so.value.trim(),privacy:pv.checked,hp:hp.value,t:T0};
     var msg='';
     if(!p.name)msg='성함을 입력해 주세요';
     else if(digits.length<9||digits.length>12)msg='연락처를 확인해 주세요';
@@ -152,6 +194,7 @@ function build(){
     else if(!p.pay)msg='결제방식을 선택해 주세요';
     else if(!p.portfolio)msg='포트폴리오 활용 여부를 선택해 주세요';
     else if(!p.source)msg='알게 되신 경로를 선택해 주세요';
+    else if(p.source==='기타'&&!p.sourceOther)msg='어떤 경로인지 적어 주세요';
     else if(!p.privacy)msg='개인정보 수집·이용에 동의해 주세요';
     if(msg){er.textContent=msg;return;}
     go.disabled=true;go.textContent='보내는 중…';
